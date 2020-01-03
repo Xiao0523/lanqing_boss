@@ -1,24 +1,29 @@
 import request from '@/utils/request'
 
-export function login(data) {
-  return request({
-    url: '/user/login',
-    method: 'post',
-    data
-  })
+function login(data) {
+  return request.post('/boss/validUser', data)
 }
 
-export function getInfo(token) {
-  return request({
-    url: '/user/info',
-    method: 'get',
-    params: { token }
-  })
+function register(data) {
+  return request.post('/business/register', data)
 }
 
-export function logout() {
-  return request({
-    url: '/user/logout',
-    method: 'post'
-  })
+function getValidCode(loginName) {
+  return request.get(`/code/${loginName}`)
+}
+
+function getInfo(token) {
+  return request.get('/user/info', { token })
+}
+
+function logout() {
+  return request.post('/user/logout')
+}
+
+export {
+  login,
+  register,
+  getValidCode,
+  logout,
+  getInfo
 }

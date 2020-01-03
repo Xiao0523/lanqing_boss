@@ -4,7 +4,7 @@ import 'normalize.css/normalize.css' // A modern alternative to CSS resets
 
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
-
+import CollapseTransition from 'element-ui/lib/transitions/collapse-transition'
 import '@/styles/index.scss' // global css
 
 import App from './App'
@@ -31,6 +31,25 @@ if (process.env.NODE_ENV === 'production') {
 Vue.use(ElementUI)
 
 Vue.config.productionTip = false
+
+Vue.component(CollapseTransition.name, CollapseTransition)
+
+// 错误提示
+Vue.prototype.$warn = function(msg) {
+  this.$message({
+    showClose: true,
+    message: msg,
+    type: 'error'
+  })
+}
+// 成功提示
+Vue.prototype.$success = function(msg) {
+  this.$message({
+    showClose: true,
+    message: msg,
+    type: 'success'
+  })
+}
 
 new Vue({
   el: '#app',

@@ -42,3 +42,16 @@
     display: block
   }
 }
+
+.el-button{
+  &--primary{
+    background:rgba(0,210,165,1);
+    border-color: rgba(0,210,165,1);
+    &:hover,
+    &:active,
+    &:focus{
+      background:rgba(0,210,165,1);
+      border-color: rgba(0,210,165,1);
+    }
+  }
+}

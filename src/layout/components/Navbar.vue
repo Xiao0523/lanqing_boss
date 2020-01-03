@@ -8,22 +8,20 @@
       <el-dropdown class="avatar-container" trigger="click">
         <div class="avatar-wrapper">
           <img :src="avatar+'?imageView2/1/w/80/h/80'" class="user-avatar">
+          <span class="user-info">
+            <strong class="user-name">{{ username }}</strong>
+            <span class="user-role">{{ role }}</span>
+          </span>
           <i class="el-icon-caret-bottom" />
         </div>
         <el-dropdown-menu slot="dropdown" class="user-dropdown">
           <router-link to="/">
             <el-dropdown-item>
-              Home
+              首页
             </el-dropdown-item>
           </router-link>
-          <a target="_blank" href="https://github.com/PanJiaChen/vue-admin-template/">
-            <el-dropdown-item>Github</el-dropdown-item>
-          </a>
-          <a target="_blank" href="https://panjiachen.github.io/vue-element-admin-site/#/">
-            <el-dropdown-item>Docs</el-dropdown-item>
-          </a>
           <el-dropdown-item divided>
-            <span style="display:block;" @click="logout">Log Out</span>
+            <span style="display:block;" @click="logout">退出</span>
           </el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
@@ -40,6 +38,12 @@ export default {
   components: {
     Breadcrumb,
     Hamburger
+  },
+  data() {
+    return {
+      username: '张校长',
+      role: '超级管理员'
+    }
   },
   computed: {
     ...mapGetters([
@@ -112,25 +116,47 @@ export default {
     }
 
     .avatar-container {
-      margin-right: 30px;
+      margin-right: 40px;
 
       .avatar-wrapper {
-        margin-top: 5px;
+        margin-top: 8px;
         position: relative;
-
+        display: flex;
+        align-items: center;
         .user-avatar {
           cursor: pointer;
-          width: 40px;
-          height: 40px;
-          border-radius: 10px;
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          margin-right: 10px;
         }
 
         .el-icon-caret-bottom {
           cursor: pointer;
           position: absolute;
           right: -20px;
-          top: 25px;
+          top: 12px;
           font-size: 12px;
+        }
+        .user-info{
+          cursor: pointer;
+        }
+        .user-name{
+          font-size:14px;
+          font-family:PingFangSC-Semibold,PingFang SC;
+          font-weight:600;
+          color:rgba(23,23,37,1);
+          line-height:14px;
+          display: block;
+          margin-bottom: 5px;
+        }
+        .user-role{
+          display: block;
+          font-size:12px;
+          font-family:PingFangSC-Regular,PingFang SC;
+          font-weight:400;
+          color:rgba(146,146,157,1);
+          line-height:12px;
         }
       }
     }
