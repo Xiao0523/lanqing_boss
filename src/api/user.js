@@ -12,18 +12,18 @@ function getValidCode(loginName) {
   return request.get(`/code/${loginName}`)
 }
 
-function getInfo(token) {
-  return request.get('/user/info', { token })
+function postExamine(data) {
+  return request.post('/boss/business/examine', data)
 }
 
-function logout() {
+/* function logout() {
   return request.post('/user/logout')
-}
+} */
 
 export {
   login,
   register,
   getValidCode,
-  logout,
-  getInfo
+  postExamine
+  // logout
 }

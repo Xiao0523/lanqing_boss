@@ -1,211 +1,236 @@
 <template>
   <div class="login-container">
-    <el-form
-      v-if="!isCertificate && isRegist"
-      ref="loginForm"
-      :model="loginForm"
-      class="login-form"
-      auto-complete="on"
-      label-position="left"
-    >
-      <div class="title-container">
-        <h3 class="title">登录</h3>
-      </div>
+    <img class="bg-img" src="@/assets/Background.png" alt="">
+    <div class="top-tip">电话：1111111111    微信号：XXXX  工作时间：周一至周五 08:30-17:30</div>
+    <div class="login-content">
 
-      <el-form-item>
-        <el-input
-          v-model="loginForm.username"
-          placeholder="请输入用户名"
-          type="text"
-          tabindex="1"
+      <div v-if="!isBusinessUnpass">
+        <el-form
+          v-if="isRegist"
+          ref="loginForm"
+          :model="loginForm"
+          class="login-form"
           auto-complete="on"
-        />
-      </el-form-item>
+          label-position="left"
+        >
+          <div class="title-container">
+            <h3 class="title">登录</h3>
+          </div>
 
-      <el-form-item>
-        <el-input
-          v-model="loginForm.password"
-          placeholder="请输入密码"
-          type="password"
-          tabindex="2"
+          <el-form-item>
+            <el-input
+              v-model="loginForm.username"
+              placeholder="请输入用户名"
+              type="text"
+              tabindex="1"
+              auto-complete="on"
+            />
+          </el-form-item>
+
+          <el-form-item>
+            <el-input
+              v-model="loginForm.password"
+              placeholder="请输入密码"
+              type="password"
+              tabindex="2"
+              auto-complete="on"
+            />
+          </el-form-item>
+          <el-alert v-show="isError" type="error" show-icon :closable="false" :title="errorText" />
+          <el-button :loading="loading" type="primary" class="btn" @click.native.prevent="onLogin">登录</el-button>
+
+          <div class="tips">
+            <p class>
+              没有账号
+              <span @click="switchForm">立即注册</span>
+            </p>
+          </div>
+        </el-form>
+
+        <el-form
+          v-if="!isRegist"
+          ref="registForm"
+          class="login-form"
+          :model="registForm"
+        >
+          <div class="title-container">
+            <h3 class="title">注册</h3>
+          </div>
+          <el-form-item>
+            <el-input v-model="registForm.userName" placeholder="输入用户名" />
+          </el-form-item>
+          <el-form-item>
+            <el-input v-model="registForm.password" placeholder="输入密码" type="password" />
+          </el-form-item>
+          <el-form-item>
+            <el-input v-model="registForm.password2" placeholder="重复密码" type="password" />
+          </el-form-item>
+
+          <el-alert v-show="isError" type="error" show-icon :closable="false" :title="errorText" />
+
+          <el-button :loading="loading" type="primary" class="btn" @click.native.prevent="onRegist">立即注册</el-button>
+
+          <div class="tips">
+            <p class>
+              已有账号
+              <span @click="switchForm">立即登录</span>
+            </p>
+          </div>
+        </el-form>
+      </div>
+
+      <div v-if="isBusinessUnpass">
+        <el-form
+          v-if="!examineResult"
+          ref="certificateForm"
+          :model="certificateForm"
           auto-complete="on"
-        />
-      </el-form-item>
-      <el-alert v-show="isError" type="error" show-icon :closable="false" :title="errorText" />
-      <el-button :loading="loading" type="primary" class="btn" @click.native.prevent="onLogin">登录</el-button>
-
-      <div class="tips">
-        <p class>
-          没有账号
-          <span @click="switchForm">立即注册</span>
-        </p>
-      </div>
-    </el-form>
-
-    <el-form
-      v-if="!isRegist"
-      ref="registForm"
-      class="login-form"
-      :model="registForm"
-    >
-      <div class="title-container">
-        <h3 class="title">注册</h3>
-      </div>
-      <el-form-item>
-        <el-input v-model="registForm.userName" placeholder="输入用户名" />
-      </el-form-item>
-      <el-form-item>
-        <el-input v-model="registForm.password" placeholder="输入密码" type="password" />
-      </el-form-item>
-      <el-form-item>
-        <el-input v-model="registForm.password2" placeholder="重复密码" type="password" />
-      </el-form-item>
-
-      <el-alert v-show="isError" type="error" show-icon :closable="false" :title="errorText" />
-
-      <el-button :loading="loading" type="primary" class="btn" @click.native.prevent="onRegist">立即注册</el-button>
-
-      <div class="tips">
-        <p class>
-          已有账号
-          <span @click="switchForm">立即登录</span>
-        </p>
-      </div>
-    </el-form>
-
-    <div v-if="isCertificate">
-      <el-form
-        v-if="!isResult"
-        ref="certificateForm"
-        :model="certificateForm"
-        :rules="certificateRules"
-        auto-complete="on"
-        class="organize-form"
-      >
-        <div class="title-container">
-          <h3 class="title">蓝青教育----机构认证</h3>
-        </div>
-
-        <div class="cell">
-          <div class="label">企业名称</div>
-          <el-form-item prop="company" tabindex="-1">
-            <el-input v-model.trim="certificateForm.company" placeholder="请输入企业名称" />
-          </el-form-item>
-        </div>
-        <div class="cell">
-          <div class="label">银行开户名</div>
-          <el-form-item prop="bankAccount" tabindex="-1">
-            <el-input v-model.trim="certificateForm.bankAccount" placeholder="请输入银行开户名" />
-          </el-form-item>
-        </div>
-        <div class="cell">
-          <div class="label">开户银行</div>
-          <el-form-item prop="bank" tabindex="-1">
-            <el-input v-model.trim="certificateForm.bank" placeholder="请输入开户银行" />
-          </el-form-item>
-        </div>
-        <div class="cell">
-          <div class="label">联系人</div>
-          <el-form-item prop="contact" tabindex="-1">
-            <el-input v-model.trim="certificateForm.contact" placeholder="请输入联系人" />
-          </el-form-item>
-        </div>
-        <div class="cell">
-          <div class="label">联系方式</div>
-          <el-form-item prop="phone" tabindex="-1">
-            <el-input v-model.trim="certificateForm.phone" placeholder="请输入联系方式" />
-          </el-form-item>
-        </div>
-        <div class="cell mb-18">
-          <div class="label upload-label">办学许可证</div>
-          <el-upload
-            ref="schoolLicence"
-            :action="uploadUrl"
-            name="multipartFile"
-            list-type="fileList"
-            :on-remove="schoolLicenceRemove"
-            :on-success="schoolLicenceuploadSuccess"
-            :before-upload="beforeUpload"
-          >
-            <el-button size="small" type="primary">点击上传</el-button>
-            <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
-          </el-upload>
-        </div>
-        <div class="cell mb-18">
-          <div class="label upload-label">民办非企业单位登记证</div>
-          <el-upload
-            :action="uploadUrl"
-            name="multipartFile"
-            list-type="fileList"
-            :on-remove="registLicenceRemove"
-            :on-success="registLicenceuploadSuccess"
-            :before-upload="beforeUpload"
-          >
-            <el-button size="small" type="primary">点击上传</el-button>
-            <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
-          </el-upload>
-        </div>
-
-        <div class="cell">
-          <div class="label upload-label">上传工商执照</div>
-          <el-upload
-            :action="uploadUrl"
-            name="multipartFile"
-            list-type="fileList"
-            :on-remove="companeylLicenceRemove"
-            :on-success="companeylLicenceuploadSuccess"
-            :before-upload="beforeUpload"
-          >
-            <el-button size="small" type="primary">点击上传</el-button>
-            <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
-          </el-upload>
-        </div>
-
-        <el-alert v-show="isError" type="error" show-icon :closable="false" :title="errorText" />
-
-        <div>
-          <el-button
-            type="primary"
-            class="btn btn-prove"
-            @click="onProve('certificateForm')"
-          >立即认证</el-button>
-        </div>
-      </el-form>
-
-      <div class="result-tip">
-        <div v-if="isResult===1">
-          <div class="result-img-wraper">
-            <img class="result-img" src="" alt="">
+          class="organize-form"
+        >
+          <div class="title-container">
+            <h3 class="title">蓝青教育----机构认证</h3>
           </div>
-          <p class="result-text">您的机构正在审核中请耐心等待…</p>
-          <p class="result-text">请耐心等待…</p>
-        </div>
 
-        <div v-if="isResult===2">
-          <div class="result-img-wraper">
-            <img class="result-img" src="" alt="">
+          <div class="cell">
+            <div class="label">企业名称</div>
+            <el-form-item>
+              <el-input v-model.trim="certificateForm.enterpriseName" placeholder="请输入企业名称" />
+            </el-form-item>
           </div>
-          <p class="result-text">恭喜你加入蓝青培训平台！</p>
-          <router-link to="/">
-            <el-button class="result-btn" type="primary">点击进入</el-button>
-          </router-link>
-        </div>
+          <div class="cell">
+            <div class="label">银行开户名</div>
+            <el-form-item>
+              <el-input v-model.trim="certificateForm.bankName" placeholder="请输入银行开户名" />
+            </el-form-item>
+          </div>
+          <div class="cell">
+            <div class="label">开户银行</div>
+            <el-form-item>
+              <el-input v-model.trim="certificateForm.bankNo" placeholder="请输入开户银行" />
+            </el-form-item>
+          </div>
+          <div class="cell">
+            <div class="label">联系人</div>
+            <el-form-item>
+              <el-input v-model.trim="certificateForm.contacts" placeholder="请输入联系人" />
+            </el-form-item>
+          </div>
+          <div class="cell">
+            <div class="label">联系方式</div>
+            <el-form-item>
+              <el-input v-model.trim="certificateForm.contactInformation" placeholder="请输入联系方式" />
+            </el-form-item>
+          </div>
+          <div class="cell ">
+            <div class="label upload-label">办学许可证</div>
+            <el-upload
+              ref="schoolLicense"
+              :action="uploadUrl"
+              name="multipartFile"
+              list-type="fileList"
+              :on-remove="schoolLicenseRemove"
+              :on-success="schoolLicenseuploadSuccess"
+              :before-upload="beforeUpload"
+            >
+              <el-button size="small" type="primary">点击上传</el-button>
+              <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+            </el-upload>
+          </div>
+          <div class="cell ">
+            <div class="label upload-label">民办非企业单位登记证</div>
+            <el-upload
+              :action="uploadUrl"
+              name="multipartFile"
+              list-type="fileList"
+              :on-remove="registLicenceRemove"
+              :on-success="registLicenceuploadSuccess"
+              :before-upload="beforeUpload"
+            >
+              <el-button size="small" type="primary">点击上传</el-button>
+              <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+            </el-upload>
+          </div>
 
-        <div v-if="isResult===3">
-          <div class="result-img-wraper" style="margin-top: 50px">
-            <img class="result-img" src="" alt="">
+          <div class="cell">
+            <div class="label upload-label">上传工商执照</div>
+            <el-upload
+              :action="uploadUrl"
+              name="multipartFile"
+              list-type="fileList"
+              :on-remove="companeylLicenceRemove"
+              :on-success="companeylLicenceuploadSuccess"
+              :before-upload="beforeUpload"
+            >
+              <el-button size="small" type="primary">点击上传</el-button>
+              <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+            </el-upload>
           </div>
-          <p class="result-text">审核失败</p>
-          <p class="result-text">失败原因是：XXXXXX</p>
-          <el-button class="result-btn" type="primary">重新提交审核</el-button>
+
+          <div class="cell">
+            <div class="label upload-label">上传Logo</div>
+            <el-upload
+              :action="uploadUrl"
+              name="multipartFile"
+              list-type="fileList"
+              :on-remove="logoRemove"
+              :on-success="logouploadSuccess"
+              :before-upload="beforeUpload"
+            >
+              <el-button size="small" type="primary">点击上传</el-button>
+              <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+            </el-upload>
+          </div>
+
+          <div>
+            <el-checkbox v-model="certificateForm.joinTheFlowSupportPlan" true-label="1" false-label="0">是否加入流量扶持计划</el-checkbox>
+          </div>
+
+          <el-alert v-show="isError" type="error" show-icon :closable="false" :title="errorText" />
+
+          <div>
+            <el-button
+              type="primary"
+              class="btn btn-prove"
+              @click="onProve('certificateForm')"
+            >立即认证</el-button>
+          </div>
+        </el-form>
+
+        <div v-if="examineResult" class="result-tip">
+          <div v-if="examineResult=== -1">
+            <div class="result-img-wraper">
+              <img class="result-img" src="" alt="">
+            </div>
+            <p class="result-text">您的机构正在审核中请耐心等待…</p>
+            <p class="result-text">请耐心等待…</p>
+          </div>
+
+          <div v-if="examineResult===0">
+            <div class="result-img-wraper">
+              <img class="result-img" src="" alt="">
+            </div>
+            <p class="result-text">恭喜你加入蓝青培训平台！</p>
+            <router-link to="/">
+              <el-button class="result-btn" type="primary">点击进入</el-button>
+            </router-link>
+          </div>
+
+          <div v-if="examineResult===1">
+            <div class="result-img-wraper" style="margin-top: 50px">
+              <img class="result-img" src="" alt="">
+            </div>
+            <p class="result-text">审核失败</p>
+            <p class="result-text">失败原因是：XXXXXX</p>
+            <el-button class="result-btn" type="primary">重新提交审核</el-button>
+          </div>
         </div>
       </div>
+
     </div>
-
-    <!-- <div class="logo-wraper">
+    <div class="logo-wraper">
       <div class="logo"><img class="logo-img" src="" alt=""></div>
       <div class="logo-text">蓝青教育商户端</div>
-    </div> -->
+    </div>
 
     <el-dialog
       :visible.sync="isShowDialog"
@@ -234,22 +259,7 @@
 
 <script>
 import { Upload_Pic } from '@/api/URL.js'
-import { validUsername } from '@/utils/validate'
-import { getValidCode, register } from '@/api/user.js'
-const validatePhone = (rule, value, callback) => {
-  if (!validUsername(value)) {
-    callback(new Error('Please enter the correct user name'))
-  } else {
-    callback()
-  }
-}
-const validatePassword = (rule, value, callback) => {
-  if (value.length !== 6) {
-    callback(new Error('请输入有效的验证码'))
-  } else {
-    callback()
-  }
-}
+import { getValidCode, register, postExamine } from '@/api/user.js'
 
 export default {
   name: 'Login',
@@ -257,19 +267,18 @@ export default {
     return {
       // 登录表单
       loginForm: {
-        username: 'admin',
-        password: '111111'
+        username: '',
+        password: ''
       },
       loading: false,
       redirect: undefined,
-      isRegist: false, // 是否注册 默认 false 未注册
+      isRegist: true, // 是否注册  false 未注册
 
       // 注册表单
       registForm: {
         userName: '',
         password: '',
-        password2: '',
-        code: ''
+        password2: ''
       },
 
       // 验证码
@@ -277,51 +286,23 @@ export default {
         code: '',
         img: ''
       },
-      validCodeFormRules: {
-        code: [
-          { required: true, trigger: 'blur', validator: validatePassword }
-        ]
-      },
 
       // 机构认证表单
       certificateForm: {
-        companey: '',
-        bankAccount: '',
-        bank: '',
-        contact: '',
-        phone: '',
-        schoolLicence: '',
-        registLicence: '',
-        companyLicence: '',
-        assistPlan: ''
+        enterpriseName: '',
+        bankName: '',
+        bankNo: '',
+        contacts: '',
+        contactInformation: '',
+        businessLicense: '',
+        schoolLicense: '',
+        registrationCertificateOfPrivateNonEnterpriseUnit: '',
+        logo: '',
+        joinTheFlowSupportPlan: '0'
       },
-      certificateRules: {
-        company: [
-          { required: true, message: '请输入机构名称', trigger: 'blur' }
-        ],
-        bankAccount: [
-          { required: true, message: '请输入银行开户名', trigger: 'blur' }
-        ],
-        bank: [{ required: true, message: '请输入开户银行', trigger: 'blur' }],
-        contact: [{ required: true, message: '请输入联系人', trigger: 'blur' }],
-        phone: [{ required: true, message: '请输入联系方式', trigger: 'blur' }],
-        schoolLicence: [
-          { required: true, message: '请上传办学许可证', trigger: 'blur' }
-        ],
-        registLicence: [
-          {
-            required: true,
-            message: '请上传民办非企业单位登记证',
-            trigger: 'blur'
-          }
-        ],
-        companyLicence: [
-          { required: true, message: '请上传工商执照', trigger: 'blur' }
-        ]
-      },
-      isCertificate: false, // 机构认证
-      isResult: 2, // 认证结果
-      uploadUrl: Upload_Pic,
+      isBusinessUnpass: false, // 机构 是否认证
+      examineResult: '', // 认证结果 0:首次提交审核；1：被驳回再次提交审核；-1：已提交审核勿重复提交！
+      uploadUrl: Upload_Pic, // 上传地址
       isShowDialog: false, // 验证码弹窗
       isSending: false,
 
@@ -338,13 +319,13 @@ export default {
     }
   },
   methods: {
-    getcode() {
 
-    },
+    // 注册 <--> 登录 表单切换
     switchForm() {
       this.isRegist = !this.isRegist
     },
 
+    // 注册
     onRegist() {
       // 简易校验 表单提示
       const registForm = this.registForm
@@ -362,36 +343,41 @@ export default {
 
       // 缺少验证码
       if (!this.validCodeForm.code) {
-        this.isShowDialog = true
-        return this.getValidCodeImg()
+        return this.getValidCodeImg().then(() => {
+          this.isShowDialog = true
+        })
       }
 
-      const regigstData = {
+      register({
         code: this.validCodeForm.code,
         password: registForm.password,
         userName: registForm.userName
-      }
-      register(regigstData).then(res => {
+      }).then(res => {
+        this.validCodeForm.code = ''
         if (res.code) {
           return res.message && this.$warn(res.message)
         }
-        console.log(res)
+        this.isRegist = true
+        this.$success('注册成功，请再次登录')
       })
     },
 
+    // 获取验证码图片
     getValidCodeImg() {
       let userName
       // 注册所需验证码
       if (!this.isRegist) {
         userName = this.registForm.userName
-      // 登录所需验证码
       } else {
+      // 登录所需验证码
         userName = this.loginForm.username
       }
 
-      if (!userName) return
-      getValidCode(userName).then(res => {
+      if (!userName) return Promise.reject('缺少用户名')
+
+      return getValidCode(userName).then(res => {
         if (res.code) {
+          this.validCodeForm.code = ''
           return res.message && this.$warn(res.message)
         }
         this.validCodeForm.img = res.data
@@ -400,33 +386,84 @@ export default {
 
     // 登录
     onLogin() {
-      this.$refs.loginForm.validate(valid => {
-        if (!valid) {
-          console.log('error submit!!')
-          return false
-        }
-        this.loading = true
-        this.$store
-          .dispatch('user/login', this.loginForm)
-          .then(() => {
-            this.loading = false
+      // 简易校验 表单提示
+      const loginForm = this.loginForm
+      if (!loginForm.username) {
+        return this.showError('请输入用户名')
+      }
 
-            if (this.isCertificate) {
-              return this.$router.push({ path: this.redirect || '/' })
-            }
-            this.isCertificate = true
-          })
-          .catch(() => {
-            this.loading = false
-          })
-      })
+      if (loginForm.password <= 6) {
+        return this.showError('密码长度不小于6位')
+      }
+
+      // 缺少验证码
+      if (!this.validCodeForm.code) {
+        return this.getValidCodeImg().then(() => {
+          this.isShowDialog = true
+        })
+      }
+
+      this.loading = true
+      this.$store
+        .dispatch('user/login', {
+          code: this.validCodeForm.code,
+          password: loginForm.password,
+          username: loginForm.username
+        })
+        .then((res) => {
+          this.loading = false
+          this.validCodeForm.code = ''
+          if (res.data === 'businessUnPassed') {
+            this.isBusinessUnpass = true
+          }
+
+          // 通过验证 直接登录
+          if (res.data === 'businessPassed') {
+            this.isBusinessUnpass = false
+            return this.$router.push({ path: this.redirect || '/' })
+          }
+        })
+        .catch(() => {
+          this.loading = false
+          this.validCodeForm.code = ''
+        })
     },
 
     // 认证
     onProve(form) {
-      // this.isResult = 2
-      this.$refs[form].validate(isValid => {
-        if (isValid) return
+      const certificateForm = this.certificateForm
+
+      if (!certificateForm.enterpriseName) {
+        return this.showError('请输入企业名称')
+      }
+      if (!certificateForm.bankName) {
+        return this.showError('请输入银行开户名')
+      }
+      if (!certificateForm.bankNo) {
+        return this.showError('请输入开户银行')
+      }
+      if (!certificateForm.contacts) {
+        return this.showError('请输入联系人')
+      }
+      if (!certificateForm.contactInformation) {
+        return this.showError('请输入联系方式')
+      }
+      if (!certificateForm.schoolLicense) {
+        return this.showError('请上传办学许可')
+      }
+      if (!certificateForm.businessLicense) {
+        return this.showError('请上传营业许可')
+      }
+      if (!certificateForm.registrationCertificateOfPrivateNonEnterpriseUnit) {
+        return this.showError('请上传民办非企业单位登记证')
+      }
+      if (!certificateForm.logo) {
+        return this.showError('请上传Logo')
+      }
+
+      postExamine(certificateForm).then(res => {
+        res.message && this.$warn(res.message)
+        this.examineResult = res.code
       })
     },
 
@@ -441,24 +478,43 @@ export default {
     },
 
     // 办学许可 上传成功
-    schoolLicenceuploadSuccess(res, file) {
-      this.certificateForm.schoolLicence = res.data
+    schoolLicenseuploadSuccess(res, file) {
+      this.certificateForm.schoolLicense = res.data
     },
 
     // 办学许可 删除
-    schoolLicenceRemove(file, fileList) {},
-
-    // 登记证 删除
-    registLicenceRemove(file, fileList) {},
+    schoolLicenseRemove(file, fileList) {
+      this.certificateForm.schoolLicense = ''
+    },
 
     // 登记证 上传成功
-    registLicenceuploadSuccess(res, file) {},
+    registLicenceuploadSuccess(res, file) {
+      this.certificateForm.registrationCertificateOfPrivateNonEnterpriseUnit = res.data
+    },
 
-    // 公司执照删除
-    companeylLicenceRemove(file, fileList) {},
+    // 登记证 删除
+    registLicenceRemove(file, fileList) {
+      this.certificateForm.registrationCertificateOfPrivateNonEnterpriseUnit = ''
+    },
+
+    // logo 上传
+    logouploadSuccess(res, file) {
+      this.certificateForm.logo = res.data
+    },
+
+    // logo 删除
+    logoRemove(file, fileList) {
+      this.certificateForm.logo = ''
+    },
 
     // 公司执照 上传成功
-    companeylLicenceuploadSuccess(res, file) {},
+    companeylLicenceuploadSuccess(res, file) {
+      this.certificateForm.businessLicense = res.data
+    },
+    // 公司执照删除
+    companeylLicenceRemove(file, fileList) {
+      this.certificateForm.businessLicense = ''
+    },
 
     // 显示错误提示
     showError(errorText) {
@@ -468,6 +524,7 @@ export default {
 
     // 关闭错误提示
     hideError() {
+      this.errorText = ''
       this.isError = false
     }
   }
@@ -545,6 +602,32 @@ $light_gray: #eee;
   width: 100%;
   background: $bg;
   overflow: hidden;
+  position: relative;
+  .bg-img{
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    object-fit: cover;
+  }
+  .top-tip{
+    font-size:13px;
+    font-family:PingFangSC-Medium,PingFang SC;
+    font-weight:500;
+    color:rgba(255,255,255,1);
+    line-height:13px;
+    text-align: right;
+    margin-right: 20px;
+    margin-top: 20px;
+  }
+  .login-content{
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+  }
 
   .login-form {
     position: relative;
@@ -625,7 +708,7 @@ $light_gray: #eee;
 
   .organize-form {
     width: 510px;
-    margin: 127px auto;
+    margin: 80px auto;
     background: #fff;
     padding: 30px 50px;
     border-radius: 8px;
@@ -717,7 +800,7 @@ $light_gray: #eee;
     width: 100%;
   }
   .btn-prove{
-    margin:20px 0;
+    margin:10px 0;
   }
 }
 
