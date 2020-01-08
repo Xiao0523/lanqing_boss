@@ -1,7 +1,7 @@
 <template>
   <div class="login-container">
     <el-form
-      v-if="!isCertificate && isRegist"
+      v-if="!isCertificate && !isRegist"
       ref="loginForm"
       :model="loginForm"
       class="login-form"
@@ -19,6 +19,7 @@
           type="text"
           tabindex="1"
           auto-complete="on"
+          @input="hideError"
         />
       </el-form-item>
 
@@ -29,10 +30,11 @@
           type="password"
           tabindex="2"
           auto-complete="on"
+          @input="hideError"
         />
       </el-form-item>
       <el-alert v-show="isError" type="error" show-icon :closable="false" :title="errorText" />
-      <el-button :loading="loading" type="primary" class="btn" @click.native.prevent="onLogin">登录</el-button>
+      <el-button :loading="loading" type="primary" class="btn" @click.native.prevent="onCode">登录</el-button>
 
       <div class="tips">
         <p class>
@@ -43,7 +45,7 @@
     </el-form>
 
     <el-form
-      v-if="!isRegist"
+      v-if="isRegist"
       ref="registForm"
       class="login-form"
       :model="registForm"
@@ -52,18 +54,32 @@
         <h3 class="title">注册</h3>
       </div>
       <el-form-item>
-        <el-input v-model="registForm.userName" placeholder="输入用户名" />
+        <el-input
+          v-model="registForm.username"
+          placeholder="输入用户名"
+          @input="hideError"
+        />
       </el-form-item>
       <el-form-item>
-        <el-input v-model="registForm.password" placeholder="输入密码" type="password" />
+        <el-input
+          v-model="registForm.password"
+          placeholder="输入密码"
+          type="password"
+          @input="hideError"
+        />
       </el-form-item>
       <el-form-item>
-        <el-input v-model="registForm.password2" placeholder="重复密码" type="password" />
+        <el-input
+          v-model="registForm.password2"
+          placeholder="重复密码"
+          type="password"
+          @input="hideError"
+        />
       </el-form-item>
 
       <el-alert v-show="isError" type="error" show-icon :closable="false" :title="errorText" />
 
-      <el-button :loading="loading" type="primary" class="btn" @click.native.prevent="onRegist">立即注册</el-button>
+      <el-button :loading="loading" type="primary" class="btn" @click.native.prevent="onCode">立即注册</el-button>
 
       <div class="tips">
         <p class>
@@ -257,8 +273,8 @@ export default {
     return {
       // 登录表单
       loginForm: {
-        username: 'admin',
-        password: '111111'
+        username: '',
+        password: ''
       },
       loading: false,
       redirect: undefined,
@@ -266,7 +282,7 @@ export default {
 
       // 注册表单
       registForm: {
-        userName: '',
+        username: '',
         password: '',
         password2: '',
         code: ''
@@ -338,59 +354,49 @@ export default {
     }
   },
   methods: {
-    getcode() {
-
-    },
     switchForm() {
       this.isRegist = !this.isRegist
     },
 
-    onRegist() {
+    onCode() {
       // 简易校验 表单提示
-      const registForm = this.registForm
-      if (!registForm.userName) {
+      const postForm = this.isRegist ? this.registForm : this.loginForm
+      if (!postForm.username) {
         return this.showError('请输入用户名')
       }
 
-      if (registForm.password <= 6) {
+      if (postForm.password.length <= 6) {
         return this.showError('密码长度不小于6位')
       }
 
-      if (registForm.password !== registForm.password2) {
+      if (postForm.password2 && postForm.password !== postForm.password2) {
         return this.showError('两遍密码不一致')
       }
 
-      // 缺少验证码
-      if (!this.validCodeForm.code) {
-        this.isShowDialog = true
-        return this.getValidCodeImg()
-      }
+      this.isShowDialog = true
+      this.getValidCodeImg(postForm)
+    },
 
+    onRegister() {
+      // 缺少验证码
       const regigstData = {
         code: this.validCodeForm.code,
         password: registForm.password,
         userName: registForm.userName
       }
+      
       register(regigstData).then(res => {
         if (res.code) {
           return res.message && this.$warn(res.message)
         }
-        console.log(res)
       })
     },
 
-    getValidCodeImg() {
-      let userName
-      // 注册所需验证码
-      if (!this.isRegist) {
-        userName = this.registForm.userName
-      // 登录所需验证码
-      } else {
-        userName = this.loginForm.username
-      }
+    getValidCodeImg(obj) {
+      let username = obj.username
 
-      if (!userName) return
-      getValidCode(userName).then(res => {
+      if (!username) return
+      getValidCode(username).then(res => {
         if (res.code) {
           return res.message && this.$warn(res.message)
         }
@@ -404,6 +410,10 @@ export default {
         if (!valid) {
           console.log('error submit!!')
           return false
+        }
+        if (!this.validCodeForm.code) {
+          this.isShowDialog = true
+          return this.getValidCodeImg()
         }
         this.loading = true
         this.$store
