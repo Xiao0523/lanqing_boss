@@ -54,4 +54,14 @@
       border-color: rgba(0,210,165,1);
     }
   }
+  &--default{
+    color:rgba(0,210,165,1);
+    border-color: rgba(0,210,165,1);
+    &:hover,
+    &:active,
+    &:focus{
+      color:rgba(0,210,165,1);
+      border-color: rgba(0,210,165,1);
+    }
+  }
 }

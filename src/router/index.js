@@ -259,7 +259,7 @@ export const asyncRoutes = [
       }
     ]
   },
-  {
+  /* {
     path: '/data',
     component: Layout,
     redirect: '/data/academic-data',
@@ -280,8 +280,8 @@ export const asyncRoutes = [
         meta: { title: '财务数据' }
       }
     ]
-  },
-  {
+  }, */
+  /* {
     path: '/show',
     component: Layout,
     redirect: '/show/competition',
@@ -316,7 +316,7 @@ export const asyncRoutes = [
         meta: { title: '邀请加盟' }
       }
     ]
-  },
+  }, */
   /* {
     path: '/nested',
     component: Layout,

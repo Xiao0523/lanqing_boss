@@ -1,4 +1,4 @@
-import { login, logout, getInfo } from '@/api/user'
+import { login /* logout */ } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
 
@@ -6,7 +6,8 @@ const state = {
   token: getToken(),
   name: '',
   avatar: '',
-  roles: []
+  roles: [], // admin 管理员  store 店长
+  temp_Roles: [] // 登录时 临时 保存 角色
 }
 
 const mutations = {
@@ -14,13 +15,18 @@ const mutations = {
     state.token = token
   },
   SET_NAME: (state, name) => {
-    state.name = name
+    state.nasme = name
   },
   SET_AVATAR: (state, avatar) => {
     state.avatar = avatar
   },
   SET_ROLES: (state, roles) => {
     state.roles = roles
+  },
+
+  // 临时保存角色
+  SET_TEMP_ROLES: (state, roles) => {
+    state.temp_Roles = roles
   }
 }
 
@@ -33,9 +39,20 @@ const actions = {
       login({ username, password, code }).then(response => {
         console.log(response)
         const { data } = response
-        commit('SET_TOKEN', data.token)
-        setToken(data.token)
-        resolve()
+        commit('SET_TOKEN', data.data)
+
+        // 临时保存
+        // 规避router 问题
+        if (data.data === 'store') {
+          commit('SET_TEMP_ROLES', ['store'])
+          setToken('store')
+        } else {
+          commit('SET_TEMP_ROLES', ['admin'])
+          setToken('admin')
+        }
+
+        commit('SET_NAME', userInfo.username)
+        resolve(response)
       }).catch(error => {
         reject(error)
       })
@@ -45,7 +62,17 @@ const actions = {
   // get user info
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
-      getInfo(state.token).then(response => {
+      const roles = state.temp_Roles
+
+      // roles must be a non-empty array
+      if (!roles || roles.length <= 0) {
+        reject('没有权限!')
+      }
+      commit('SET_ROLES', roles)
+
+      resolve({ roles })
+
+      /* getInfo(state.token).then(response => {
         const { data } = response
 
         if (!data) {
@@ -54,7 +81,6 @@ const actions = {
 
         const { roles, name, avatar } = data
 
-        // roles must be a non-empty array
         if (!roles || roles.length <= 0) {
           reject('getInfo: roles must be a non-null array!')
         }
@@ -65,14 +91,19 @@ const actions = {
         resolve(data)
       }).catch(error => {
         reject(error)
-      })
+      }) */
     })
   },
 
   // user logout
   logout({ commit, state }) {
     return new Promise((resolve, reject) => {
-      logout(state.token).then(() => {
+      commit('SET_TOKEN', '')
+      commit('SET_ROLES', [])
+      removeToken()
+      resetRouter()
+      resolve()
+      /*  logout(state.token).then(() => {
         commit('SET_TOKEN', '')
         commit('SET_ROLES', [])
         removeToken()
@@ -80,7 +111,7 @@ const actions = {
         resolve()
       }).catch(error => {
         reject(error)
-      })
+      }) */
     })
   },
 
