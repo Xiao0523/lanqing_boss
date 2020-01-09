@@ -30,15 +30,25 @@ import Layout from '@/layout'
  * a base page that does not have permission requirements
  * all roles can be accessed
  */
+
+const whiteList = ['/login', '/business', '/404']
+
 export const constantRoutes = [
   {
     path: '/login',
+    name: 'Login',
     component: () => import('@/views/login/index'),
     hidden: true
   },
-
+  {
+    path: '/business',
+    name: 'Business',
+    component: () => import('@/views/business/index'),
+    hidden: true
+  },
   {
     path: '/404',
+    name: '404',
     component: () => import('@/views/404'),
     hidden: true
   }
@@ -87,7 +97,7 @@ export const asyncRoutes = [
   {
     path: '/',
     component: Layout,
-    redirect: '/home',
+    redirect: '/login',
     alwaysShow: true,
     meta: { title: '机构首页', icon: 'dashboard' },
     children: [
@@ -404,5 +414,17 @@ export function resetRouter() {
   const newRouter = createRouter()
   router.matcher = newRouter.matcher // reset router
 }
+
+router.beforeEach((to, from, next) => {
+  if (whiteList.includes(to.path)) {
+    next()
+  }
+  // const status = getLocal('status')
+  // console.log(status)
+  // if (status !== 1) {
+  //   next({ path: '/business' })
+  // }
+  next()
+})
 
 export default router

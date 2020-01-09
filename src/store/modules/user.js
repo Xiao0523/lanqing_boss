@@ -1,13 +1,15 @@
 import { login /* logout */ } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
+import { setLocal } from '@/utils/local'
 
 const state = {
   token: getToken(),
   name: '',
   avatar: '',
   roles: [], // admin 管理员  store 店长
-  temp_Roles: [] // 登录时 临时 保存 角色
+  temp_Roles: [], // 登录时 临时 保存 角色
+  examineStatus: 0
 }
 
 const mutations = {
@@ -15,7 +17,7 @@ const mutations = {
     state.token = token
   },
   SET_NAME: (state, name) => {
-    state.nasme = name
+    state.name = name
   },
   SET_AVATAR: (state, avatar) => {
     state.avatar = avatar
@@ -23,7 +25,10 @@ const mutations = {
   SET_ROLES: (state, roles) => {
     state.roles = roles
   },
-
+  SET_STATUS: (state, examineStatus) => {
+    state.examineStatus = examineStatus
+    setLocal('examineStatus', examineStatus)
+  },
   // 临时保存角色
   SET_TEMP_ROLES: (state, roles) => {
     state.temp_Roles = roles
@@ -33,17 +38,14 @@ const mutations = {
 const actions = {
   // user login
   login({ commit }, userInfo) {
-    console.log(userInfo)
     const { username, password, code } = userInfo
     return new Promise((resolve, reject) => {
       login({ username, password, code }).then(response => {
-        console.log(response)
         const { data } = response
-        commit('SET_TOKEN', data.data)
-
+        commit('SET_TOKEN', data)
         // 临时保存
         // 规避router 问题
-        if (data.data === 'store') {
+        if (data === 'store') {
           commit('SET_TEMP_ROLES', ['store'])
           setToken('store')
         } else {
@@ -62,13 +64,12 @@ const actions = {
   // get user info
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
-      const roles = state.temp_Roles
-
+      const roles = [state.token]
       // roles must be a non-empty array
       if (!roles || roles.length <= 0) {
         reject('没有权限!')
       }
-      commit('SET_ROLES', roles)
+      commit('SET_ROLES', [...roles])
 
       resolve({ roles })
 

@@ -1,4 +1,5 @@
 import store from '@/store'
+import { getLocal } from '@/utils/local'
 
 const { body } = document
 const WIDTH = 992 // refer to Bootstrap's responsive design
@@ -8,6 +9,10 @@ export default {
     $route(route) {
       if (this.device === 'mobile' && this.sidebar.opened) {
         store.dispatch('app/closeSideBar', { withoutAnimation: false })
+      }
+      const examineStatus = getLocal(examineStatus) || this.$store.state.user.examineStatus || 0
+      if (examineStatus !== 1) {
+        this.$router.push({ name: 'Business' })
       }
     }
   },

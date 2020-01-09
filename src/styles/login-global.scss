@@ -1,0 +1,234 @@
+$bg: linear-gradient(to right, rgba(0, 214, 211, 1), rgba(0, 206, 124, 1));
+$dark_gray: #889aa4;
+$light_gray: #eee;
+
+.login-container {
+  min-height: 100%;
+  width: 100%;
+  background: $bg;
+  overflow: hidden;
+  position: relative;
+  .bg-img{
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    object-fit: cover;
+  }
+  .top-tip{
+    font-size:13px;
+    font-family:PingFangSC-Medium,PingFang SC;
+    font-weight:500;
+    color:rgba(255,255,255,1);
+    line-height:13px;
+    text-align: right;
+    margin-right: 20px;
+    margin-top: 20px;
+  }
+  .login-content{
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+  }
+
+  .login-form {
+    position: relative;
+    box-sizing: border-box;
+    width: 410px;
+    background: #fff;
+    max-width: 100%;
+    padding: 30px 50px;
+    margin: 274px auto 0;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .tips {
+    margin-top: 30px;
+    font-size: 13px;
+    color: #a8a8a8;
+    text-align: right;
+    cursor: pointer;
+    span {
+      color: #00d2a5;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .title-container {
+    position: relative;
+    .title {
+      font-size: 22px;
+      color: #171725;
+      margin: 8px auto 22px;
+      text-align: center;
+      font-weight: bold;
+    }
+  }
+
+  .validcode{
+    display: flex;
+    &-input{
+      flex: 1;
+      & > .el-form-item{
+        margin-bottom: 0;
+      }
+    }
+    &-img{
+      display: inline-block;
+      width: 98px;
+      height: 42px;
+      background: rgba(216, 216, 216, 1);
+      border-radius: 4px;
+      margin-left: 20px;
+    }
+    &-title{
+      text-align: center;
+      font-size: 14px;
+      margin: 10px 0 0;
+    }
+    &-dialog{
+      & /deep/ {
+        & .el-dialog__body {
+          padding: 10px 30px
+        }
+        & .el-dialog__footer{
+          padding: 10px 30px 30px
+        }
+      }
+    }
+  }
+
+  .user-contrast {
+    cursor: pointer;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .organize-form {
+    width: 510px;
+    margin: 80px auto;
+    background: #fff;
+    padding: 30px 50px;
+    border-radius: 8px;
+    overflow: hidden;
+    & /deep/ .el-form-item__label {
+      color: #fff;
+    }
+
+    .cell{
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .mb-18{
+      margin-bottom: 18px;
+    }
+    .label {
+      width: 79px;
+      font-size: 13px;
+      font-weight: 400;
+      color: rgba(23, 23, 37, 1);
+      font-weight: bold;
+      text-align: right;
+      margin-right: 20px;
+    }
+    .upload-label{
+      line-height: 22px;
+    }
+
+    .el-form-item{
+      flex: 1;
+      margin-bottom: 0;
+    }
+    .el-upload__tip{
+      font-size:11px;
+      font-family:PingFangSC-Regular,PingFang SC;
+      font-weight:400;
+      color:rgba(157,157,167,1);
+      line-height:11px;
+    }
+  }
+  .result {
+    &-tip{
+      width:509px;
+      height:330px;
+      background:rgba(255,255,255,1);
+      box-shadow:0px 1px 4px 0px rgba(44,90,74,0.21),0px -1px 0px 0px rgba(126,167,146,1);
+      border-radius:8px;
+      margin: 225px auto;
+      text-align: center;
+      overflow: hidden;
+    }
+    &-img-wraper{
+      width:79px;
+      height:79px;
+      background-image:linear-gradient(90deg, rgba(0,214,211,1), rgba(0,206,124,1));
+      border-radius: 50%;
+      position: relative;
+      margin: 0 auto;
+      margin-bottom: 22px;
+      object-fit: cover;
+      margin-top: 80px;
+    }
+    &-img{
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%,-50%);
+      background: #fff;
+      display: block;
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      overflow: hidden;
+    }
+    &-text{
+      font-size:18px;
+      font-weight:400;
+      color:rgba(146,146,157,1);
+      line-height:30px;
+      margin: 0;
+    }
+    &-btn{
+      margin-top: 27px;
+    }
+  }
+
+  .btn {
+    width: 100%;
+  }
+  .btn-prove{
+    margin:10px 0;
+  }
+}
+
+.logo-wraper{
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 20px;
+  left: 50%;
+  width: 92px;
+  transform: translateX(-50%);
+  text-align: center;
+}
+.logo{
+  width:64px;
+  height:64px;
+  background:rgba(255,255,255,1);
+  border-radius:11px;
+  margin: 0 auto;
+  &-text{
+    font-size:13px;
+    font-weight:500;
+    color:rgba(255,255,255,1);
+    margin-top: 10px;
+  }
+}

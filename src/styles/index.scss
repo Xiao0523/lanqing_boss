@@ -64,3 +64,59 @@ div:focus {
 .app-container {
   padding: 20px;
 }
+
+$bg: #283443;
+$light_gray: #fff;
+$cursor: #92929d;
+
+@supports (-webkit-mask: none) and (not (cater-color: $cursor)) {
+  .login-container .el-input input {
+    color: $cursor;
+  }
+}
+
+/* reset element-ui css */
+.login-container {
+  .el-input {
+    display: inline-block;
+    height: 42px;
+    width: 100%;
+    input {
+      background: transparent;
+      border: 0px;
+      -webkit-appearance: none;
+      border-radius: 0px;
+      padding: 12px 5px 12px 15px;
+      color: #92929d;
+      height: 42px;
+      border-radius: 5px;
+      caret-color: $cursor;
+
+      &:-webkit-autofill {
+        box-shadow: 0 0 0px 1000px $bg inset !important;
+        -webkit-text-fill-color: $cursor !important;
+      }
+
+       &:focus{
+        border:1px solid rgba(0,210,165,1);
+      }
+    }
+  }
+
+  .el-form-item {
+    border: 1px solid rgba(241, 241, 245, 1);
+    background: rgba(250, 250, 251, 1);
+    border-radius: 5px;
+    color: #92929d;
+    margin-bottom: 10px;
+  }
+}
+
+.el-alert{
+  &--error{
+    background-color: transparent;
+    color: #FC5A5A;
+    margin: -8px 0 2px;
+    padding-left: 5px
+  }
+}

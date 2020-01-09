@@ -12,6 +12,10 @@ function getValidCode(loginName) {
   return request.get(`/code/${loginName}`)
 }
 
+function getExamine(data) {
+  return request.get('/boss/business/examine', data)
+}
+
 function postExamine(data) {
   return request.post('/boss/business/examine', data)
 }
@@ -24,6 +28,7 @@ export {
   login,
   register,
   getValidCode,
+  getExamine,
   postExamine
   // logout
 }

@@ -1,0 +1,52 @@
+.loader {
+    background: currentcolor;
+    position: relative;
+    -webkit-animation: loader 1s ease-in-out infinite;
+    animation: loader 1s ease-in-out infinite;
+    -webkit-animation-delay: 0.4s;
+    animation-delay: 0.4s;
+    width: .25em;
+    height: .5em;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    -o-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+.loader:after,
+.loader:before {
+    content: '';
+    position: absolute;
+    width: inherit;
+    height: inherit;
+    background: inherit;
+    -webkit-animation: inherit;
+    animation: inherit;
+}
+.loader:before {
+    right: .5em;
+    -webkit-animation-delay: 0.2s;
+    animation-delay: 0.2s;
+}
+.loader:after {
+    left: .5em;
+    -webkit-animation-delay: 0.6s;
+    animation-delay: 0.6s;
+}
+@-webkit-keyframes loader {
+    0%, 100% {
+        box-shadow: 0 0 0 currentcolor, 0 0 0 currentcolor;
+    }
+    50% {
+        box-shadow: 0 -.25em 0 currentcolor, 0 .25em 0 currentcolor;
+    }
+}
+@keyframes loader {
+    0%, 100% {
+        box-shadow: 0 0 0 currentcolor, 0 0 0 currentcolor;
+    }
+    50% {
+        box-shadow: 0 -.25em 0 currentcolor, 0 .25em 0 currentcolor;
+    }
+}
