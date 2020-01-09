@@ -5,11 +5,7 @@
         <div class="card">
           <h6 class="card__hd">分店总数</h6>
           <div class="card__bd">
-            <strong class="card-number">32</strong>
-            <span class="rate">
-              <span class="rate-number">+2.5%</span>
-              <i class="el-icon-sort-up rate-icon" />
-            </span>
+            <strong class="card-number">{{ homeInfo.stores }}</strong>
           </div>
           <div class="card__ft">当前分店数量</div>
         </div>
@@ -18,11 +14,7 @@
         <div class="card">
           <h6 class="card__hd">学员总数</h6>
           <div class="card__bd">
-            <strong class="card-number">320</strong>
-            <span class="rate">
-              <span class="rate-number">+2.5%</span>
-              <i class="el-icon-sort-up rate-icon" />
-            </span>
+            <strong class="card-number">{{ homeInfo.students }}</strong>
           </div>
           <div class="card__ft">当前学员数量</div>
         </div>
@@ -31,11 +23,7 @@
         <div class="card">
           <h6 class="card__hd">讲师总数</h6>
           <div class="card__bd">
-            <strong class="card-number">32</strong>
-            <span class="rate">
-              <span class="rate-number">+2.5%</span>
-              <i class="el-icon-sort-up rate-icon" />
-            </span>
+            <strong class="card-number">{{ homeInfo.teachers }}</strong>
           </div>
           <div class="card__ft">当前教师数量</div>
         </div>
@@ -112,35 +100,6 @@
     </div> -->
 
     <el-dialog
-      :visible.sync="isCreateShow"
-      @close="closeDialog('createFrom')"
-    >
-      <h6 slot="title" class="dialog-title">创建分店</h6>
-      <el-form
-        ref="createFrom"
-        :inline-message="true"
-        label-width="5em"
-        :rules="createFormRules"
-        :model="createForm"
-      >
-        <el-form-item label="分店名称" prop="subbranchName">
-          <el-input v-model="createForm.subbranchName" placeholder="请输入分店名称" />
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <div class="">
-          <el-alert
-            title="错误提示"
-            type="error"
-            :closable="false"
-            show-icon
-          />
-        </div>
-        <el-button type="primary" @click="onSubmit('createFrom')">立即创建</el-button>
-      </div>
-    </el-dialog>
-
-    <el-dialog
       :visible.sync="isManangerShow"
       @close="closeDialog('setManagerFrom')"
     >
@@ -178,7 +137,8 @@
 </template>
 <script>
 // import Pagination from '@/components/Pagination'
-import More from '../components/More'
+import More from './components/More'
+import { getBusinessHome } from '@/api/subbranch'
 
 const checkName = (rule, value, callback) => {
   if (!value) {
@@ -195,7 +155,6 @@ export default {
       total: 0, // 总记录数
       pageNum: 1, // 分页页面
       pageSize: 10, // 分页容量
-      isCreateShow: false, // 创建分店 弹窗
       createForm: {
         subbranchName: ''
       },
@@ -208,11 +167,30 @@ export default {
         password: '',
         phone: ''
       },
-      setManagerFormRules: {}
-
+      setManagerFormRules: {},
+      homeInfo: {
+        stores: 0,
+        students: 0,
+        teachers: 0
+      }
     }
   },
+  mounted() {
+    this.getHomeInfo()
+  },
   methods: {
+    // 获取首页数据
+    getHomeInfo() {
+      getBusinessHome().then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        if (!res.data) return
+        this.homeInfo = res.data
+      }).catch(err => {
+        console.log(err)
+      })
+    },
     onAudit(item) {},
     // 分页点击 事件
     pageChange(page) {},
@@ -224,7 +202,7 @@ export default {
 
     // 打开创建分店
     openCreateDialog() {
-      this.isCreateShow = true
+      this.$router.push({ name: 'AddSubbranch' })
     },
 
     // 提交 分店名称 | 店长

@@ -7,7 +7,7 @@
 
       <div v-else key="expand">
         <img class="avatar" :src="avatar" alt="头像">
-        <h2 class="username">{{ userName }}</h2>
+        <h2 class="username">{{ username }}</h2>
         <span class="role">{{ role }}</span>
       </div>
     </transition>
@@ -15,8 +15,10 @@
 </template>
 
 <script>
+import UserInfo from './mixin/UserInfo'
 export default {
   name: 'SidebarAvatar',
+  mixins: [UserInfo],
   props: {
     collapse: {
       type: Boolean,
@@ -25,10 +27,6 @@ export default {
   },
   data() {
     return {
-      userName: '张校长',
-      avatar:
-        'https://wpimg.wallstcn.com/69a1c46c-eb1c-4b46-8bd4-e9e686ef5251.png',
-      role: '超级管理员'
     }
   }
 }

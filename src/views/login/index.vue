@@ -12,7 +12,7 @@
         <h3 class="title">登录</h3>
       </div>
 
-      <el-form-item>
+      <el-form-item prop="username">
         <el-input
           v-model="loginForm.username"
           placeholder="请输入用户名"
@@ -23,7 +23,7 @@
         />
       </el-form-item>
 
-      <el-form-item>
+      <el-form-item prop="password">
         <el-input
           v-model="loginForm.password"
           placeholder="请输入密码"
@@ -199,7 +199,6 @@ export default {
     closedCode() {
       this.validCodeForm.code = ''
     },
-
     // 注册
     registerPost() {
       const registForm = this.registForm
@@ -234,32 +233,26 @@ export default {
     // 登录
     onLogin() {
       const loginForm = this.loginForm
-      this.$refs.loginForm.validate(valid => {
-        if (!valid) {
-          console.log('error submit!!')
-          return false
-        }
-        if (!this.validCodeForm.code) {
-          this.isShowDialog = true
-          return this.getValidCodeImg()
-        }
-        this.loading = true
-        this.$store
-          .dispatch('user/login', loginForm)
-          .then(res => {
-            this.loading = false
-            // if (this.isCertificate) {
-            //   return this.$router.push({ path: this.redirect || '/' })
-            // }
-            this.$success(res.message)
-            if (res.data && res.data !== 'store') {
-              this.$router.replace({ path: '/business' })
-            }
-          })
-          .catch(() => {
-            this.loading = false
-          })
-      })
+      if (!this.validCodeForm.code) {
+        this.isShowDialog = true
+        return this.getValidCodeImg()
+      }
+      this.loading = true
+      this.$store
+        .dispatch('user/login', loginForm)
+        .then(res => {
+          this.loading = false
+          // if (this.isCertificate) {
+          //   return this.$router.push({ path: this.redirect || '/' })
+          // }
+          this.$success(res.message)
+          if (res.data && res.data !== 'store') {
+            this.$router.replace({ path: '/business' })
+          }
+        })
+        .catch(() => {
+          this.loading = false
+        })
     },
 
     // 显示错误提示

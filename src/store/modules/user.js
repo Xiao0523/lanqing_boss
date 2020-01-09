@@ -18,9 +18,11 @@ const mutations = {
   },
   SET_NAME: (state, name) => {
     state.name = name
+    setLocal('username', name)
   },
   SET_AVATAR: (state, avatar) => {
     state.avatar = avatar
+    setLocal('avatar', avatar)
   },
   SET_ROLES: (state, roles) => {
     state.roles = roles

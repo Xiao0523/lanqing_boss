@@ -4,31 +4,52 @@
     <div class="content">
       <h2 class="content-title">1.机构信息</h2>
       <div class="content-detail">
-        <div class="cell"><span class="cell-hd">企业名称</span>一顺二维（水街店）</div>
-        <div class="cell"><span class="cell-hd">银行开户名</span>鄞州区首南街道海运大厦602-1</div>
-        <div class="cell"><span class="cell-hd">开户银行</span>鄞州区首南街道海运大厦602-1</div>
-        <div class="cell"><span class="cell-hd">联系人</span> 李先生</div>
+        <div class="cell"><span class="cell-hd">企业名称</span>{{ form.enterpriseName }}</div>
+        <div class="cell"><span class="cell-hd">银行开户名</span>{{ form.bankName }}</div>
+        <div class="cell"><span class="cell-hd">开户银行</span>{{ form.bankNo }}</div>
+        <div class="cell"><span class="cell-hd">联系人</span>{{ form.contacts }}</div>
         <div class="cell"><span class="cell-hd">联系方式</span> 13111111111</div>
-        <div class="cell"><span class="cell-hd">办学许可证</span><img class="thumbnail" src="" alt="办学许可证" srcset=""></div>
-        <div class="cell"><span class="cell-hd">民办非企业单位登记证</span><img class="thumbnail" src="" alt="非企业单位登记证"></div>
-        <div class="cell"><span class="cell-hd">上传工商执照</span><img class="thumbnail" src="" alt="上传工商执照"></div>
+        <div class="cell"><span class="cell-hd">办学许可证</span><img class="thumbnail" :src="form.schoolLicense" alt="办学许可证" srcset=""></div>
+        <div class="cell"><span class="cell-hd">民办非企业单位登记证</span><img class="thumbnail" :src="form.registrationCertificateOfPrivateNonEnterpriseUnit" alt="非企业单位登记证"></div>
+        <div class="cell"><span class="cell-hd">上传工商执照</span><img class="thumbnail" :src="form.businessLicense" alt="上传工商执照"></div>
       </div>
     </div>
 
     <div class="content">
       <h2 class="content-title">账号与密码</h2>
       <div class="content-detail">
-        <div class="cell"><span class="cell-hd">用户名</span> 张校长</div>
-        <div class="cell"><span class="cell-hd">登录密码</span> ******</div>
-        <el-button class="contact-btn">请联系客服 修改密码</el-button>
+        <el-button class="contact-btn">修改密码 请联系客服!</el-button>
       </div>
     </div>
 
   </section>
 </template>
 <script>
+import { getExamine } from '@/api/user.js'
+
 export default {
-  name: 'Home'
+  name: 'Home',
+  data() {
+    return {
+      form: {}
+    }
+  },
+  mounted() {
+    this.getBusiness()
+  },
+  methods: {
+    // 获取商家信息列表
+    getBusiness() {
+      getExamine().then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        this.form = res.data
+      }).catch(err => {
+        console.log(err)
+      })
+    }
+  }
 }
 </script>
 <style lang="scss" scoped>

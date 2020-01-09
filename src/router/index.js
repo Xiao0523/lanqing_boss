@@ -31,8 +31,6 @@ import Layout from '@/layout'
  * all roles can be accessed
  */
 
-const whiteList = ['/login', '/business', '/404']
-
 export const constantRoutes = [
   {
     path: '/login',
@@ -51,6 +49,10 @@ export const constantRoutes = [
     name: '404',
     component: () => import('@/views/404'),
     hidden: true
+  },
+  {
+    path: '/',
+    redirect: '/login'
   }
 
   /*  {
@@ -95,43 +97,59 @@ export const constantRoutes = [
  */
 export const asyncRoutes = [
   {
-    path: '/',
+    path: '/home',
     component: Layout,
-    redirect: '/login',
-    alwaysShow: true,
-    meta: { title: '机构首页', icon: 'dashboard' },
+    alwaysShow: false,
     children: [
       {
-        path: 'home',
+        path: '/home',
         name: 'Home',
-        component: () => import('@/views/home/index/index'),
-        meta: { title: '主页' }
+        component: () => import('@/views/home/index'),
+        meta: { title: '机构中心', icon: 'dashboard' }
+      }
+    ]
+  },
+  {
+    path: '/subbranch',
+    redirect: '/subbranch/subbranchList',
+    component: Layout,
+    alwaysShow: true,
+    meta: { title: '分店管理', icon: 'list' },
+    children: [
+      {
+        path: 'subbranchList',
+        name: 'Subbranch',
+        alwaysShow: false,
+        component: () => import('@/views/subbranch/index'),
+        meta: { title: '分店列表' }
       },
       {
-        path: 'subbranch',
-        component: () => import('@/views/home/subbranch/index'),
-        children: [
-          {
-            path: '',
-            name: 'Subbranch',
-            component: () => import('@/views/home/subbranch/index/index'),
-            meta: { title: '分店管理' }
-          },
-          {
-            path: 'detail',
-            name: 'Subbranch-detail',
-            component: () =>
-              import('@/views/home/subbranch/subbranch-detail/index'),
-            hidden: true,
-            meta: { title: '店铺详情' }
-          }
-        ]
+        path: 'detail',
+        name: 'SubbranchDetail',
+        component: () => import('@/views/subbranch/detail/index'),
+        meta: { title: '店铺详情' },
+        hidden: true
       },
       {
-        path: 'category',
+        path: 'addSubbranch',
+        name: 'AddSubbranch',
+        component: () => import('@/views/subbranch/add/index'),
+        meta: { title: '创建分店' },
+        hidden: true
+      }
+    ]
+  },
+  {
+    path: '/category',
+    redirect: '/category/subbranchList',
+    component: Layout,
+    alwaysShow: false,
+    children: [
+      {
+        path: 'categoryList',
         name: 'Category',
-        component: () => import('@/views/home/category/index'),
-        meta: { title: '类目管理' }
+        component: () => import('@/views/category/index'),
+        meta: { title: '类目管理', icon: 'list' }
       }
     ]
   },
@@ -414,17 +432,5 @@ export function resetRouter() {
   const newRouter = createRouter()
   router.matcher = newRouter.matcher // reset router
 }
-
-router.beforeEach((to, from, next) => {
-  if (whiteList.includes(to.path)) {
-    next()
-  }
-  // const status = getLocal('status')
-  // console.log(status)
-  // if (status !== 1) {
-  //   next({ path: '/business' })
-  // }
-  next()
-})
 
 export default router
