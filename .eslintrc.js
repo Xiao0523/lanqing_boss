@@ -90,7 +90,7 @@ module.exports = {
     'no-extra-bind': 2,
     'no-extra-boolean-cast': 2,
     'no-extra-parens': [2, 'functions'],
-    'no-fallthrough': 2,
+    'no-fallthrough': 0,
     'no-floating-decimal': 2,
     'no-func-assign': 2,
     'no-implied-eval': 2,
