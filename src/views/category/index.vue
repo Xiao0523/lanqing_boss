@@ -6,65 +6,162 @@
       <el-table
         class="table"
         :data="list"
+        style="width: 100%"
       >
-        <el-table-column label="一级类目">
+        <el-table-column align="center" label="类目编号" prop="categoryId" />
+        <el-table-column align="center" label="类目名称" prop="categoryName" />
+        <el-table-column align="center" label="操作">
           <template slot-scope="scope">
-            <div v-if="!scope.row.isEdit">{{ scope.row.category0 }}</div>
-            <div v-else>
-              <el-select v-model="keywords.category0" />
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column label="二级类目">
-          <template slot-scope="scope">
-            <div v-if="!scope.row.isEdit">{{ scope.row.category1 }}</div>
-            <div v-else>
-              <el-select v-model="keywords.category1" />
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column align="center">
-          <template slot-scope="scope">
-            <el-button v-if="!scope.row.isEdit" size="mini" @click="onEdit(scope.row, scope.$index)">编辑</el-button>
-            <el-button v-else type="primary" size="mini" @click="onSubmit(scope.row, scope.$index)">确认</el-button>
-            <el-button type="danger" size="mini" @click="onDel(scope.row, scope.$index)">删除</el-button>
+            <el-popconfirm
+              icon="el-icon-info"
+              icon-color="red"
+              title="这是一段内容确定删除吗？"
+              @onConfirm="onDel(scope.row.id)"
+            >
+              <el-button slot="reference" type="danger" size="mini">删除</el-button>
+            </el-popconfirm>
           </template>
         </el-table-column>
       </el-table>
-
-      <div class="add" @click="addCategory"><i class="el-icon-circle-plus-outline" /><span class="add-text">新增类目</span> </div>
+      <div class="add" @click="addCategory"><i class="el-icon-circle-plus-outline" /><span class="add-text">新增类目</span></div>
     </div>
-
     <div>
-      <pagination v-show="total>0" :total="total" :page.sync="pageNum" :limit.sync="pageSize" @pagination="pageChange" />
+      <pagination v-show="total > 0" :total="total" :page.sync="pageNum" :limit.sync="pageSize" @pagination="pageChange" />
     </div>
+    <el-dialog title="添加类目" :visible.sync="dialogFormVisible">
+      <div class="dialog-box">
+        <el-select v-model="keywords.categoryTitle" @change="getSonList">
+          <el-option
+            v-for="item of levelOneList"
+            :key="item.name"
+            :value="item.name"
+            :label="item.name"
+          />
+        </el-select>
+        <el-select v-model="keywords.categoryTwoTitle" @change="changeSon">
+          <el-option
+            v-for="item of levelTwoList"
+            :key="item.name"
+            :value="item.name"
+            :label="item.name"
+          />
+        </el-select>
+        <el-button class="add-btn" size="medium" @click="add">添加</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
 import Pagination from '@/components/Pagination'
+import { getList, getLevelOneList, getLevelTwoList, addCategoriesList, delCategoriesList } from '@/api/categories'
 export default {
   name: 'Course',
   components: { Pagination },
   data() {
     return {
-      list: [{
-        category0: '琴棋书画',
-        category1: '琴棋书画',
-        idEdit: false
-      }],
+      list: [
+        // {
+        //   category0: '琴棋书画',
+        //   category1: '琴棋书画',
+        //   idEdit: false
+        // }
+      ],
       keywords: {
-        category0: '',
-        category1: ''
+        categoryTitle: '',
+        categoryTwoTitle: ''
       },
       total: 0, // 总记录数
       pageNum: 1, // 分页页面
-      pageSize: 10// 分页容量
+      pageSize: 10, // 分页容量
+      levelOneList: [],
+      levelTwoList: [],
+      levelTwoId: '',
+      dialogFormVisible: false
     }
   },
+  mounted() {
+    this.getLists()
+    this.getLevelOne()
+  },
   methods: {
+    // 更改选中的子类id
+    changeSon() {
+      for (const item of this.levelTwoList) {
+        if (item.name === this.keywords.categoryTwoTitle) {
+          this.levelTwoId = item.id
+          break
+        }
+      }
+    },
+    // 查找第二级列表
+    getSonList() {
+      const getObj = {}
+      this.levelTwoList = []
+      this.keywords.categoryTwoTitle = ''
+      for (const item of this.levelOneList) {
+        if (item.name === this.keywords.categoryTitle) {
+          getObj.id = item.id
+          break
+        }
+      }
+      getLevelTwoList(getObj).then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        if (!res.data) return
+        this.levelTwoList = res.data
+      })
+    },
+    // 获取列表
+    getLists() {
+      getList().then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        if (!res.data) return
+        this.list = res.data
+      })
+    },
+    // 查找第一级列表
+    getLevelOne() {
+      getLevelOneList().then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        if (!res.data) return
+        this.levelOneList = res.data
+      })
+    },
+    // 添加类目
+    add() {
+      const addObj = {
+        id: this.levelTwoId
+      }
+      addCategoriesList(addObj).then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        this.$success(res.message)
+        this.getLists()
+        this.dialogFormVisible = false
+        this.keywords = {
+          categoryTitle: '',
+          categoryTwoTitle: ''
+        }
+      })
+    },
     // 删除
-    onDel(item, index) {
-
+    onDel(id) {
+      const delObj = {
+        id: id
+      }
+      delCategoriesList(delObj).then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        this.$success(res.message)
+        this.getLists()
+      })
     },
     // 分页点击 事件
     pageChange(page) {
@@ -73,11 +170,7 @@ export default {
 
     // 添加 类目
     addCategory() {
-      this.list.push({
-        category0: '琴棋书画',
-        category1: '琴棋书画',
-        isEdit: true
-      })
+      this.dialogFormVisible = true
     },
 
     // 编辑’
@@ -145,6 +238,20 @@ export default {
   cursor: pointer;
   &-text{
     margin-left: 10px;
+  }
+}
+
+.dialog-box {
+  display: flex;
+  width: 100%;
+  flex: 1;
+  align-content: space-around;
+  & > * {
+    padding: 0 .25em;
+    flex-grow: 1;
+  }
+  & > .add-btn {
+    flex-grow: 2;
   }
 }
 </style>

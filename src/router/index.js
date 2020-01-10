@@ -52,7 +52,7 @@ export const constantRoutes = [
   },
   {
     path: '/',
-    redirect: '/login'
+    redirect: '/home'
   }
 
   /*  {

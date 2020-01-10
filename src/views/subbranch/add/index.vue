@@ -10,6 +10,61 @@
       <el-form-item label="联系电话" prop="contactPhone">
         <el-input v-model="form.contactPhone" />
       </el-form-item>
+      <el-form-item label="请选择地址">
+        <div class="address">
+          <el-select v-model="form.provinceStr" placeholder="请选择" @change="getSonList('province')">
+            <el-option
+              v-for="item in cityList.province"
+              :key="item.name"
+              :label="item.name"
+              :value="item.name"
+            />
+          </el-select>
+          <el-select v-model="form.cityStr" placeholder="请选择" @change="getSonList('city')">
+            <el-option
+              v-for="item in cityList.city"
+              :key="item.name"
+              :label="item.name"
+              :value="item.name"
+            />
+          </el-select>
+          <el-select v-model="form.districtStr" placeholder="请选择" @change="getSonList('district')">
+            <el-option
+              v-for="item in cityList.district"
+              :key="item.name"
+              :label="item.name"
+              :value="item.name"
+            />
+          </el-select>
+          <el-input v-model="form.contactPhone" class="input" />
+        </div>
+      </el-form-item>
+      <el-form-item label="店铺封面">
+        <el-upload
+          :action="uploadUrl"
+          name="multipartFile"
+          list-type="picture-card"
+          :file-list="CoverImgList"
+          :on-preview="handlePicturePreview"
+          :on-remove="handleCoversRemove"
+          :on-success="handlePicctureCoversSuccess"
+        >
+          <i class="el-icon-plus" />
+        </el-upload>
+      </el-form-item>
+      <el-form-item label="店铺资质">
+        <el-upload
+          :action="uploadUrl"
+          name="multipartFile"
+          list-type="picture-card"
+          :file-list="imgList"
+          :on-preview="handlePicturePreview"
+          :on-remove="handleRemove"
+          :on-success="handlePicctureSuccess"
+        >
+          <i class="el-icon-plus" />
+        </el-upload>
+      </el-form-item>
       <el-form-item label="学员数" prop="studentAmount">
         <el-input v-model="form.studentAmount" />
       </el-form-item>
@@ -17,15 +72,7 @@
         <el-input v-model="form.teacherAmount" />
       </el-form-item>
       <el-form-item label="营业时间" prop="businessHours">
-        <el-time-picker
-          v-model="form.businessHours"
-          is-range
-          range-separator="-"
-          start-placeholder="开始时间"
-          end-placeholder="结束时间"
-          placeholder="选择时间范围"
-          :clearable="false"
-        />
+        <el-input v-model="form.businessHours" />
       </el-form-item>
       <el-form-item label="课程数" prop="curriculumAmount">
         <el-input v-model="form.curriculumAmount" />
@@ -43,6 +90,17 @@
       </el-form-item>
       <el-form-item label="自我描述" prop="selfDescription">
         <el-input v-model="form.selfDescription" type="textarea" class="el-textarea" :rows="4" />
+      </el-form-item>
+      <el-form-item label="课程类目选择">
+        <el-select v-model="categoriesVal" multiple placeholder="请选择">
+          <el-option
+            v-for="item in categoriesValList"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+        <router-link :to="{name: 'Category'}">设置</router-link>
       </el-form-item>
 
       <!-- <el-form-item label="机构地址">
@@ -65,20 +123,6 @@
 
       <el-form-item label="机构简介">
         <el-input v-model.trim="content.intro" type="textarea" />
-      </el-form-item>
-
-      <el-form-item label="机构资质">
-        <el-upload
-          :action="uploadUrl"
-          name="multipartFile"
-          list-type="picture-card"
-          :file-list="imgList"
-          :on-preview="handlePicturePreview"
-          :on-remove="handleRemove"
-          :on-success="handlePicctureSuccess"
-        >
-          <i class="el-icon-plus" />
-        </el-upload>
       </el-form-item>
 
       <el-form-item label="课程服务标签">
@@ -116,7 +160,11 @@
 </template>
 
 <script>
-import { Upload_Pic } from '@/api/URL.js'
+import { Upload_Pic } from '@/api/URL'
+import { getChinaCity } from '@/api/globl'
+import { addBusiness } from '@/api/subbranch'
+import { getCategoriesList } from '@/api/categories'
+
 export default {
   name: 'SubbranchDetail',
   data() {
@@ -125,14 +173,14 @@ export default {
         name: '',
         businessAddress: '',
         businessAddressSystem: '',
-        businessHours: [new Date(2020, 1, 1, 8, 30), new Date(2020, 1, 1, 17, 30)],
+        businessHours: '',
         contactName: '',
         contactPhone: '',
-        covers: '',
+        covers: [],
         curriculumAmount: '',
         establishmentDate: '',
         introduce: '',
-        qualifications: '',
+        qualifications: [],
         selfDescription: '',
         studentAmount: '',
         teacherAmount: '',
@@ -141,17 +189,12 @@ export default {
         provinceStr: '',
         cityCode: '',
         cityStr: '',
-        areaCode: '',
-        areaStr: '',
+        districtCode: '',
+        districtStr: '',
         streetCode: ''
       },
-      options: [
-        {
-          value: '北京',
-          label: '北京',
-          children: []
-        }
-      ],
+      categoriesVal: [],
+      categoriesValList: [],
       rules: {
         name: [
           { required: true, message: '请填写店铺名称', trigger: 'blur' }
@@ -193,59 +236,117 @@ export default {
         cityCode: [
           { required: true, message: '请选择区域', trigger: 'blur' }
         ],
-        areaCode: [
+        districtCode: [
           { required: true, message: '请选择区域', trigger: 'blur' }
         ],
         businessAddress: [
           { required: true, message: '请填写地址', trigger: 'blur' }
         ]
       },
-      imgList: [
+      CoverImgList: [
         /* {
           url:
             'https://cdn.my51share.com/upload/2019-12-1017:19:045ea4fd9b6f43460581b456394edeadc3/TIM图片20190812164255.jpg'
         } */
       ],
+      imgList: [],
       uploadUrl: Upload_Pic, // 图片上传地址
       catelogArr: [],
       courseSeverArr: [],
       previewImg: '',
-      dialogVisible: false
+      dialogVisible: false,
+      chinaCity: {
+        province: '',
+        city: ''
+      },
+      cityList: {
+        province: [{ name: '暂无数据' }],
+        city: [{ name: '暂无数据' }],
+        district: [{ name: '暂无数据' }]
+      }
     }
   },
-  watch: {
-    'form.businessHours'() {
-      console.log(this.form.businessHours)
-    }
+  created() {
+    this.getCityList()
+    this.getCategoriesValList()
   },
   methods: {
-    // 上传成功钩子
-    uploadSuccess(res, file) {
-      this.content.icon = URL.createObjectURL(file.raw)
+    // 获取课程类目
+    getCategoriesValList() {
+      getCategoriesList().then(res => {
+        console.log(res)
+      })
     },
-
-    // 上传之前钩子
-    beforeUpload(file) {
-      const isJPG = file.type === 'image/jpeg'
-      const isLt2M = file.size / 1024 / 1024 < 2
-
-      if (!isJPG) {
-        this.$message.error('上传头像图片只能是 JPG 格式!')
+    // 获取城市列表
+    getCityList() {
+      getChinaCity(this.chinaCity).then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        if (!res.data) return
+        const data = res.data
+        const keys = data[0].level
+        this.cityList[keys] = data
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+    getSonList(key) {
+      switch (key) {
+        case 'province':
+          this.form.cityCode = ''
+          this.form.cityStr = ''
+          this.chinaCity.province = ''
+          this.chinaCity.city = ''
+        case 'city':
+          this.form.districtCode = ''
+          this.form.districtStr = ''
+          break
+        default:
+          break
       }
-      if (!isLt2M) {
-        this.$message.error('上传头像图片大小不能超过 2MB!')
+      const keyStr = this.form[key + 'Str']
+      for (const item of this.cityList[key]) {
+        if (item.name === keyStr) {
+          this.form[key + 'Code'] = item.adcode
+          this.chinaCity[key] = item.adcode
+          if (key === 'district') {
+            this.form.streetCode = item.adcode
+          }
+          break
+        }
       }
-      return isJPG && isLt2M
+      this.getCityList()
     },
     handleRemove(file, fileList) {
-      console.log(file, fileList)
+      const res = file.response
+      if (!res.data) return
+      const index = this.form.qualifications.indexOf(res.data)
+      this.form.qualifications.splice(index, 1)
+    },
+    handleCoversRemove(file, fileList) {
+      const res = file.response
+      if (!res.data) return
+      const index = this.form.covers.indexOf(res.data)
+      this.form.covers.splice(index, 1)
     },
     handlePicturePreview(file) {
       this.previewImg = file.url
       this.dialogVisible = true
     },
-    handlePicctureSuccess(response, file, fileList) {
-      console.log(fileList)
+    handlePicctureSuccess(res, file) {
+      if (res.code) {
+        return res.message && this.$warn(res.message)
+      }
+      if (!res.data) return
+      this.form.qualifications.push(res.data)
+    },
+    handlePicctureCoversSuccess(res, file) {
+      if (res.code) {
+        return res.message && this.$warn(res.message)
+      }
+      if (!res.data) return
+      this.form.covers.push(res.data)
     },
     delCourseSever(item, index) {
       this.courseSeverArr.splice(index, 1)
@@ -315,5 +416,19 @@ export default {
 .el-input,
 .el-textarea {
   width: 50%;
+}
+
+.address {
+  display: flex;
+  width: 60%;
+  flex: 1;
+  align-content: space-around;
+  & > * {
+    flex-grow: 1;
+    margin: 0 .25em;
+  }
+  & > .input {
+    flex-grow: 2
+  }
 }
 </style>
