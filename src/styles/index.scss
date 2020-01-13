@@ -126,3 +126,7 @@ $cursor: #92929d;
     resize: none;
   }
 }
+
+.el-transfer-panel__body .el-checkbox, .el-transfer-panel__body .el-checkbox__input {
+  display: block;
+}

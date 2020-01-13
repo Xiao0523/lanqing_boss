@@ -164,10 +164,6 @@ export default {
         return this.showError('请输入用户名')
       }
 
-      if (postForm.password.length <= 6) {
-        return this.showError('密码长度不小于6位')
-      }
-
       if (postForm.password2 && postForm.password !== postForm.password2) {
         return this.showError('两遍密码不一致')
       }
@@ -249,6 +245,7 @@ export default {
           if (res.data && res.data !== 'store') {
             this.$router.replace({ path: '/business' })
           }
+          this.$router.replace({ path: '/shop' })
         })
         .catch(() => {
           this.loading = false

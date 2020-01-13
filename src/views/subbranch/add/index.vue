@@ -36,7 +36,7 @@
               :value="item.name"
             />
           </el-select>
-          <el-input v-model="form.contactPhone" class="input" />
+          <el-input v-model="form.businessAddress" class="input" />
         </div>
       </el-form-item>
       <el-form-item label="店铺封面">
@@ -83,6 +83,7 @@
           type="date"
           placeholder="选择日期"
           :clearable="false"
+          value-format="yyyy-MM-dd"
         />
       </el-form-item>
       <el-form-item label="简介" prop="introduce">
@@ -92,61 +93,15 @@
         <el-input v-model="form.selfDescription" type="textarea" class="el-textarea" :rows="4" />
       </el-form-item>
       <el-form-item label="课程类目选择">
-        <el-select v-model="categoriesVal" multiple placeholder="请选择">
-          <el-option
-            v-for="item in categoriesValList"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          />
-        </el-select>
-        <router-link :to="{name: 'Category'}">设置</router-link>
+        <el-transfer
+          v-model="form.categories"
+          :data="categoriesValList"
+          :props="{
+            key: 'categoryId',
+            label: 'categoryName'
+          }"
+        />
       </el-form-item>
-
-      <!-- <el-form-item label="机构地址">
-        <div class="address-wraper">
-          <el-cascader v-model="content.area" :options="options" :show-all-levels="false" />
-          <el-input v-model="content.address" class="address-detail" />
-        </div>
-      </el-form-item>
-
-      <el-form-item label="联系人">
-        <el-input v-model.trim="content.contact" />
-      </el-form-item>
-      <el-form-item label="联系方式">
-        <el-input v-model.trim="content.phone" />
-      </el-form-item>
-
-      <el-form-item label="机构标语">
-        <el-input v-model="content.slogan" />
-      </el-form-item>
-
-      <el-form-item label="机构简介">
-        <el-input v-model.trim="content.intro" type="textarea" />
-      </el-form-item>
-
-      <el-form-item label="课程服务标签">
-        <el-select value placeholder="请选择" />
-
-        <span v-for="(item, index) in courseSeverArr" :key="index">
-          <el-select v-model="item.catelogVal" placeholder="请选择" />
-          <i class="el-icon-minus" @click="delCourseSever(item, index)" />
-        </span>
-
-        <el-button icon="el-icon-plus" circle @click="addCourseSever" />
-      </el-form-item>
-
-      <el-form-item label="课程类目选择">
-        <el-select value placeholder="请选择" />
-
-        <span v-for="(item, index) in catelogArr" :key="index">
-          <el-select v-model="item.catelogVal" placeholder="请选择" />
-          <i class="el-icon-minus" @click="delCatelog(item, index)" />
-        </span>
-
-        <el-button icon="el-icon-plus" circle @click="addCatelog" />
-        <router-link :to="{name: 'Category'}">设置</router-link>
-      </el-form-item> -->
 
       <el-form-item>
         <el-button type="primary" @click="onSubmit('submitForm')">提交</el-button>
@@ -162,7 +117,7 @@
 <script>
 import { Upload_Pic } from '@/api/URL'
 import { getChinaCity } from '@/api/globl'
-import { addBusiness } from '@/api/subbranch'
+import { addBusiness, getBusinessView, editBusiness } from '@/api/subbranch'
 import { getCategoriesList } from '@/api/categories'
 
 export default {
@@ -184,7 +139,7 @@ export default {
         selfDescription: '',
         studentAmount: '',
         teacherAmount: '',
-        categories: '',
+        categories: [],
         provinceCode: '',
         provinceStr: '',
         cityCode: '',
@@ -193,25 +148,22 @@ export default {
         districtStr: '',
         streetCode: ''
       },
-      categoriesVal: [],
       categoriesValList: [],
       rules: {
         name: [
           { required: true, message: '请填写店铺名称', trigger: 'blur' }
         ],
-        contactName: [
-          { type: 'string', required: true, message: '请输入联系人', trigger: 'blur' }
-        ],
-        contactPhone: [
-          { required: true, message: '请输入手机号码', trigger: 'blur' },
-          { type: 'number', min: 11, max: 11, required: true, message: '请输入正确的手机号码', trigger: 'blur' }
-        ],
+        // contactName: [
+        //   { type: 'string', required: true, message: '请输入联系人', trigger: 'blur' }
+        // ],
+        // contactPhone: [
+        //   { required: true, message: '请输入手机号码', trigger: 'blur' }
+        // ],
         businessHours: [
           { required: true, message: '请选择营业时间', trigger: 'blur' }
         ],
         curriculumAmount: [
-          { required: true, message: '请输入课程数', trigger: 'blur' },
-          { type: 'number', required: true, message: '课程数必须是数字', trigger: 'blur' }
+          { required: true, message: '请输入课程数', trigger: 'blur' }
         ],
         establishmentDate: [
           { required: true, message: '请输入成立时间', trigger: 'blur' }
@@ -223,12 +175,10 @@ export default {
           { required: true, message: '请输入自我描述', trigger: 'blur' }
         ],
         studentAmount: [
-          { required: true, message: '请输入学员数', trigger: 'blur' },
-          { type: 'number', required: true, message: '学员数必须是数字', trigger: 'blur' }
+          { required: true, message: '请输入学员数', trigger: 'blur' }
         ],
         teacherAmount: [
-          { required: true, message: '请输入教员数', trigger: 'blur' },
-          { type: 'number', required: true, message: '教员数必须是数字', trigger: 'blur' }
+          { required: true, message: '请输入教员数', trigger: 'blur' }
         ],
         provinceCode: [
           { required: true, message: '请选择区域', trigger: 'blur' }
@@ -263,23 +213,67 @@ export default {
         province: [{ name: '暂无数据' }],
         city: [{ name: '暂无数据' }],
         district: [{ name: '暂无数据' }]
-      }
+      },
+      isAdd: true
     }
   },
   created() {
+    const id = this.$route.query.id
+    if (id) {
+      this.getView(id)
+      this.isAdd = false
+    }
     this.getCityList()
     this.getCategoriesValList()
   },
   methods: {
+    // 获取详细
+    getView(id) {
+      const viewObj = {
+        id: id
+      }
+      getBusinessView(viewObj).then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        if (!res.data) return
+        this.form = JSON.parse(JSON.stringify(res.data))
+        this.form.categories = []
+        res.data.categories.forEach(item => {
+          this.form.categories.push(item.categoryId)
+        })
+        res.data.covers.forEach(item => {
+          this.CoverImgList.push({
+            url: item
+          })
+        })
+        res.data.qualifications.forEach(item => {
+          this.imgList.push({
+            url: item
+          })
+        })
+        this.form.districtCode = res.data.areaCode
+        this.getCityList()
+        for (const item in this.chinaCity) {
+          this.chinaCity[item] = res.data[item + 'Code']
+          this.getCityList()
+        }
+      })
+    },
     // 获取课程类目
     getCategoriesValList() {
       getCategoriesList().then(res => {
-        console.log(res)
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        if (!res.data) return
+        this.categoriesValList = res.data
       })
     },
     // 获取城市列表
     getCityList() {
       getChinaCity(this.chinaCity).then(res => {
+        console.log(res)
         if (res.code) {
           return res.message && this.$warn(res.message)
         }
@@ -287,6 +281,14 @@ export default {
         const data = res.data
         const keys = data[0].level
         this.cityList[keys] = data
+        if (this.form[keys + 'Code']) {
+          for (const item of data) {
+            if (this.form[keys + 'Code'] === item.adcode) {
+              this.form[keys + 'Str'] = item.name
+              return
+            }
+          }
+        }
       }).catch(err => {
         console.log(err)
       })
@@ -348,25 +350,23 @@ export default {
       if (!res.data) return
       this.form.covers.push(res.data)
     },
-    delCourseSever(item, index) {
-      this.courseSeverArr.splice(index, 1)
-    },
-    addCourseSever() {
-      this.courseSeverArr.push({
-        catelogVal: ''
-      })
-    },
-    delCatelog(item, index) {
-      this.catelogArr.splice(index, 1)
-    },
-    addCatelog() {
-      this.catelogArr.push({
-        catelogVal: ''
-      })
-    },
     onSubmit(form) {
+      const callFn = this.isAdd ? addBusiness : editBusiness
       this.$refs[form].validate(isValid => {
         if (!isValid) return
+        const addObj = this.form
+        addObj.businessAddressSystem = addObj.provinceStr + addObj.cityStr + addObj.districtStr + addObj.businessAddress
+        addObj.areaCode = addObj.districtCode
+        if (!this.isAdd) {
+          addObj.storeId = this.$route.query.id
+        }
+        callFn(addObj).then(res => {
+          if (res.code) {
+            return res.message && this.$warn(res.message)
+          }
+          this.$success(res.message)
+          this.$router.push({ name: 'Subbranch' })
+        })
       })
     }
   }

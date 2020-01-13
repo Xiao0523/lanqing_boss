@@ -32,22 +32,31 @@
 
     <div class="title-wraper">
       <h4 class="title">分店管理</h4>
+      <el-select v-model="selectActive" class="select-box" @change="editChange">
+        <el-option
+          v-for="item in selectList"
+          :key="item.label"
+          :value="item.label"
+        />
+      </el-select>
       <el-button type="primary" class="el-icon-plus add-btn" @click="openCreateDialog">新增分店</el-button>
-
     </div>
 
     <div v-if="list.length" class="flex">
       <div v-for="(item, index) in list" :key="index" class="flex-item">
-        <div class="shop shop--disabled">
+        <div class="shop">
           <div class="shop__hd">
-            <img class="shop-logo" src alt>
+            <img class="shop-logo" :src="item.covers[0] | coversStr" alt>
             <div class="shop-info">
-              <h6 class="shop-name">一顺教育（南商水街店）</h6>
-              <div class="shop-slogan">未设置标语</div>
+              <h6 class="shop-name">{{ item.name }}</h6>
+              <div class="shop-slogan">{{ item.selfDescription }}</div>
             </div>
             <more>
               <div class="shop-action-wraper">
-                <div class="shop-action shop-action--warn" @click="onChangeStatus(item, index)">下架</div>
+                <div class="shop-action">
+                  <router-link :to="{ name: 'EditSubbranch', query: {id: item.id} }">修改</router-link>
+                </div>
+                <div class="shop-action" :class="{'shop-action--warn': activeStatus === 0}" @click="editStatus(item.id)">{{ activeStatus | statusStr }}</div>
                 <!-- <div class="shop-action" @click="onChangeStatus(item, index)">上架</div> -->
               </div>
             </more>
@@ -55,128 +64,134 @@
           <div class="shop__bd">
             <div class="shop-data">
               <div class="shop-data-title">课程数</div>
-              <div class="shop-data-number">0</div>
+              <div class="shop-data-number">{{ item.curriculumAmount }}</div>
             </div>
             <div class="shop-data">
               <div class="shop-data-title">学生数</div>
-              <div class="shop-data-number">0</div>
+              <div class="shop-data-number">{{ item.studentAmount }}</div>
             </div>
             <div class="shop-data">
               <div class="shop-data-title">讲师数</div>
-              <div class="shop-data-number">0</div>
+              <div class="shop-data-number">{{ item.teacherAmount }}</div>
             </div>
             <div class="shop-data">
               <div class="shop-data-title">评分</div>
-              <div class="shop-data-number">5.0</div>
+              <div class="shop-data-number">{{ item.score }}</div>
             </div>
           </div>
           <div class="shop__ft">
-            <img class="shop-avatar" src alt>
+            <img class="shop-avatar" :src="item.covers[0] | coversStr" alt>
             <div class="shop-manager-info">
-              <h6 class="shop-manager">未设置</h6>
-              <div class="shop-phone">手机号：无</div>
+              <h6 class="shop-manager">{{ item.contactName | contactPeo }}</h6>
+              <div class="shop-phone">手机号：{{ item.contactPhone | contactPhoneStr }}</div>
             </div>
             <!-- <el-button type="primary" class="btn-setting">设置店长</el-button> -->
-            <el-button class="btn-change" @click="onOpenSetDialog(item, index)">设置店长</el-button>
+            <el-button v-show="!item.contactName" class="btn-change" @click="onOpenSetDialog('set', item.id)">设置店长</el-button>
+            <el-button v-show="item.contactName" class="btn-change-edit" @click="onOpenSetDialog('edit', item.id)">更改店长</el-button>
             <!-- <el-button type="primary" class="btn-setting">设置店长</el-button> -->
           </div>
         </div>
       </div>
     </div>
 
-    <div class="no-data">
+    <div v-else class="no-data">
       <img class="no-data-img" src="@/assets/暂无店铺.png" alt="">
       <p class="no-data-text">暂无分店</p>
     </div>
 
-    <!-- <div>
+    <div>
       <pagination
-        v-show="total>0"
+        v-show="total > 0"
         :total="total"
-        :page.sync="pageNum"
-        :limit.sync="pageSize"
-        @pagination="pageChange"
+        :page.sync="listQuery.page"
+        :limit.sync="listQuery.limit"
+        @pagination="fetchList"
       />
-    </div> -->
+    </div>
 
     <el-dialog
       :visible.sync="isManangerShow"
-      @close="closeDialog('setManagerFrom')"
+      @close="closeDialog()"
     >
-      <h6 slot="title" class="dialog-title">设置店长</h6>
+      <h6 slot="title" class="dialog-title">店长管理</h6>
       <el-form
-        ref="setManagerFrom"
         :inline-message="true"
         label-width="5em"
-        :rules="setManagerFormRules"
         :model="setManagerForm"
       >
         <el-form-item class="mb-10" label="店长" prop="subbranchName">
-          <el-input v-model="setManagerForm.name" placeholder="请输入店长登录名" />
+          <el-input v-model="setManagerForm.userName" placeholder="请输入店长登录名" />
         </el-form-item>
         <el-form-item class="mb-10" label="登录密码" prop="subbranchName">
           <el-input v-model="setManagerForm.password" placeholder="请输入登录密码" />
         </el-form-item>
-        <el-form-item label="手机号" prop="subbranchName">
-          <el-input v-model="setManagerForm.phone" placeholder="请输入手机号" />
+        <el-form-item label="昵称" prop="subbranchName">
+          <el-input v-model="setManagerForm.nickName" placeholder="请输入昵称" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <div class="">
-          <el-alert
-            title="错误提示"
-            type="error"
-            :closable="false"
-            show-icon
-          />
-        </div>
-        <el-button type="primary" @click="onSubmit('setManagerFrom')">确定</el-button>
+        <el-button type="primary" @click="onSubmit">确定</el-button>
       </div>
     </el-dialog>
   </div>
 </template>
 <script>
-// import Pagination from '@/components/Pagination'
+import Pagination from '@/components/Pagination'
 import More from './components/More'
-import { getBusinessHome } from '@/api/subbranch'
+import { getBusinessHome, getStoreList, addStore, editStoreStatus } from '@/api/subbranch'
 
-const checkName = (rule, value, callback) => {
-  if (!value) {
-    return callback(new Error('不能为空'))
-  }
-  callback()
-}
 export default {
   name: 'Subbranch',
-  components: { More },
+  components: { More, Pagination },
+  filters: {
+    contactPeo(val) {
+      return val || '未设置'
+    },
+    contactPhoneStr(val) {
+      return val || '无'
+    },
+    coversStr(val) {
+      return val || ''
+    },
+    statusStr(val) {
+      return val === 0 ? '下架' : '上架'
+    }
+  },
   data() {
     return {
       list: [],
-      total: 0, // 总记录数
-      pageNum: 1, // 分页页面
-      pageSize: 10, // 分页容量
-      createForm: {
-        subbranchName: ''
+      total: 0,
+      listQuery: {
+        page: 1,
+        limit: 9
       },
-      createFormRules: {
-        subbranchName: [{ validator: checkName, trigger: 'blur' }]
-      },
+      activeStatus: 0,
+      selectList: [{
+        value: 0,
+        label: '已上架'
+      }, {
+        value: 1,
+        label: '已下架'
+      }],
+      selectActive: '已上架',
       isManangerShow: false, // 设置店长
       setManagerForm: {
-        name: '',
+        userName: '',
         password: '',
-        phone: ''
+        nickName: ''
       },
-      setManagerFormRules: {},
       homeInfo: {
         stores: 0,
         students: 0,
         teachers: 0
-      }
+      },
+      isAdd: true,
+      activeId: ''
     }
   },
   mounted() {
     this.getHomeInfo()
+    this.fetchList()
   },
   methods: {
     // 获取首页数据
@@ -191,9 +206,25 @@ export default {
         console.log(err)
       })
     },
+    // 获取店铺列表
+    fetchList() {
+      const getObj = this.listQuery
+      getObj.status = this.activeStatus
+      getStoreList(getObj).then(res => {
+        console.log(res)
+        if (res.code) {
+          return res.message && this.$wran(res.message)
+        }
+        if (!res.data) return
+        const data = res.data
+        this.total = data.total
+        const records = data.records
+        this.list = records && records.length ? records : []
+      })
+    },
     onAudit(item) {},
     // 分页点击 事件
-    pageChange(page) {},
+    // pageChange(page) {},
 
     // 上下架
     onChangeStatus(item, index) {
@@ -202,27 +233,63 @@ export default {
 
     // 打开创建分店
     openCreateDialog() {
-      this.$router.push({ name: 'AddSubbranch' })
+      this.$router.push({ name: 'EditSubbranch' })
     },
 
     // 提交 分店名称 | 店长
-    onSubmit(form) {
-      this.$refs[form].validate(isValid => {
-        if (!isValid) return
+    onSubmit() {
+      const submitObj = this.setManagerForm
+      submitObj.storeId = this.activeId
+      addStore(submitObj).then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        this.$success(res.message)
+        this.isManangerShow = false
+        this.fetchList()
       })
     },
 
     // 关闭 弹窗
-    closeDialog(form) {
-      this.$refs[form].resetFields()
+    closeDialog() {
     },
 
     // 设置店长
-    onOpenSetDialog(item, index) {
+    onOpenSetDialog(key, id) {
+      if (key === 'set') {
+        this.isAdd = true
+      } else {
+        this.isAdd = false
+      }
+      this.activeId = id
       this.isManangerShow = true
-    }
+    },
 
-    //
+    // 更改列表获取状态
+    editChange() {
+      for (const item of this.selectList) {
+        if (item.label === this.selectActive) {
+          this.activeStatus = item.value
+          break
+        }
+      }
+      this.fetchList()
+    },
+
+    // 上架 下架
+    editStatus(id) {
+      const statusObj = {
+        id: id
+      }
+      statusObj.status = this.activeStatus === 0 ? 1 : 0
+      editStoreStatus(statusObj).then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        this.$success(res.message)
+        this.fetchList()
+      })
+    }
   }
 }
 </script>
@@ -430,10 +497,19 @@ export default {
   }
 }
 
-.btn-change{
+.btn-change {
   border-radius:4px;
-  border:1px solid rgba(0,210,165,1);
-  color: rgba(0,210,165,1);
+  border: 1px solid rgba(0,210,165,1);
+  color: #FFFFFF;
+  background: linear-gradient(to right, #00D6D3, #00CE7C);
+}
+
+.btn-change-edit {
+  background: transparent;
+}
+
+.select-box {
+  margin-right: 20px;
 }
 
 .dialog-title{
@@ -478,6 +554,10 @@ export default {
 
 .mb-10{
   margin-bottom: 10px;
+}
+
+.shop-action {
+  cursor: pointer;
 }
 
 .no-data{

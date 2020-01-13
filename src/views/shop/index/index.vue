@@ -114,6 +114,8 @@
   </section>
 </template>
 <script>
+import { getStoreHome } from '@/api/store'
+
 export default {
   name: 'TeacherDetail',
   data() {
@@ -124,8 +126,15 @@ export default {
       isEmpty: true
     }
   },
+  created() {
+    this.getHomeView()
+  },
   methods: {
-
+    getHomeView() {
+      getStoreHome().then(res => {
+        console.log(res)
+      })
+    }
   }
 }
 </script>

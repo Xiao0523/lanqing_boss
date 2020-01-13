@@ -124,17 +124,10 @@ export const asyncRoutes = [
         meta: { title: '分店列表' }
       },
       {
-        path: 'detail',
-        name: 'SubbranchDetail',
-        component: () => import('@/views/subbranch/detail/index'),
-        meta: { title: '店铺详情' },
-        hidden: true
-      },
-      {
-        path: 'addSubbranch',
-        name: 'AddSubbranch',
+        path: 'editSubbranch',
+        name: 'EditSubbranch',
         component: () => import('@/views/subbranch/add/index'),
-        meta: { title: '创建分店' },
+        meta: { title: '编辑店铺' },
         hidden: true
       }
     ]
@@ -156,7 +149,7 @@ export const asyncRoutes = [
   {
     path: '/shop',
     component: Layout,
-    alwaysShow: true,
+    alwaysShow: false,
     meta: { title: '店铺中心', icon: 'education' },
     children: [{
       path: '',
@@ -287,133 +280,6 @@ export const asyncRoutes = [
       }
     ]
   },
-  /* {
-    path: '/data',
-    component: Layout,
-    redirect: '/data/academic-data',
-    alwaysShow: true,
-    name: 'Data',
-    meta: { title: '数据中心', icon: 'zip' },
-    children: [
-      {
-        path: 'academic-data',
-        name: 'Academic-data',
-        component: () => import('@/views/data/academic-data/index'),
-        meta: { title: '教务数据' }
-      },
-      {
-        path: 'finance-data',
-        name: 'Finance-data',
-        component: () => import('@/views/data/finance-data/index'),
-        meta: { title: '财务数据' }
-      }
-    ]
-  }, */
-  /* {
-    path: '/show',
-    component: Layout,
-    redirect: '/show/competition',
-    alwaysShow: true,
-    name: 'Show',
-    meta: { title: '蓝青秀', icon: 'skill' },
-    children: [
-      {
-        path: 'competition',
-        component: () => import('@/views/show/competition/index'),
-        children: [
-          {
-            path: '',
-            name: 'Competition',
-            component: () => import('@/views/show/competition/index/index'),
-            meta: { title: '才艺比赛' }
-          },
-          {
-            path: 'detail',
-            name: 'Competition-detail',
-            component: () =>
-              import('@/views/show/competition/competition-detail/index'),
-            hidden: true,
-            meta: { title: '比赛详情' }
-          }
-        ]
-      },
-      {
-        path: 'join',
-        name: 'Join',
-        component: () => import('@/views/show/join/index'),
-        meta: { title: '邀请加盟' }
-      }
-    ]
-  }, */
-  /* {
-    path: '/nested',
-    component: Layout,
-    redirect: '/nested/menu1',
-    name: 'Nested',
-    meta: {
-      title: 'Nested',
-      icon: 'nested'
-    },
-    children: [
-      {
-        path: 'menu1',
-        component: () => import('@/views/nested/menu1/index'), // Parent router-view
-        name: 'Menu1',
-        meta: { title: 'Menu1' },
-        children: [
-          {
-            path: 'menu1-1',
-            component: () => import('@/views/nested/menu1/menu1-1'),
-            name: 'Menu1-1',
-            meta: { title: 'Menu1-1' }
-          },
-          {
-            path: 'menu1-2',
-            component: () => import('@/views/nested/menu1/menu1-2'),
-            name: 'Menu1-2',
-            meta: { title: 'Menu1-2' },
-            children: [
-              {
-                path: 'menu1-2-1',
-                component: () => import('@/views/nested/menu1/menu1-2/menu1-2-1'),
-                name: 'Menu1-2-1',
-                meta: { title: 'Menu1-2-1' }
-              },
-              {
-                path: 'menu1-2-2',
-                component: () => import('@/views/nested/menu1/menu1-2/menu1-2-2'),
-                name: 'Menu1-2-2',
-                meta: { title: 'Menu1-2-2' }
-              }
-            ]
-          },
-          {
-            path: 'menu1-3',
-            component: () => import('@/views/nested/menu1/menu1-3'),
-            name: 'Menu1-3',
-            meta: { title: 'Menu1-3' }
-          }
-        ]
-      },
-      {
-        path: 'menu2',
-        component: () => import('@/views/nested/menu2/index'),
-        meta: { title: 'menu2' }
-      }
-    ]
-  }, */
-
-  /*  {
-    path: 'external-link',
-    component: Layout,
-    children: [
-      {
-        path: 'https://panjiachen.github.io/vue-element-admin-site/#/',
-        meta: { title: 'External Link', icon: 'link' }
-      }
-    ]
-  }, */
-
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]
