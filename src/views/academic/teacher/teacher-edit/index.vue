@@ -20,37 +20,57 @@
             :on-success="handleAvatarSuccess"
             :before-upload="beforeAvatarUpload"
           >
-            <img v-if="imageUrl" :src="imageUrl" class="avatar">
+            <img v-if="content.photo" :src="content.photo" class="avatar">
             <i v-else class="el-icon-picture uploader-icon" />
           </el-upload>
           <p class="upload-tips">只能上传jpg/png文件，建议尺寸为513x321px。</p>
           <input type="hidden">
         </el-form-item>
-
-        <el-form-item label="讲师名称">
-          <el-input v-model.trim="content.name" placeholder="输入课程名称" />
+        <el-form-item v-show="!isAdd" label="状态">
+          <el-radio v-model="content.status" label="0">在职</el-radio>
+          <el-radio v-model="content.status" label="1">离职</el-radio>
         </el-form-item>
-        <el-form-item label="讲师标语">
-          <el-input v-model.trim="content.price" class="slogan-input" placeholder="输入课程价格" maxlength="40" />
+        <el-form-item label="讲师姓名">
+          <el-input v-model.trim="content.realName" placeholder="输入讲师姓名" />
+        </el-form-item>
+        <el-form-item label="讲师昵称">
+          <el-input v-model.trim="content.nickName" placeholder="输入讲师昵称" />
         </el-form-item>
         <el-form-item label="年龄">
-          <el-input v-model.trim="content.signup" placeholder="输入报名人数" />
+          <el-input v-model.trim="content.age" class="slogan-input" placeholder="输入年龄" maxlength="3" @blur="changeAge('age')" />
         </el-form-item>
         <el-form-item label="教龄">
-          <el-input v-model.trim="content.courseNumber" placeholder="请输入课时" />
+          <el-input v-model.trim="content.teachAge" class="slogan-input" placeholder="输入教龄" maxlength="3" @blur="changeAge('teachAge')" />
+        </el-form-item>
+        <el-form-item label="联系电话">
+          <el-input v-model.trim="content.contactPhone" class="slogan-input" placeholder="输入联系电话" maxlength="40" />
+        </el-form-item>
+        <el-form-item label="所担任课程数">
+          <el-input v-model.trim="content.curriculumAmount" class="slogan-input" placeholder="输入所担任课程数" maxlength="40" />
+        </el-form-item>
+        <el-form-item label="学员数">
+          <el-input v-model.trim="content.studentAmount" placeholder="输入学员数" />
+        </el-form-item>
+        <el-form-item label="标语">
+          <el-input v-model.trim="content.performance" placeholder="请输入业绩说明" />
         </el-form-item>
         <el-form-item label="课程类目">
-          <el-select v-model="content.tag" :multiple="true" />
-          <span>-</span>
-          <el-select v-model="content.tag" :multiple="true" />
-          <div v-if="content.tag">
-            <el-tag type="success" closable />
-          </div>
+          <el-transfer
+            v-model="content.categoryViews"
+            :data="categoriesValList"
+            :props="{
+              key: 'categoryId',
+              label: 'categoryName'
+            }"
+            :titles="['未选', '已选']"
+          />
         </el-form-item>
-        <el-form-item label="教师介绍">
-          <el-input v-model="content.intro" type="textarea" class="intro" placeholder="输入详细介绍" />
+        <el-form-item label="详细描述">
+          <el-input v-model.trim="content.detailedDescription" type="textarea" placeholder="请输入详细描述" />
         </el-form-item>
-
+        <el-form-item label="简介">
+          <el-input v-model.trim="content.briefIntroduction" type="textarea" placeholder="请输入简介" />
+        </el-form-item>
         <el-form-item label="奖牌/荣誉">
           <el-upload
             class="student-uploader"
@@ -58,7 +78,9 @@
             list-type="picture-card"
             :action="uploadUrl"
             :on-preview="handlePictureCardPreview"
+            :on-success="handleSuccess"
             :on-remove="handleRemove"
+            :file-list="fileList"
           >
             <i class="el-icon-picture" />
             <div slot="tip" class="upload-tips">只能上传jpg/png文件，且最多上传9张，建议尺寸宽为750，高不宜超过1200px。</div>
@@ -66,20 +88,10 @@
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary ">保存</el-button>
-          <el-button> 取消</el-button>
+          <el-button type="primary" @click="save">保存</el-button>
         </el-form-item>
       </el-form>
     </div>
-
-    <el-dialog :visible="isLeaveShow" :center="true" @close="isLeaveShow=false">
-      <h4 class="dialog-text">离开将丢失已编辑内容，是否离开？</h4>
-
-      <span slot="footer">
-        <el-button>取 消</el-button>
-        <el-button type="primary" @click="onLeave">立即结业</el-button>
-      </span>
-    </el-dialog>
 
     <el-dialog :visible.sync="dialogVisible">
       <img width="100%" :src="dialogImageUrl" alt>
@@ -87,6 +99,7 @@
   </section>
 </template>
 <script>
+import { getCategoryList, addTeacher, getDetail, editTeacher } from '@/api/teacher'
 import PageHead from '@/components/PageHead'
 import { Upload_Pic } from '@/api/URL.js'
 export default {
@@ -94,7 +107,22 @@ export default {
   components: { PageHead },
   data() {
     return {
-      content: {},
+      content: {
+        photo: '',
+        nickName: '',
+        realName: '',
+        studentAmount: '',
+        teachAge: '',
+        performance: '',
+        detailedDescription: '',
+        curriculumAmount: '',
+        contactPhone: '',
+        briefIntroduction: '',
+        age: '',
+        categoryViews: [],
+        achievements: []
+      },
+      categoriesValList: [],
       isEdit: false,
       courseFormRules: {},
       teacherArr: [{}],
@@ -103,68 +131,101 @@ export default {
       dialogVisible: false,
       fileList: [],
       uploadUrl: Upload_Pic, // 图片上传地址
-      isLeaveShow: false
+      isAdd: true
+    }
+  },
+  created() {
+    this.getCategory()
+    const id = this.$route.query.id
+    if (id) {
+      this.isAdd = false
+      this.getView(id)
     }
   },
   methods: {
+    getView(id) {
+      const getObj = {
+        id: id
+      }
+      getDetail(getObj).then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        if (!res.data) return
+        this.content = res.data
+        this.content.achievements.forEach(item => {
+          this.fileList.push({
+            url: item
+          })
+        })
+        const cateArr = []
+        this.content.categoryViews.forEach(item => {
+          cateArr.push(item.categoryId)
+        })
+        this.content.categoryViews = cateArr
+      })
+    },
+    getCategory() {
+      getCategoryList().then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        if (!res.data) return
+        this.categoriesValList = res.data
+      })
+    },
     goBack() {
       this.$router.go(-1)
     },
     handleAvatarSuccess(res, file) {
-      this.imageUrl = URL.createObjectURL(file.raw)
+      if (res.code) {
+        return res.message & this.$warn(res.message)
+      }
+      if (!res.data) return
+      this.content.photo = res.data
     },
     beforeAvatarUpload(file) {
-      const isJPG = file.type === 'image/jpeg'
       const isLt2M = file.size / 1024 / 1024 < 2
-
-      if (!isJPG) {
-        this.$message.error('上传头像图片只能是 JPG 格式!')
-      }
       if (!isLt2M) {
         this.$message.error('上传头像图片大小不能超过 2MB!')
       }
-      return isJPG && isLt2M
+      return isLt2M
+    },
+    changeAge(str) {
+      if (this.content[str] > 100) {
+        this.content[str] = 100
+      }
     },
     handleRemove(file, fileList) {
-      console.log(file, fileList)
+      if (file.status !== 'success') {
+        return this.$warn('删除失败')
+      }
+      if (!file.url) return
+      const index = this.content.achievements.indexOf(file.url)
+      this.content.achievements.splice(index, 1)
+    },
+    handleSuccess(res, file) {
+      if (res.code) {
+        return res.message & this.$warn(res.message)
+      }
+      if (!res.data) return
+      this.content.achievements.push(res.data)
     },
     handlePictureCardPreview(file) {
       this.dialogImageUrl = file.url
       this.dialogVisible = true
     },
-    delTeacher(item, index) {
-      this.teacherArr.splice(index, 1)
-    },
-    addTeacher() {
-      this.teacherArr.push({
-        catelogVal: ''
+    save() {
+      const callBackFn = this.isAdd ? addTeacher : editTeacher
+      const saveObj = this.content
+      callBackFn(saveObj).then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        this.$success(res.message)
+        this.$router.push({ name: 'Teacher' })
       })
-    },
-
-    handlePreview(file) {
-      console.log(file)
-    },
-    handleExceed(files, fileList) {
-      this.$message.warning(`当前限制选择 3 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`)
-    },
-    beforeRemove(file, fileList) {
-      return this.$confirm(`确定移除 ${file.name}？`)
-    },
-
-    // 打开 切换教师
-    openChangeTeacher() {
-      this.isChangeShow = true
-    },
-
-    // 切换教师
-    onChangeTeacher() {},
-    // 结业
-    openGraduate(item) {
-      this.isLeaveShow = true
-    },
-    // 评价
-    onLeave() {}
-
+    }
   }
 }
 </script>
@@ -230,9 +291,9 @@ export default {
       position: relative;
       overflow: hidden;
       background: rgba(250, 250, 251, 1);
-      width: 80px;
-      height: 80px;
-      line-height: 82px;
+      width: 148px;
+      height: 148px;
+      line-height: 146px;
       &:hover {
         border-color: rgba(0,210,165,1);
       }

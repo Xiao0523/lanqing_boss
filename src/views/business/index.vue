@@ -230,6 +230,7 @@ export default {
           return res.message && this.$warn(res.message)
         }
         this.$success(res.message)
+        this.getBusiness()
       })
     },
     // 重新提交

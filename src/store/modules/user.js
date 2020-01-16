@@ -26,6 +26,7 @@ const mutations = {
   },
   SET_ROLES: (state, roles) => {
     state.roles = roles
+    setLocal('examineRoles', roles)
   },
   SET_STATUS: (state, examineStatus) => {
     state.examineStatus = examineStatus

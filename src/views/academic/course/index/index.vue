@@ -25,59 +25,84 @@
         class="table"
         :data="list"
       >
-        <el-table-column align="center" label="课程名称">
-          <template>
+        <el-table-column label="课程名称">
+          <template slot-scope="scope">
             <div>
-              <img src="" alt="图片">
-              <span>古筝课程</span>
+              <img :src="scope.row.cover" alt="图片">
+              <span>{{ scope.row.name }}</span>
             </div>
           </template>
         </el-table-column>
-        <el-table-column align="center" label="分类" />
-        <el-table-column align="center" label="课时" />
-        <el-table-column align="center" label="课程价格（元）" />
-        <el-table-column align="center" label="对应类目" />
-        <el-table-column align="center" label="状态" />
-        <el-table-column align="center" label="状态" />
-        <el-table-column align="center" label="当前评分">
-          <template> <star :score="2" /></template>
+        <el-table-column label="分类" prop="categoryName" />
+        <el-table-column label="课时" prop="hours" />
+        <el-table-column label="课程价格（元）" prop="price" />
+        <el-table-column label="状态">
+          <template slot-scope="scope">
+            {{ scope.row.status | statusStr }}
+          </template>
         </el-table-column>
-        <el-table-column>
+        <el-table-column label="当前评分">
+          <template slot-scope="scope">
+            <star :score="scope.row.score" />
+          </template>
+        </el-table-column>
+        <el-table-column label="操作">
           <template slot-scope="scope">
             <router-link :to="{name: 'Course-detail'}">
               <el-button size="mini">详情</el-button>
             </router-link>
-            <el-button type="danger" size="mini" @click="onDel(scope.row, scope.$index)">下架</el-button>
+            <el-button size="mini" @click="onDel(scope.row, scope.$index)">编辑</el-button>
           </template>
         </el-table-column>
       </el-table>
     </div>
 
-    <div class="pagination-wraper">
+    <!-- <div class="pagination-wraper">
       <pagination v-show="total>0" :total="total" :page.sync="pageNum" :limit.sync="pageSize" @pagination="pageChange" />
-    </div>
+    </div> -->
   </div>
 </template>
 <script>
-import Pagination from '@/components/Pagination'
+import {
+  getStoreList
+} from '@/api/course'
+// import Pagination from '@/components/Pagination'
 import Star from '@/components/Star'
 export default {
   name: 'Course',
-  components: { Pagination, Star },
+  components: { Star },
+  filters: {
+    statusStr(val) {
+      return val === 0 ? '上架' : '下架'
+    }
+  },
   data() {
     return {
       list: [{}],
       keywords: {
         name: '',
-        categroy: '',
+        categoryId: '',
         status: ''
       },
       total: 1, // 总记录数
       pageNum: 1, // 分页页面
-      pageSize: 10// 分页容量
+      pageSize: 10 // 分页容量
     }
   },
+  created() {
+    this.fetchList()
+  },
   methods: {
+    fetchList() {
+      const fetchObj = this.keywords
+      getStoreList(fetchObj).then(res => {
+        if (res.code) {
+          return res.message && this.$(res.message)
+        }
+        if (!res.data) return
+        this.list = res.data
+      })
+    },
     onDel(item) {
 
     },

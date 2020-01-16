@@ -154,16 +154,8 @@ export const asyncRoutes = [
     children: [{
       path: '',
       name: 'Shop',
-      component: () => import('@/views/shop/index/index'),
+      component: () => import('@/views/shop/index'),
       meta: { title: '店铺中心' }
-    },
-    {
-      path: 'edit',
-      name: 'Shop-edit',
-      component: () =>
-      import('@/views/shop/edit/index'),
-      hidden: true,
-      meta: { title: '店铺编辑' }
     }]
   },
   {

@@ -244,6 +244,7 @@ export default {
           this.$success(res.message)
           if (res.data && res.data !== 'store') {
             this.$router.replace({ path: '/business' })
+            return
           }
           this.$router.replace({ path: '/shop' })
         })

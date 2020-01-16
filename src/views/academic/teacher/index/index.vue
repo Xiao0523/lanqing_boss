@@ -5,85 +5,118 @@
     </router-link>
 
     <h2 class="title">讲师管理</h2>
-
     <el-form :inline="true">
       <el-form-item class="search-item">
-        <el-input v-model.trim="keywords.name" placeholder="搜索老师名称" suffix-icon="el-icon-search" @change="onSearch" />
+        <el-input v-model.trim="keywords.name" placeholder="搜索老师名称" suffix-icon="el-icon-search" @blur="fetchList" />
       </el-form-item>
       <el-form-item class="search-item" label="课程类目">
-        <el-select v-model="keywords.category" @change="onSearch" />
+        <el-select v-model="categoryStr" @change="categoryChange">
+          <el-option
+            v-for="item in categoryList"
+            :key="item.categoryName + item.categoryId"
+            :value="item.categoryName"
+          />
+        </el-select>
       </el-form-item>
-      <el-form-item label="课程状态">
-        <el-select v-model="keywords.status" @change="onSearch" />
+      <el-form-item label="讲师状态">
+        <el-select v-model="statusStr" @change="statusChange">
+          <el-option
+            v-for="item in statusList"
+            :key="item.label + item.value"
+            :value="item.label"
+          />
+        </el-select>
       </el-form-item>
     </el-form>
-
     <div class="table-wraper">
-
       <el-table
         class="table"
         :data="list"
       >
-        <el-table-column label="课程名称">
-          <template>
-            <div>
-              <img src="" alt="图片">
-              <span>古筝课程</span>
+        <el-table-column label="姓名">
+          <template slot-scope="scope">
+            <div class="img-box">
+              <img class="img-warpper" :src="scope.row.photo" alt="">
+              {{ scope.row.realName }}
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="分类" />
-        <el-table-column label="课时" />
-        <el-table-column label="课程价格（元）" />
-        <el-table-column label="对应类目" />
-        <el-table-column label="状态" />
-        <el-table-column label="当前评分">
-          <template> <star :score="2" /></template>
-        </el-table-column>
-        <el-table-column label="启用状态">
-          <template>
-            <el-switch
-              v-model="value2"
-              active-color="#00D2A5"
-              inactive-color="#92929D"
-            />
+        <el-table-column label="教龄" prop="teachAge" />
+        <el-table-column label="课程数" prop="curriculumAmount" />
+        <el-table-column label="学生数" prop="studentAmount" />
+        <el-table-column label="评分">
+          <template slot-scope="scope">
+            <star :score="scope.row.score" />
           </template>
         </el-table-column>
-        <el-table-column>
-          <template>
-            <router-link :to="{name: 'Teacher-detail'}">
+        <el-table-column label="启用状态">
+          <template slot-scope="scope">
+            {{ scope.row.status | statusStr }}
+          </template>
+        </el-table-column>
+        <el-table-column label="操作">
+          <template slot-scope="scope">
+            <router-link :to="{name: 'Teacher-edit', query: { id: scope.row.id }}">
+              <el-button size="mini">编辑</el-button>
+            </router-link>
+            <router-link :to="{name: 'Teacher-detail', query: { id: scope.row.id }}">
               <el-button size="mini">详情</el-button>
             </router-link>
           </template>
         </el-table-column>
       </el-table>
     </div>
-
-    <div class="pagination-wraper">
+    <!-- <div class="pagination-wraper">
       <pagination v-show="total>0" :total="total" :page.sync="pageNum" :limit.sync="pageSize" @pagination="pageChange" />
-    </div>
+    </div> -->
   </div>
 </template>
 <script>
-import Pagination from '@/components/Pagination'
+import { getTeacherList, getCategoryList } from '@/api/teacher'
+// import Pagination from '@/components/Pagination'
 import Star from '@/components/Star'
 export default {
   name: 'Stuedent',
-  components: { Pagination, Star },
+  components: { Star },
+  filters: {
+    statusStr(val) {
+      return val === 0 ? '在职' : '离职'
+    }
+  },
   data() {
     return {
-      list: [{}],
+      list: [],
+      statusStr: '全部',
+      categoryStr: '全部',
+      statusList: [{
+        label: '全部',
+        value: ''
+      }, {
+        label: '在职',
+        value: 0
+      }, {
+        label: '离职',
+        value: 1
+      }],
+      categoryList: [{
+        categoryName: '全部',
+        categoryId: ''
+      }],
       keywords: {
         name: '',
-        categroy: '',
+        categoryId: '',
         status: ''
       },
       value1: true,
       value2: true,
       total: 0, // 总记录数
       pageNum: 1, // 分页页面
-      pageSize: 10// 分页容量
+      pageSize: 10 // 分页容量
     }
+  },
+  created() {
+    this.fetchList()
+    this.getCategory()
   },
   methods: {
     onDel(item) {
@@ -93,10 +126,45 @@ export default {
     pageChange(page) {
 
     },
-
-    // 搜索
-    onSearch() {
-
+    getCategory() {
+      getCategoryList().then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        if (!res.data) return
+        this.categoryList = [...this.categoryList, ...res.data]
+      })
+    },
+    // 获取教员列表
+    fetchList() {
+      const getObj = this.keywords
+      getTeacherList(getObj).then(res => {
+        if (res.code) {
+          return res.message && this.$(res.message)
+        }
+        if (!res.data) return
+        this.list = res.data
+      })
+    },
+    // 类目改变
+    categoryChange() {
+      for (const item of this.categoryList) {
+        if (item.categoryName === this.categoryStr) {
+          this.keywords.categoryId = item.categoryId
+          break
+        }
+      }
+      this.fetchList()
+    },
+    // 状态改变
+    statusChange() {
+      for (const item of this.statusList) {
+        if (item.label === this.statusStr) {
+          this.keywords.status = item.value
+          break
+        }
+      }
+      this.fetchList()
     }
   }
 }
@@ -145,5 +213,15 @@ export default {
 }
 .pagination-wraper{
   text-align: right
+}
+
+.img-box {
+  display: flex;
+  height: 40px;
+  line-height: 40px;
+  img {
+    width: 40px;
+    margin-right: 10px;
+  }
 }
 </style>

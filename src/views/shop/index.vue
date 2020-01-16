@@ -1,74 +1,69 @@
 <template>
   <section class="container">
     <h2 class="title">店铺中心</h2>
-
     <div class="panel">
       <h3 class="panel__hd">
         <h2 class="panel-title">店铺信息</h2>
-        <router-link :to="{name: 'Shop-edit'}">
-          <el-button>编辑店铺</el-button>
-        </router-link>
       </h3>
       <div class="panel__bd">
-        <div v-if="!isEmpty">
+        <div>
           <div class="flex">
             <div class="flex__hd">店铺logo</div>
             <div class="flex__bd">
-              <img :src="imageUrl" class="avatar">
+              <img v-show="content.covers.length" :src="content.covers[0] | imageUrl" class="avatar">
             </div>
           </div>
           <div class="flex">
             <div class="flex__hd">店铺名称</div>
             <div class="flex__bd">
-              <strong>古筝课程初级</strong>
+              <strong>{{ content.name }}</strong>
             </div>
           </div>
           <div class="flex">
             <div class="flex__hd">店铺标语</div>
             <div class="flex__bd">
-              <strong>1000</strong>
+              <strong>{{ content.introduce }}</strong>
             </div>
           </div>
           <div class="flex">
             <div class="flex__hd">店铺地址</div>
             <div class="flex__bd">
-              <strong>3000.00</strong>
+              <strong>{{ content.businessAddressSystem }}</strong>
             </div>
           </div>
           <div class="flex">
             <div class="flex__hd">营业信息</div>
             <div class="flex__bd">
-              <strong>2020-01-01 00:00:00</strong>
+              <strong>{{ content.businessHours }}</strong>
             </div>
           </div>
           <div class="flex">
             <div class="flex__hd">店铺介绍</div>
             <div class="flex__bd">
-              <p class="shop-intro">中国科学院心理研究所博士。山东省省级教学团队主要成员，省级精品课程主讲教师。中国科学院心理研究所心理健康指导师，潍坊医学院心理健康服务中心咨询师。中国心理卫生协会青年专家，中国音乐治疗协会理事。</p>
+              <p class="shop-intro">{{ content.selfDescription }}</p>
             </div>
           </div>
           <div class="flex">
-            <div class="flex__hd">店铺背景</div>
+            <div class="flex__hd">店铺封面</div>
             <div class="flex__bd">
-              <ul class="list">
-                <li><img class="list-img" src="" alt=""></li>
+              <ul v-show="content.covers" class="list">
+                <li v-for="item in content.covers" :key="item">
+                  <img class="list-img" :src="item" alt="">
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="flex">
+            <div class="flex__hd">店铺资质</div>
+            <div class="flex__bd">
+              <ul v-show="content.qualifications" class="list">
+                <li v-for="item in content.qualifications" :key="item">
+                  <img class="list-img" :src="item" alt="">
+                </li>
               </ul>
             </div>
           </div>
         </div>
-
-        <div v-else class="empty">
-          <div class="empty-content">
-            <img class="empty-img" src="@/assets/暂无店铺.png" alt="">
-            <div>
-
-              <router-link :to="{name: 'Shop-edit'}">
-                <el-button>完善店铺信息</el-button>
-              </router-link>
-            </div>
-          </div>
-        </div>
-
       </div>
     </div>
 
@@ -77,10 +72,6 @@
       <div class="panel__bd">
 
         <el-form>
-          <div class="radio-wraper">
-            <el-radio v-model="radio" label="1">显示真实数据</el-radio>
-            <el-radio v-model="radio" label="2">显示虚拟数据</el-radio>
-          </div>
           <el-form-item label="讲师数量" class="">
             <el-input />
           </el-form-item>
@@ -94,21 +85,9 @@
 
     <div class="panel">
       <div class="panel__hd">账号与密码</div>
-      <div class="panel__bd">
-        <div class="flex">
-          <div class="flex__hd">用户名</div>
-          <div class="flex__bd">
-            <strong>2020-01-01 00:00:00</strong>
-          </div>
-        </div>
-        <div class="flex">
-          <div class="flex__hd">登录密码</div>
-          <div class="flex__bd">
-            <strong>2020-01-01 00:00:00</strong>
-          </div>
-        </div>
+      <div class="content-detail">
+        <el-button class="contact-btn">请联系超管 修改密码</el-button>
       </div>
-      <el-button class="contact-btn">请联系超管 修改密码</el-button>
     </div>
 
   </section>
@@ -118,10 +97,16 @@ import { getStoreHome } from '@/api/store'
 
 export default {
   name: 'TeacherDetail',
+  filters: {
+    imageUrl(val) {
+      return val || ''
+    }
+  },
   data() {
     return {
-      content: {},
-      imageUrl: '',
+      content: {
+        covers: []
+      },
       radio: '',
       isEmpty: true
     }
@@ -132,12 +117,17 @@ export default {
   methods: {
     getHomeView() {
       getStoreHome().then(res => {
-        console.log(res)
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        if (!res.data) return
+        this.content = res.data
       })
     }
   }
 }
 </script>
+
 <style lang="scss" scoped>
 .container {
   padding: 30px;
@@ -267,6 +257,25 @@ export default {
         border-color: #00d2a5;
       }
     }
+  }
+}
+
+.content{
+  background:rgba(255,255,255,1);
+  border-radius:10px;
+  margin-bottom: 20px;
+  &-title{
+    font-size:18px;
+    font-family:PingFangSC-Semibold,PingFang SC;
+    font-weight:600;
+    color:rgba(23,23,37,1);
+    line-height:25px;
+    padding: 22px 30px;
+    border-bottom: 1px solid rgba(226,226,234,1)
+
+  }
+  &-detail{
+    padding: 20px;
   }
 }
 

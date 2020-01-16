@@ -100,6 +100,7 @@
             key: 'categoryId',
             label: 'categoryName'
           }"
+          :titles="['未选', '已选']"
         />
       </el-form-item>
 
@@ -321,15 +322,19 @@ export default {
       this.getCityList()
     },
     handleRemove(file, fileList) {
-      const res = file.response
-      if (!res.data) return
-      const index = this.form.qualifications.indexOf(res.data)
+      if (file.status !== 'success') {
+        return this.$warn('删除失败')
+      }
+      if (!file.url) return
+      const index = this.form.qualifications.indexOf(file.url)
       this.form.qualifications.splice(index, 1)
     },
     handleCoversRemove(file, fileList) {
-      const res = file.response
-      if (!res.data) return
-      const index = this.form.covers.indexOf(res.data)
+      if (file.status !== 'success') {
+        return this.$warn('删除失败')
+      }
+      if (!file.url) return
+      const index = this.form.covers.indexOf(file.url)
       this.form.covers.splice(index, 1)
     },
     handlePicturePreview(file) {
@@ -375,6 +380,12 @@ export default {
 <style lang="scss" scoped>
 .container {
   padding: 20px;
+}
+
+.uoload {
+  width: 148px;
+  height: 148px;
+  line-height: 146px;
 }
 
 .avatar-uploader {

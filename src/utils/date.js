@@ -48,44 +48,59 @@ export function parseTime(time, cFormat) {
  * @param {string} option
  * @returns {string}
  */
-export function formatTime(time, option) {
-  if (('' + time).length === 10) {
-    time = parseInt(time) * 1000
-  } else {
-    time = +time
+export function formatTime(time = 0, format = 'YYYY-MM-DD hh:mm:ss') {
+  const now = new Date().getTime()
+  if (!time) time = now
+  while (time.toString().length < 13) time += '0'
+  const date = new Date(time)
+  date.getMonth()
+  /** 参数集 年-月-日 时:分:秒 */
+  const arg = {
+    year: date.getFullYear(),
+    month: date.getMonth() + 1,
+    day: date.getDate(),
+    hours: date.getHours(),
+    minutes: date.getMinutes(),
+    seconds: date.getSeconds()
   }
-  const d = new Date(time)
-  const now = Date.now()
 
-  const diff = (now - d) / 1000
-
-  if (diff < 30) {
-    return '刚刚'
-  } else if (diff < 3600) {
-    // less 1 hour
-    return Math.ceil(diff / 60) + '分钟前'
-  } else if (diff < 3600 * 24) {
-    return Math.ceil(diff / 3600) + '小时前'
-  } else if (diff < 3600 * 24 * 2) {
-    return '1天前'
-  }
-  if (option) {
-    return parseTime(time, option)
-  } else {
-    return (
-      d.getMonth() +
-      1 +
-      '月' +
-      d.getDate() +
-      '日' +
-      d.getHours() +
-      '时' +
-      d.getMinutes() +
-      '分'
-    )
+  /** 判断有没有指定的时间格式 */
+  switch (format) {
+    case 'YYYY-MM-DD hh:mm:ss':
+      return `${arg.year}-${arg.month}-${arg.day} ${arg.hours}:${arg.minutes}:${arg.seconds}`
+    case 'YYYY-MM-DD':
+      return `${arg.year}-${arg.month}-${arg.day}`
+    case 'MM-DD':
+      return `${arg.month}-${arg.day}`
+    case 'hh:mm:ss':
+      return `${arg.hours}:${arg.minutes}:${arg.seconds}`
+    case 'hh:mm':
+      return `${arg.hours}:${arg.minutes}`
+    case 'computed': // 判断是不是需要进行计算
+      if (now > time) {
+        const dt = Math.abs(time - now) // 时间已过去多少毫秒
+        const S = dt / 1000 // 秒
+        const M = S / 60 // 分
+        const H = M / 60 // 小时
+        const D = H / 24 // 天
+        const W = D / 7 // 周
+        if (~~W > 0 && W < 3) {
+          return ~~W + '周前'
+        } else if (D < 7 && ~~D > 0) {
+          return ~~D + '天前'
+        } else if (~~H > 0 && H < 24) {
+          return ~~H + '小时前'
+        } else if (~~M > 0 && M < 60) {
+          return ~~M + '分钟前'
+        } else if (~~S > 0 && S < 60) {
+          return ~~S + '秒前'
+        }
+      } else {
+        console.log('未来的时间')
+      }
+      return `${arg.year}-${arg.month}-${arg.day} ${arg.hours}:${arg.minutes}:${arg.seconds}`
   }
 }
-
 /**
  * @param {string} url
  * @returns {Object}

@@ -10,11 +10,14 @@ export default {
       if (this.device === 'mobile' && this.sidebar.opened) {
         store.dispatch('app/closeSideBar', { withoutAnimation: false })
       }
-      const examineStatus = getLocal('examineStatus') || this.$store.state.user.examineStatus || 0
-      if (examineStatus !== 1) {
-        this.$router.push({ name: 'Business' })
-      }
     }
+  },
+  beforeCreate() {
+    // const examineStatus = getLocal('examineStatus') || this.$store.state.user.examineStatus || 0
+    // const roles = getLocal('examineRoles')[0] || ''
+    // if (examineStatus !== 1 && roles && roles !== 'store') {
+    //   this.$router.push({ name: 'Business' })
+    // }
   },
   beforeMount() {
     window.addEventListener('resize', this.$_resizeHandler)

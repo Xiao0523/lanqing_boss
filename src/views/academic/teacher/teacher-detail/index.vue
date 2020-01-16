@@ -6,66 +6,42 @@
       <h3 class="panel__hd">讲师基本信息</h3>
       <div class="panel__bd">
         <div class="teacher">
-          <img class="teacher-avatar" src alt="头像">
+          <img class="teacher-avatar" :src="content.photo" alt="头像">
           <div class="teacher-info">
-            <div class="teacher-name">张三</div>
-            <div class="teacher-slogan">好好学习 天天向上</div>
-            <span class="teacher-age">23岁</span>
+            <div class="teacher-name">{{ content.realName }}</div>
+            <div class="teacher-slogan">{{ content.performance }}</div>
+            <span class="teacher-age">{{ content.age }}</span>
           </div>
           <div class="teacher-score">
-            <div class="teacher-score-number">4.5</div>
-            <star />
+            <div class="teacher-score-number">{{ content.score }}</div>
+            <star :score="content.score" />
           </div>
         </div>
         <el-row :gutter="50">
           <el-col :span="6">
             <span class="info-title">教龄</span>
-            <strong class="info-data">13</strong>
+            <strong class="info-data">{{ content.teachAge }}</strong>
           </el-col>
           <el-col :span="6">
             <span class="info-title">课程数量</span>
-            <strong class="info-data">20</strong>
+            <strong class="info-data">{{ content.curriculumAmount }}</strong>
           </el-col>
           <el-col :span="6">
             <span class="info-title">学生数</span>
-            <strong class="info-data">3000.00</strong>
+            <strong class="info-data">{{ content.studentAmount }}</strong>
           </el-col>
         </el-row>
 
         <h4 class="teacher-honer">奖牌/荣誉</h4>
-        <ul class="list">
-          <li><img class="list-img" src="" alt=""></li>
+        <ul v-show="content.achievements" class="list">
+          <li v-for="item in content.achievements" :key="item"><img class="list-img" :src="item" alt=""></li>
         </ul>
 
         <h4 class="teacher-intro">讲师介绍</h4>
-        <div>
-          <el-tag type="success">古筝</el-tag>
-          <el-tag type="success">古筝</el-tag>
+        <div class="category-box">
+          <el-tag v-for="item in content.categoryViews" :key="item.categoryName + item.categoryId" class="category-item" type="success">{{ item.categoryName }}</el-tag>
         </div>
-        <p class="teacher-intro-text">中国科学院心理研究所博士。山东省省级教学团队主要成员，省级精品课程主讲教师。中国科学院心理研究所心理健康指导师，潍坊医学院心理健康服务中心咨询师。中国心理卫生协会青年专家，中国音乐治疗协会理事。</p>
-      </div>
-    </div>
-
-    <div class="panel">
-      <h3 class="panel__hd">课程显示数据</h3>
-      <div class="panel__bd">
-        <div class="course-radio">
-          <el-radio v-model="radio" label="1">显示真实数据</el-radio>
-          <el-radio v-model="radio" label="2">显示虚拟数据</el-radio>
-        </div>
-        <div class="flex">
-          <div class="flex__hd">课程数</div>
-          <div class="flex__bd">
-            <strong>30</strong>
-          </div>
-        </div>
-        <div class="flex">
-          <div class="flex__hd">学生数</div>
-          <div class="flex__bd">
-            <strong>300</strong>
-          </div>
-        </div>
-        <el-button type="primary">保存</el-button>
+        <p class="teacher-intro-text">{{ content.detailedDescription }}</p>
       </div>
     </div>
 
@@ -92,21 +68,41 @@
   </section>
 </template>
 <script>
+import { getDetail } from '@/api/teacher'
 import Star from '@/components/Star'
 export default {
   name: 'TeacherDetail',
   components: { Star },
   data() {
     return {
-      content: {},
+      content: {
+        achievements: {}
+      },
       imageUrl: '',
       radio: '',
       list: [],
       activeName0: 'learning'
     }
   },
+  created() {
+    const id = this.$route.query.id
+    if (id) {
+      this.getView(id)
+    }
+  },
   methods: {
-
+    getView(id) {
+      const getObj = {
+        id: id
+      }
+      getDetail(getObj).then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        if (!res.data) return
+        this.content = res.data
+      })
+    }
   }
 }
 </script>
@@ -203,6 +199,12 @@ export default {
   margin: 0;
   display: flex;
   align-items: center;
+  & > li:first-child {
+    margin: 0
+  }
+  li {
+    margin-left: 10px;
+  }
   &-img{
     display: block;
     width:80px;
@@ -371,6 +373,15 @@ export default {
     font-weight: 400;
     color: rgba(105, 105, 116, 1);
     line-height: 15px;
+  }
+}
+
+.category-box {
+  & > .category-item:first-child {
+    margin: 0;
+  }
+  .category-item {
+    margin-left: 10px;
   }
 }
 

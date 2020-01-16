@@ -1,6 +1,6 @@
 <template>
   <div>
-    <i v-for="item in count" :key="item" class="el-icon-star-on" :class="{'on': item <= score}" />
+    <i v-for="item in count" :key="item" class="el-icon-star-on" :class="{'on': item <= scores}" />
   </div>
 </template>
 <script>
@@ -14,13 +14,17 @@ export default {
   },
   data() {
     return {
-      count: 5
+      count: 5,
+      scores: 0
     }
   },
   watch: {
-    score(newVal) {
-
+    score() {
+      this.scores = parseInt(this.score)
     }
+  },
+  created() {
+    this.scores = parseInt(this.score)
   }
 }
 </script>
