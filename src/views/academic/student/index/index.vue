@@ -5,7 +5,7 @@
         <div class="card">
           <h6 class="card__hd">正式学员</h6>
           <div class="card__bd">
-            <strong class="card-number">32</strong>
+            <strong class="card-number">{{ content.studentFormalNum }}</strong>
           </div>
           <div class="card__ft">当前正式学员数量</div>
         </div>
@@ -14,7 +14,7 @@
         <div class="card">
           <h6 class="card__hd">意向学员</h6>
           <div class="card__bd">
-            <strong class="card-number">320</strong>
+            <strong class="card-number">{{ content.studentIntentionNum }}</strong>
           </div>
           <div class="card__ft">当前意向学员数量</div>
         </div>
@@ -23,7 +23,7 @@
         <div class="card">
           <h6 class="card__hd">潜在学员</h6>
           <div class="card__bd">
-            <strong class="card-number">32</strong>
+            <strong class="card-number">{{ content.studentPotentialNum }}</strong>
           </div>
           <div class="card__ft">当前潜在学员数量</div>
         </div>
@@ -51,12 +51,11 @@
         <el-table-column label="学员姓名">
           <template slot-scope="scope">
             <div class="student-info">
-              <img class="thumbnail" src="" alt="头像">
-              <span>{{ scope.row }}张三</span>
+              <span>{{ scope.row.studentName }}</span>
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="手机号" />
+        <el-table-column label="手机号" prop="" />
         <el-table-column width="320px" label="课程情况">
           <template>
             <div class="course-info">
@@ -88,51 +87,65 @@
       </el-table>
     </div>
 
-    <div>
-      <pagination v-show="total>0" :total="total" :page.sync="pageNum" :limit.sync="pageSize" @pagination="pageChange" />
-    </div>
-
   </div>
 </template>
 <script>
-import Pagination from '@/components/Pagination'
+import { getStoreHome } from '@/api/store'
+import { getstudentList } from '@/api/student'
 export default {
   name: 'Stuedent',
-  components: { Pagination },
   data() {
     return {
-      list: [{}],
+      list: [],
       keywords: {
         name: '',
-        categroy: ''
+        categoryId: ''
       },
+      content: {},
       activeName: 'second',
       total: 1, // 总记录数
       pageNum: 1, // 分页页面
       pageSize: 10// 分页容量
     }
   },
+  created() {
+    this.getHomeView()
+    this.fetchList()
+  },
   methods: {
-    handleClick(tab, event) {
-      console.log(tab, event)
+    getHomeView() {
+      getStoreHome().then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        if (!res.data) return
+        this.content = res.data
+      })
+    },
+    fetchList() {
+      const submitObj = {
+        ...this.keywords
+      }
+      getstudentList(submitObj).then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        if (!res.data) return
+        this.list = res.data
+      })
     },
     onDel(item) {
-
     },
     // 分页点击 事件
     pageChange(page) {
-
     },
-
     // 搜索
     onSearch() {},
 
     handleSelectionChange(val) {
-
     },
     onCancle() {},
     onBatch() {
-
     }
   }
 }

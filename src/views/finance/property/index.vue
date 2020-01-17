@@ -131,8 +131,8 @@ export default {
     },
     // 验证只能输入正整数
     proving() {
-      this.redrawForm.money = this.redrawForm.money.replace(/[^\.\d]/g,'');
-      this.redrawForm.money = this.redrawForm.money.replace('.','');
+      this.redrawForm.money = this.redrawForm.money.replace(/[^\.\d]/g, '')
+      this.redrawForm.money = this.redrawForm.money.replace('.', '')
     },
     fetchList() {
       const submitObj = {

@@ -3,7 +3,12 @@
     <h2 class="title">讲师管理</h2>
 
     <div class="panel">
-      <h3 class="panel__hd">讲师基本信息</h3>
+      <div class="panel__hd">
+        <h3 class="panel-title">讲师基本信息</h3>
+        <router-link :to="{ name: 'Teacher-edit', query: { id: viewId }}">
+          <el-button>编辑讲师</el-button>
+        </router-link>
+      </div>
       <div class="panel__bd">
         <div class="teacher">
           <img class="teacher-avatar" :src="content.photo" alt="头像">
@@ -106,12 +111,14 @@ export default {
         pageSize: 9
       },
       total: 0,
-      studentList: []
+      studentList: [],
+      viewId: ''
     }
   },
   created() {
     const id = this.$route.query.id
     if (id) {
+      this.viewId = id
       this.getView(id)
       this.getStudentList(id)
     }

@@ -89,7 +89,7 @@
       </div>
     </el-form>
     <div class="logo-wraper">
-      <div class="logo"><img class="logo-img" src="" alt=""></div>
+      <div class="logo"><img class="logo-img" :src="logo" alt=""></div>
       <div class="logo-text">蓝青教育商户端</div>
     </div>
     <el-dialog
@@ -131,6 +131,7 @@ export default {
         username: '',
         password: ''
       },
+      logo: require('@/assets/logo-white.png'),
       loading: false,
       isRegist: false, // 是否是注册页面  false 不是注册页面 true 注册页面
       // 注册表单
@@ -269,5 +270,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  @import '../../styles/login-global'
+  @import '../../styles/login-global';
+  .logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 </style>

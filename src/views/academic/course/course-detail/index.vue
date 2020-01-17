@@ -6,6 +6,9 @@
 
       <div class="panel__hd">
         <h3 class="panel-title">课程基本信息</h3>
+        <router-link :to="{ name: 'Course-edit', query: { id: viewId }}">
+          <el-button>编辑课程</el-button>
+        </router-link>
       </div>
       <div class="panel__bd">
         <div class="flex">
