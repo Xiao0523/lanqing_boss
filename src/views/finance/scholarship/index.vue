@@ -5,7 +5,7 @@
         <div class="card">
           <h6 class="card__hd">可使用奖学金币数</h6>
           <div class="card__bd">
-            <strong class="card-number">32</strong>
+            <strong class="card-number">{{ content.surplusIcon }}</strong>
           </div>
           <div class="card__ft">当前可使用奖学金币</div>
         </div>
@@ -14,7 +14,7 @@
         <div class="card">
           <h6 class="card__hd">累计使用奖学金币数</h6>
           <div class="card__bd">
-            <strong class="card-number">320</strong>
+            <strong class="card-number">{{ content.usedIcon }}</strong>
           </div>
           <div class="card__ft">当前已使用奖学金币数</div>
         </div>
@@ -28,10 +28,18 @@
         <el-tab-pane label="充值记录" name="learning">
           <div v-if="list.length" class="table-wraper">
             <el-table class="table" :data="list">
-              <el-table-column label="时间" />
-              <el-table-column label="类型" />
-              <el-table-column label="奖学金币数" />
-              <el-table-column label="消费金额" />
+              <el-table-column label="时间">
+                <template slot-scope="scope">
+                  {{ scope.row.createTime | createTimeStr }}
+                </template>
+              </el-table-column>
+              <el-table-column label="类型">
+                <template>
+                  APP充值
+                </template>
+              </el-table-column>
+              <el-table-column label="奖学金币数" prop="surplusIcon" />
+              <el-table-column label="消费金额" prop="amount" />
             </el-table>
           </div>
 
@@ -51,11 +59,13 @@
         <el-tab-pane label="消费记录" name="consum">
           <div v-if="list.length" class="table-wraper">
             <el-table class="table" :data="list">
-              <el-table-column label="时间" />
-              <el-table-column label="类型">
-                <template slot-scope="scope">{{ scope.row.createTime }}</template>
+              <el-table-column label="时间">
+                <template slot-scope="scope">
+                  {{ scope.row.createTime | createTimeStr }}
+                </template>
               </el-table-column>
-              <el-table-column label="奖学金币数" />
+              <el-table-column label="类型" prop="description" />
+              <el-table-column label="奖学金币数" prop="amount" />
             </el-table>
           </div>
 
@@ -74,20 +84,78 @@
 
       </el-tabs>
     </div>
+    <div>
+      <pagination
+        v-show="total > 0"
+        :total="total"
+        :page.sync="listQuery.pageNum"
+        :limit.sync="listQuery.pageSize"
+        @pagination="fetchList"
+      />
+    </div>
   </div>
 </template>
 <script>
+import { getStoreHome } from '@/api/store'
+import { getRechargeList, getConsumeList } from '@/api/recharge'
+import Pagination from '@/components/Pagination'
+import { formatTime } from '@/utils/date'
 export default {
   name: 'ScholaSrship',
+  components: { Pagination },
+  filters: {
+    createTimeStr(val) {
+      return val && formatTime(val)
+    }
+  },
   data() {
     return {
       list: [],
-      activeName0: 'learning' // tab 栏
+      activeName0: 'learning', // tab 栏
+      content: {},
+      listQuery: {
+        pageNum: 1,
+        pageSize: 9
+      },
+      total: 0,
+      isRecharge: true
     }
   },
+  created() {
+    this.getHomeView()
+    this.fetchList()
+  },
   methods: {
+    getHomeView() {
+      getStoreHome().then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        if (!res.data) return
+        this.content = res.data
+      })
+    },
+    fetchList() {
+      const callBack = this.isRecharge ? getRechargeList : getConsumeList
+      const submitObj = {
+        ...this.listQuery
+      }
+      callBack(submitObj).then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        if (!res.data) return
+        const data = res.data
+        this.total = data.total
+        const records = data.records
+        this.list = records && records.length ? records : []
+      })
+    },
     handleTabClick(tab, event) {
-      console.log(tab, event)
+      this.isRecharge = !this.isRecharge
+      this.listQuery.pageNum = 1
+      this.listQuery.pageSize = 9
+      this.fetchList()
     }
   }
 }

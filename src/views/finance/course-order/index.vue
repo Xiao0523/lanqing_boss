@@ -1,15 +1,15 @@
 <template>
   <div class="container">
-    <h2 class="title">讲师管理</h2>
+    <h2 class="title">订单管理</h2>
     <el-form :inline="true">
       <el-form-item class="search-item">
-        <el-input v-model.trim="keywords.name" placeholder="输入订单号或课程" suffix-icon="el-icon-search" @change="onSearch" />
+        <el-input v-model.trim="keywords.name" placeholder="输入订单号或课程" suffix-icon="el-icon-search" @blur="fetchList" />
       </el-form-item>
       <el-form-item class="search-item" label="下单时间">
-        <el-select v-model="keywords.category" @change="onSearch" />
+        <el-select v-model="keywords.category" @change="fetchList" />
       </el-form-item>
       <el-form-item label="订单状态">
-        <el-select v-model="keywords.status" @change="onSearch" />
+        <el-select v-model="keywords.status" @change="fetchList" />
       </el-form-item>
     </el-form>
 
@@ -19,63 +19,79 @@
         class="table"
         :data="list"
       >
-        <el-table-column width="135px" label="订单号">
-          <template>
-            <div class="order-number">239384849208923</div>
-          </template>
+        <el-table-column width="135px" label="订单号" prop="orderNum" />
+        <el-table-column label="下单时间">
+          <tamplate slot-scope="scope">
+            {{ scope.row.orderTime | orderTimeStr }}
+          </tamplate>
         </el-table-column>
-        <el-table-column label="下单时间" />
-        <el-table-column label="订单状态" />
+        <el-table-column label="订单状态" prop="statusDescription" />
         <el-table-column label="课程名称" />
-        <el-table-column label="课程价格" />
-        <el-table-column label="支付方式" />
-        <el-table-column label="实付金额" />
-
+        <el-table-column label="课程价格" prop="price" />
+        <el-table-column label="实际支付价格" prop="payPrice" />
       </el-table>
     </div>
 
     <!--分页-->
-    <div class="pagination-wraper">
-      <pagination v-show="total>0" :total="total" :page.sync="pageNum" :limit.sync="pageSize" @pagination="pageChange" />
+    <div>
+      <pagination
+        v-show="total > 0"
+        :total="total"
+        :page.sync="listQuery.pageNum"
+        :limit.sync="listQuery.pageSize"
+        @pagination="fetchList"
+      />
     </div>
 
   </div>
 </template>
 <script>
 import Pagination from '@/components/Pagination'
+import { getOrdersList } from '@/api/orders'
+import { formatTime } from '@/utils/date'
 export default {
   name: 'CourseOrder',
   components: { Pagination },
-  data() {
-    return {
-      list: [{}],
-      keywords: {
-        categroy: ''
-      },
-      activeName: 'first',
-      total: 1, // 总记录数
-      pageNum: 1, // 分页页面
-      pageSize: 10// 分页容量
+  filters: {
+    orderTimeStr(val) {
+      return val && formatTime(val)
     }
   },
+  data() {
+    return {
+      list: [],
+      keywords: {
+        orderNoOrCurriculumName: '',
+        orderStatus: 0, // 状态：0:已支付/1：退款中/2退款完毕
+        orderTime: ''
+      },
+      activeName: 'first',
+      listQuery: {
+        pageNum: 1,
+        pageSize: 9
+      },
+      total: 0
+    }
+  },
+  created() {
+    this.fetchList()
+  },
   methods: {
-    handleTabClick(tab, event) {
-      console.log(tab, event)
-    },
-    onDel(item) {
-
-    },
-    // 分页点击 事件
-    pageChange(page) {
-
-    },
-    onSearch() {},
-    handleSelectionChange(val) {
-
-    },
-    onCancle() {},
-    onBatch() {
-
+    fetchList() {
+      const submitObj = {
+        ...this.keywords,
+        ...this.listQuery
+      }
+      getOrdersList(submitObj).then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        if (!res.data) return
+        const data = res.data
+        this.total = data.total
+        const records = data.records
+        this.list = records && records.length ? records : []
+      })
     }
   }
 }

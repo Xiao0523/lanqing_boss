@@ -5,7 +5,7 @@
         <div class="card">
           <h6 class="card__hd">累计收入</h6>
           <div class="card__bd">
-            <strong class="card-number">32</strong>
+            <strong class="card-number">{{ content.accumulatedIncome }}</strong>
           </div>
           <div class="card__ft">当前累计收入总计</div>
         </div>
@@ -14,7 +14,7 @@
         <div class="card">
           <h6 class="card__hd">待结算金额（元）</h6>
           <div class="card__bd">
-            <strong class="card-number">320</strong>
+            <strong class="card-number">{{ content.bossUnApplyIncome }}</strong>
           </div>
           <div class="card__ft">当前未结业付款课程</div>
         </div>
@@ -23,7 +23,7 @@
         <div class="card">
           <h6 class="card__hd">可用余额（元）</h6>
           <div class="card__bd">
-            <strong class="card-number">320</strong>
+            <strong class="card-number">{{ content.withdrawalIncome }}</strong>
           </div>
           <div class="card__ft">
             <span class="redraw-text">当前可提现余额</span>
@@ -37,9 +37,13 @@
 
     <div v-if="list.length" class="table-wraper">
       <el-table class="table" :data="list">
-        <el-table-column label="时间" />
-        <el-table-column label="类型" />
-        <el-table-column label="提现金额" />
+        <el-table-column label="时间">
+          <template slot-scope="scope">
+            {{ scope.row.createTime | createTimeStr }}
+          </template>
+        </el-table-column>
+        <el-table-column label="类型" prop="description" />
+        <el-table-column label="提现金额" prop="money" />
       </el-table>
     </div>
 
@@ -54,9 +58,14 @@
         <p class="empty-text">暂无提现记录</p>
       </div>
     </div>
-
     <div>
-      <pagination v-show="total>0" :total="total" :page.sync="pageNum" :limit.sync="pageSize" @pagination="pageChange" />
+      <pagination
+        v-show="total > 0"
+        :total="total"
+        :page.sync="listQuery.pageNum"
+        :limit.sync="listQuery.pageSize"
+        @pagination="fetchList"
+      />
     </div>
 
     <el-dialog :visible="isRedrawShow" @close="isRedrawShow=false">
@@ -65,27 +74,30 @@
         ref="redrawFrom"
         :inline-message="true"
         label-width="7em"
-        :rules="redrawFormRules"
-        :model="redrawForm"
       >
         <el-form-item label="提现金额" class="redraw-item">
-          <el-input v-model="redrawForm.money" placeholder="输入提现金额" />
+          <el-input v-model="redrawForm.money" placeholder="输入提现金额" @keyup.native="proving" />
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <span>
-          <el-alert title="错误提示" type="error" :closable="false" show-icon />
-        </span>
-        <el-button type="primary" @click="onRedraw('redrawFrom')">申请提现</el-button>
+        <el-button type="primary" @click="onRedraw">申请提现</el-button>
       </span>
     </el-dialog>
   </div>
 </template>
 <script>
+import { getStoreHome } from '@/api/store'
+import { getWithdrawalList, getMoney } from '@/api/withdrawal'
 import Pagination from '@/components/Pagination'
+import { formatTime } from '@/utils/date'
 export default {
   name: 'Property',
   components: { Pagination },
+  filters: {
+    createTimeStr(val) {
+      return val && formatTime(val)
+    }
+  },
   data() {
     return {
       list: [],
@@ -95,25 +107,64 @@ export default {
         money: ''
       },
       redrawFormRules: {},
-      total: 1, // 总记录数
-      pageNum: 1, // 分页页面
-      pageSize: 10// 分页容量
+      content: {},
+      total: 0,
+      listQuery: {
+        pageNum: 1,
+        pageSize: 9
+      }
     }
   },
+  created() {
+    this.getHomeView()
+    this.fetchList()
+  },
   methods: {
-    // 分页点击 事件
-    pageChange(page) {
-
+    getHomeView() {
+      getStoreHome().then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        if (!res.data) return
+        this.content = res.data
+      })
+    },
+    // 验证只能输入正整数
+    proving() {
+      this.redrawForm.money = this.redrawForm.money.replace(/[^\.\d]/g,'');
+      this.redrawForm.money = this.redrawForm.money.replace('.','');
+    },
+    fetchList() {
+      const submitObj = {
+        ...this.listQuery
+      }
+      getWithdrawalList(submitObj).then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        if (!res.data) return
+        const data = res.data
+        this.total = data.total
+        const records = data.records
+        this.list = records && records.length ? records : []
+      })
     },
     // 打开提现
     openRedraw() {
       this.isRedrawShow = true
     },
-
     // 提现
     onRedraw(form) {
-      this.$refs[form].validate(isValid => {
-        if (!isValid) return
+      const moneyObj = {
+        ...this.redrawForm
+      }
+      getMoney(moneyObj).then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        this.$success(res.message)
+        this.isRedrawShow = false
+        this.fetchList()
       })
     }
 

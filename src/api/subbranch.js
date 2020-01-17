@@ -16,8 +16,8 @@ function editBusiness(data) {
   return request.patch('boss/business/store', data)
 }
 
-function getStoreList({ page = 1, limit = 9, status = 0 }) {
-  return request.get('boss/business/store/' + page + '/' + limit + '/' + status)
+function getStoreList({ pageNum, pageSize, status = 0 }) {
+  return request.get('boss/business/store/' + pageNum + '/' + pageSize + '/' + status)
 }
 
 function addStore(data) {

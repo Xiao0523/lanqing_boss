@@ -70,8 +70,8 @@
         <pagination
           v-show="total > 0"
           :total="total"
-          :page.sync="listQuery.page"
-          :limit.sync="listQuery.limit"
+          :page.sync="listQuery.pageNum"
+          :limit.sync="listQuery.pageSize"
           @pagination="getStudentList"
         />
       </div>
@@ -102,8 +102,8 @@ export default {
       list: [],
       activeName0: 'learning',
       listQuery: {
-        page: 1,
-        limit: 9
+        pageNum: 1,
+        pageSize: 9
       },
       total: 0,
       studentList: []
