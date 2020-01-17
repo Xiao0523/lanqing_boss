@@ -24,11 +24,16 @@ function getCateTeacher({ id }) {
   return request.get('boss/store/teachers/' + id)
 }
 
+function getStudent(data) {
+  return request.post('boss/store/student4teacher', data)
+}
+
 export {
   getCategoryList,
   getTeacherList,
   addTeacher,
   getDetail,
   editTeacher,
-  getCateTeacher
+  getCateTeacher,
+  getStudent
 }

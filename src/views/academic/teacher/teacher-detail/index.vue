@@ -48,13 +48,16 @@
     <div class="panel tabs-wraper">
       <el-tabs v-model="activeName0">
         <el-tab-pane label="正在授课" name="learning">
-          <div v-if="list.length" class="table-wraper">
-            <el-table class="table" :data="list">
-              <el-table-column label="学员名称" />
-              <el-table-column label="手机号" />
-              <el-table-column label="状态" />
-              <el-table-column label="课程名称" />
-              <el-table-column label="开课时间" />
+          <div v-if="studentList.length" class="table-wraper">
+            <el-table class="table" :data="studentList">
+              <el-table-column label="学员名称" prop="studentName" />
+              <el-table-column label="手机号" prop="phone" />
+              <el-table-column label="课程名称" prop="curriculumNames" />
+              <el-table-column label="开课时间">
+                <template slot-scope="scope">
+                  {{ scope.row.orderTime | orderTimeStr }}
+                </template>
+              </el-table-column>
             </el-table>
           </div>
           <div v-else class="empty-content">
@@ -63,16 +66,32 @@
           </div>
         </el-tab-pane>
       </el-tabs>
+      <div>
+        <pagination
+          v-show="total > 0"
+          :total="total"
+          :page.sync="listQuery.page"
+          :limit.sync="listQuery.limit"
+          @pagination="getStudentList"
+        />
+      </div>
     </div>
 
   </section>
 </template>
 <script>
-import { getDetail } from '@/api/teacher'
+import { getDetail, getStudent } from '@/api/teacher'
+import Pagination from '@/components/Pagination'
 import Star from '@/components/Star'
+import { formatTime } from '@/utils/date'
 export default {
   name: 'TeacherDetail',
-  components: { Star },
+  components: { Star, Pagination },
+  filters: {
+    orderTimeStr(val) {
+      return formatTime(val)
+    }
+  },
   data() {
     return {
       content: {
@@ -81,16 +100,39 @@ export default {
       imageUrl: '',
       radio: '',
       list: [],
-      activeName0: 'learning'
+      activeName0: 'learning',
+      listQuery: {
+        page: 1,
+        limit: 9
+      },
+      total: 0,
+      studentList: []
     }
   },
   created() {
     const id = this.$route.query.id
     if (id) {
       this.getView(id)
+      this.getStudentList(id)
     }
   },
   methods: {
+    getStudentList(id) {
+      const getObj = {
+        teacherId: id,
+        ...this.listQuery
+      }
+      getStudent(getObj).then(res => {
+        if (res.code) {
+          return res.message && this.$wran(res.message)
+        }
+        if (!res.data) return
+        const data = res.data
+        this.total = data.total
+        const records = data.records
+        this.studentList = records && records.length ? records : []
+      })
+    },
     getView(id) {
       const getObj = {
         id: id

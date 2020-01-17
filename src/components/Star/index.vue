@@ -8,8 +8,8 @@ export default {
   name: 'Star',
   props: {
     score: {
-      type: Number,
-      default: 0
+      type: [Number, String],
+      default: '0'
     }
   },
   data() {

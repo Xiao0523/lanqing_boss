@@ -38,6 +38,10 @@
         <el-form-item label="课程名称">
           <el-input v-model.trim="content.name" placeholder="输入课程名称" />
         </el-form-item>
+        <el-form-item v-show="!isAdd" label="状态">
+          <el-radio v-model="content.status" label="0">启用</el-radio>
+          <el-radio v-model="content.status" label="1">关闭</el-radio>
+        </el-form-item>
         <el-form-item label="课程类目">
           <el-select v-model="categoryStr" placeholder="请选择类目" @change="cateChange">
             <el-option
@@ -98,7 +102,7 @@
             <img class="teacher-avatar" :src="item.photo" alt="头像">
             <div class="teacher-info">
               <h6 class="teacher-name">{{ item.realName }}</h6>
-              <div class="teacher-slogan">学生数：{{ item.studentAmount }}</div>
+              <div class="teacher-slogan">{{ item.briefIntroduction }}</div>
             </div>
             <i class="el-icon-close teacher-close" @click="delTeacher(item, index)" />
           </div>
@@ -159,7 +163,7 @@
 </template>
 <script>
 import { getCategoryList, getCateTeacher } from '@/api/teacher'
-import { addStore } from '@/api/course'
+import { addCourse, editCourse, getDetail } from '@/api/course'
 import PageHead from '@/components/PageHead'
 import { Upload_Pic, Upload_File } from '@/api/URL.js'
 import { formatTime } from '@/utils/date'
@@ -221,13 +225,51 @@ export default {
         value: 5,
         label: '15-18'
       }],
-      ageStr: ''
+      ageStr: '',
+      isAdd: true
     }
   },
   created() {
     this.getgetCategory()
+    const id = this.$route.query.id
+    if (id) {
+      this.isAdd = false
+      this.getView(id)
+    }
   },
   methods: {
+    // 获取详细
+    getView(id) {
+      const getObj = {
+        id: id
+      }
+      getDetail(getObj).then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        if (!res.data) return
+        this.content = res.data
+        this.content.studentStyle.forEach(item => {
+          this.studentList.push({
+            url: item
+          })
+        })
+        this.content.introduce.forEach(item => {
+          this.introduceList.push({
+            url: item
+          })
+        })
+        this.teacherArr = this.content.teachers
+        this.categoryStr = this.content.categoryName
+        for (const item of this.ageList) {
+          if (Number(this.content.ageInterval) === Number(item.value)) {
+            this.ageStr = item.label
+            break
+          }
+        }
+        this.getTeacher()
+      })
+    },
     // 获取分类
     getgetCategory() {
       getCategoryList().then(res => {
@@ -284,7 +326,6 @@ export default {
       this.content.outline = res.data
     },
     handlePdfRemove() {
-      console.log(111)
       this.content.outline = ''
     },
     handlePdfPreview(file) {
@@ -322,11 +363,6 @@ export default {
     delTeacher(item, index) {
       this.teacherArr.splice(index, 1)
     },
-    addTeacher() {
-      this.teacherArr.push({
-        catelogVal: ''
-      })
-    },
     handleExceed(files, fileList) {
       this.$message.warning(`当前限制选择 3 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`)
     },
@@ -336,12 +372,18 @@ export default {
     // 保存
     save() {
       const saveObj = this.content
-      saveObj.beginDate = formatTime(this.content.beginDate.getTime(), 'YYYY-MM-DD')
-      console.log(saveObj.beginDate)
+      const callFn = this.isAdd ? addCourse : editCourse
+      if (typeof this.content.beginDate === 'object') {
+        saveObj.beginDate = formatTime(this.content.beginDate.getTime(), 'YYYY-MM-DD')
+      }
+      saveObj.teachers = []
       this.teacherArr.forEach(item => {
         saveObj.teachers.push(item.id)
       })
-      addStore(saveObj).then(res => {
+      if (!this.isAdd) {
+        saveObj.status = this.content.status
+      }
+      callFn(saveObj).then(res => {
         if (res.code) {
           return res.message && this.$warn(res.message)
         }

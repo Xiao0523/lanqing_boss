@@ -211,7 +211,6 @@ export default {
       const getObj = this.listQuery
       getObj.status = this.activeStatus
       getStoreList(getObj).then(res => {
-        console.log(res)
         if (res.code) {
           return res.message && this.$wran(res.message)
         }

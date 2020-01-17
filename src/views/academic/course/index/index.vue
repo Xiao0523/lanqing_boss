@@ -9,13 +9,25 @@
 
     <el-form :inline="true">
       <el-form-item class="search-item">
-        <el-input v-model.trim="keywords.name" placeholder="搜索课程名称" suffix-icon="el-icon-search" @change="onSearch" />
+        <el-input v-model.trim="keywords.name" placeholder="搜索课程名称" suffix-icon="el-icon-search" @blur="fetchList" />
       </el-form-item>
       <el-form-item class="search-item" label="课程类目">
-        <el-select v-model="keywords.category" @change="onSearch" />
+        <el-select v-model="categoryStr" @change="categoryChange">
+          <el-option
+            v-for="item in categoryList"
+            :key="item.categoryName + item.categoryId"
+            :value="item.categoryName"
+          />
+        </el-select>
       </el-form-item>
       <el-form-item label="课程状态">
-        <el-select v-model="keywords.status" @change="onSearch" />
+        <el-select v-model="statusStr" @change="statusChange">
+          <el-option
+            v-for="item in statusList"
+            :key="item.label + item.value"
+            :value="item.label"
+          />
+        </el-select>
       </el-form-item>
     </el-form>
 
@@ -27,9 +39,9 @@
       >
         <el-table-column label="课程名称">
           <template slot-scope="scope">
-            <div>
-              <img :src="scope.row.cover" alt="图片">
-              <span>{{ scope.row.name }}</span>
+            <div class="img-box">
+              <img class="img-warpper" :src="scope.row.cover" alt="">
+              {{ scope.row.name }}
             </div>
           </template>
         </el-table-column>
@@ -48,10 +60,12 @@
         </el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
-            <router-link :to="{name: 'Course-detail'}">
+            <router-link :to="{name: 'Course-edit', query: { id: scope.row.id }}">
+              <el-button size="mini">编辑</el-button>
+            </router-link>
+            <router-link :to="{name: 'Course-detail', query: { id: scope.row.id }}">
               <el-button size="mini">详情</el-button>
             </router-link>
-            <el-button size="mini" @click="onDel(scope.row, scope.$index)">编辑</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -66,6 +80,7 @@
 import {
   getStoreList
 } from '@/api/course'
+import { getCategoryList } from '@/api/teacher'
 // import Pagination from '@/components/Pagination'
 import Star from '@/components/Star'
 export default {
@@ -73,17 +88,33 @@ export default {
   components: { Star },
   filters: {
     statusStr(val) {
-      return val === 0 ? '上架' : '下架'
+      return val === 0 ? '启用' : '关闭'
     }
   },
   data() {
     return {
       list: [{}],
+      statusStr: '全部',
+      categoryStr: '全部',
+      statusList: [{
+        label: '全部',
+        value: ''
+      }, {
+        label: '启用',
+        value: 0
+      }, {
+        label: '关闭',
+        value: 1
+      }],
       keywords: {
         name: '',
         categoryId: '',
         status: ''
       },
+      categoryList: [{
+        categoryName: '全部',
+        categoryId: ''
+      }],
       total: 1, // 总记录数
       pageNum: 1, // 分页页面
       pageSize: 10 // 分页容量
@@ -91,6 +122,7 @@ export default {
   },
   created() {
     this.fetchList()
+    this.getCategory()
   },
   methods: {
     fetchList() {
@@ -103,17 +135,34 @@ export default {
         this.list = res.data
       })
     },
-    onDel(item) {
-
+    getCategory() {
+      getCategoryList().then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        if (!res.data) return
+        this.categoryList = [...this.categoryList, ...res.data]
+      })
     },
-    // 分页点击 事件
-    pageChange(page) {
-
+    // 类目改变
+    categoryChange() {
+      for (const item of this.categoryList) {
+        if (item.categoryName === this.categoryStr) {
+          this.keywords.categoryId = item.categoryId
+          break
+        }
+      }
+      this.fetchList()
     },
-
-    // 搜索
-    onSearch() {
-
+    // 状态改变
+    statusChange() {
+      for (const item of this.statusList) {
+        if (item.label === this.statusStr) {
+          this.keywords.status = item.value
+          break
+        }
+      }
+      this.fetchList()
     }
   }
 }
@@ -131,7 +180,6 @@ export default {
   line-height: 33px;
   margin: 0;
   margin-bottom: 30px;
-
 }
 
 .search-item{
@@ -162,5 +210,15 @@ export default {
 }
 .pagination-wraper{
   text-align: right
+}
+
+.img-box {
+  display: flex;
+  height: 40px;
+  line-height: 40px;
+  img {
+    width: 40px;
+    margin-right: 10px;
+  }
 }
 </style>
