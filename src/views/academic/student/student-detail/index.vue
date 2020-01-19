@@ -5,52 +5,55 @@
       <h3 class="panel__hd">学员基本信息</h3>
       <div class="panel__bd">
         <div class="student">
-          <img class="student-avatar" src alt="头像">
+          <img class="student-avatar" :src="studentContent.icon">
           <div>
-            <div class="student-name">张三</div>
+            <div class="student-name">{{ studentContent.nickName }}</div>
             <div class="student-slogan">好好学习 天天向上</div>
           </div>
         </div>
         <el-row :gutter="50">
           <el-col :span="6">
             <span class="info-title">手机号码</span>
-            <strong class="info-data">134847556373</strong>
+            <strong class="info-data">{{ studentContent.phone }}</strong>
           </el-col>
           <el-col :span="6">
-            <span class="info-title">课程数量</span>
-            <strong class="info-data">20</strong>
+            <span class="info-title">正在学习</span>
+            <strong class="info-data">{{ studentContent.studyNum }}</strong>
           </el-col>
           <el-col :span="6">
             <span class="info-title">消费总额（元）</span>
-            <strong class="info-data">3000.00</strong>
+            <strong class="info-data">{{ studentContent.money }}</strong>
           </el-col>
           <el-col :span="6">
             <span class="info-title">评价数量</span>
-            <strong class="info-data">20</strong>
+            <strong class="info-data">{{ studentContent.commentNum }}</strong>
           </el-col>
         </el-row>
       </div>
     </div>
 
     <div class="panel tabs-wraper">
-      <el-tabs v-model="activeName0" @tab-click="handleTabClick">
-        <el-tab-pane label="正在学习中(2)" name="learning">
-          <div v-if="list.length" class="table-wraper">
-            <el-table class="table" :data="list">
-              <el-table-column label="课程名称" />
-              <el-table-column label="课时" />
-              <el-table-column label="课程价格（元）" />
-              <el-table-column label="上课地点" />
+      <el-tabs v-model="activeName0">
+        <el-tab-pane :label="'正在学习中(' + classList.studying.length + ')'" name="learning">
+          <div v-if="classList.studying.length" class="table-wraper">
+            <el-table class="table" :data="classList.studying">
+              <el-table-column label="课程名称" prop="curriculumName" />
+              <el-table-column label="课时" prop="curriculumHours" />
+              <el-table-column label="课程价格（元）" prop="curriculumPrice" />
               <el-table-column label="当前讲师">
                 <template slot-scope="scope">
-                  {{ scope.row.createTime }}张老师
-                  <span class="change" @click="openChangeTeacher">切换</span>
+                  {{ scope.row.curriculumCurrentTeacherName }}
+                  <span class="change" @click="openChangeTeacher(scope.row.curriculumId, scope.row.id)">切换</span>
                 </template>
               </el-table-column>
-              <el-table-column label="状态" />
+              <el-table-column label="状态">
+                <template>
+                  学习中
+                </template>
+              </el-table-column>
               <el-table-column label="操作">
                 <template slot-scope="scope">
-                  <el-button type="primary" size="mini" @click="openGraduate(scope)">结业</el-button>
+                  <el-button type="primary" size="mini" @click="openGraduate(scope.row.curriculumId)">结业</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -61,7 +64,6 @@
               <strong class="empty-table-head">课程名称</strong>
               <strong class="empty-table-head">课时</strong>
               <strong class="empty-table-head">课程价格（元）</strong>
-              <strong class="empty-table-head">上课地点</strong>
               <strong class="empty-table-head">当前讲师</strong>
               <strong class="empty-table-head">状态</strong>
               <strong class="empty-table-head">操作</strong>
@@ -72,21 +74,21 @@
             </div>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="退款课程(1)" name="refund">
-          <div v-if="list.length" class="table-wraper">
-            <el-table class="table" :data="list">
-              <el-table-column label="课程名称" />
-              <el-table-column label="课时">
-                <template slot-scope="scope">{{ scope.row.createTime }}</template>
+        <el-tab-pane :label="'退款课程(' + classList.refund.length + ')'" name="refund">
+          <div v-if="classList.refund.length" class="table-wraper">
+            <el-table class="table" :data="classList.refund">
+              <el-table-column label="课程名称" prop="curriculumName" />
+              <el-table-column label="课时" prop="curriculumHours" />
+              <el-table-column label="课程价格（元）" prop="curriculumPrice" />
+              <el-table-column label="状态">
+                <template slot-scope="scope">
+                  {{ scope.row.refundStatus | refundStatusStr }}
+                </template>
               </el-table-column>
-              <el-table-column label="课程价格（元）" />
-              <el-table-column label="上课地点" />
-              <el-table-column label="状态" />
-              <el-table-column label="退款金额（元）" />
+              <el-table-column label="退款金额（元）" prop="applyPrice" />
               <el-table-column label="操作">
                 <template slot-scope="scope">
-                  <el-button type="danger" size="mini" @click="openRefund(scope)">退款</el-button>
-                  <el-button type="info" size="mini" @click="openRefund(scope)">退款</el-button>
+                  <el-button type="danger" :disabled="!(scope.row.refundStatus === 0 || scope.row.refundStatus === 2)" size="mini" @click="openRefund(scope.row.refundId)">退款</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -97,7 +99,6 @@
               <strong class="empty-table-head">课程名称</strong>
               <strong class="empty-table-head">课时</strong>
               <strong class="empty-table-head">课程价格（元）</strong>
-              <strong class="empty-table-head">上课地点</strong>
               <strong class="empty-table-head">状态</strong>
               <strong class="empty-table-head">退款金额（元）</strong>
               <strong class="empty-table-head">操作</strong>
@@ -108,33 +109,31 @@
             </div>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="结束课程(5)" name="finish">
-          <div v-if="list.length" class="table-wraper">
-            <el-table class="table" :data="list">
-              <el-table-column label="课程名称" />
-              <el-table-column label="课时">
-                <template slot-scope="scope">{{ scope.row.createTime }}</template>
-              </el-table-column>
-              <el-table-column label="课程价格（元）" />
-              <el-table-column label="上课地点" />
-              <el-table-column label="状态" />
-              <el-table-column label="操作/评价">
+        <el-tab-pane :label="'结束课程(' + classList.complete.length + ')'" name="finish">
+          <div v-if="classList.complete.length" class="table-wraper">
+            <el-table class="table" :data="classList.complete">
+              <el-table-column label="课程名称" prop="curriculumName" />
+              <el-table-column label="课时" prop="curriculumHours" />
+              <el-table-column label="课程价格（元）" prop="curriculumPrice" />
+              <el-table-column label="状态">
                 <template slot-scope="scope">
-                  <el-button size="mini" @click="openComment(scope)">评语</el-button>
-                  <el-tag size="medium">标签一</el-tag>
+                  {{ scope.row.status | statusStr }}
+                </template>
+              </el-table-column>
+              <el-table-column label="评价">
+                <template slot-scope="scope">
+                  {{ scope.row.storeEvaluate | storeEvaluateStr }}
                 </template>
               </el-table-column>
             </el-table>
           </div>
-
           <div v-else class="table-wraper">
             <div class="empty-table">
               <strong class="empty-table-head">课程名称</strong>
               <strong class="empty-table-head">课时</strong>
               <strong class="empty-table-head">课程价格（元）</strong>
-              <strong class="empty-table-head">上课地点</strong>
               <strong class="empty-table-head">状态</strong>
-              <strong class="empty-table-head">/评价</strong>
+              <strong class="empty-table-head">评价</strong>
             </div>
             <div class="empty-content">
               <img class="empty-img" src="@/assets/暂无课程.png" alt>
@@ -146,18 +145,18 @@
     </div>
 
     <div class="panel tabs-wraper">
-      <el-tabs v-model="activeName1" @tab-click="handleTabClick">
+      <el-tabs v-model="activeName1">
         <el-tab-pane label="消费记录" name="consumer">
           <div class="table-wraper">
-            <el-table class="table" :data="list">
-              <el-table-column label="订单号码" />
-              <el-table-column label="课程名称" />
-              <el-table-column label="课程价格（元）" />
-              <el-table-column label="实付金额（元）" />
+            <el-table class="table" :data="classOrder">
+              <el-table-column label="订单号码" prop="orderNum" />
+              <el-table-column label="课程名称" prop="curriculumName" />
+              <el-table-column label="课程价格（元）" prop="curriculumPrice" />
+              <el-table-column label="实付金额（元）" prop="curriculumPrice" />
               <el-table-column label="下单时间">
-                <template slot-scope="scope">{{ scope.row.createTime }}</template>
+                <template slot-scope="scope">{{ scope.row.orderTime | orderTimeStr }}</template>
               </el-table-column>
-              <el-table-column label="订单状态" />
+              <el-table-column label="订单状态" prop="description" />
             </el-table>
           </div>
         </el-tab-pane>
@@ -169,17 +168,17 @@
           </el-radio-group>
 
           <div v-show="evaluateTarget === 'shop'">
-            <div v-if="list.length" class="table-wraper">
-              <el-table class="table" :data="list">
-                <el-table-column label="店铺名称" />
+            <div v-if="commentList.comment4StudentStoreViews.length" class="table-wraper">
+              <el-table class="table" :data="commentList.comment4StudentStoreViews">
                 <el-table-column label="发布时间">
-                  <template slot-scope="scope">{{ scope.row.createTime }}</template>
+                  <template slot-scope="scope">{{ scope.row.commentTime | commentTimeStr }}</template>
                 </el-table-column>
                 <el-table-column label="评价星级">
-                  <template>
-                    <star :score="2" /></template>
+                  <template slot-scope="scope">
+                    <star :score="scope.row.score" />
+                  </template>
                 </el-table-column>
-                <el-table-column label="评论内容" />
+                <el-table-column label="评论内容" prop="commentWords" />
               </el-table>
             </div>
 
@@ -198,17 +197,18 @@
           </div>
 
           <div v-show="evaluateTarget === 'course'">
-            <div v-if="list.length" class="table-wraper">
-              <el-table class="table" :data="list">
-                <el-table-column label="课程名称" />
+            <div v-if="commentList.comment4StudentCurriculumViews.length" class="table-wraper">
+              <el-table class="table" :data="commentList.comment4StudentCurriculumViews">
+                <el-table-column label="课程名称" prop="curriculumName" />
                 <el-table-column label="发布时间">
-                  <template slot-scope="scope">{{ scope.row.createTime }}</template>
+                  <template slot-scope="scope">{{ scope.row.createTime | commentTimeStr }}</template>
                 </el-table-column>
                 <el-table-column label="评价星级">
-                  <template>
-                    <star :score="2" /></template>
+                  <template slot-scope="scope">
+                    <star :score="scope.row.score" />
+                  </template>
                 </el-table-column>
-                <el-table-column label="评论内容" />
+                <el-table-column label="评论内容" prop="commentWords" />
               </el-table>
             </div>
 
@@ -226,17 +226,18 @@
             </div>
           </div>
           <div v-show="evaluateTarget === 'teacher'">
-            <div v-if="list.length" class="table-wraper">
-              <el-table class="table" :data="list">
-                <el-table-column label="讲师名称" />
+            <div v-if="commentList.comment4StudentTeacherViews.length" class="table-wraper">
+              <el-table class="table" :data="commentList.comment4StudentTeacherViews">
+                <el-table-column label="讲师名称" prop="realName" />
                 <el-table-column label="发布时间">
-                  <template slot-scope="scope">{{ scope.row.createTime }}</template>
+                  <template slot-scope="scope">{{ scope.row.createTime | commentTimeStr }}</template>
                 </el-table-column>
                 <el-table-column label="评价星级">
-                  <template>
-                    <star :score="2" /></template>
+                  <template slot-scope="scope">
+                    <star :score="scope.row.score" />
+                  </template>
                 </el-table-column>
-                <el-table-column label="评论内容" />
+                <el-table-column label="评论内容" prop="commentWords" />
               </el-table>
             </div>
 
@@ -257,28 +258,19 @@
       </el-tabs>
     </div>
 
-    <el-dialog :visible="isGraduateShow" :center="true" @close="isGraduateShow=false">
-      <h4 class="dialog-text">确认该课程学员已结业吗？</h4>
-
-      <span slot="footer">
-        <el-button>取 消</el-button>
-        <el-button type="primary" @click="onComment">立即结业</el-button>
-      </span>
-    </el-dialog>
-
-    <el-dialog :visible="isCommentShow" @close="isCommentShow=false">
-      <h6 slot="title" class="dialog-title">结业评价</h6>
+    <el-dialog title="确认该课程学员已结业吗？" :visible="isGraduateShow" :center="true" @close="isGraduateShow=false">
       <div class="dialog-radio-wraper">
-        <el-radio v-model="studentEvaluate" border size="medium" label="1">成绩超群</el-radio>
-        <el-radio v-model="studentEvaluate" border size="medium" label="2">成绩优秀</el-radio>
-        <el-radio v-model="studentEvaluate" border size="medium" label="3">成绩良好</el-radio>
-        <el-radio v-model="studentEvaluate" border size="medium" label="4">成绩一般</el-radio>
-        <el-radio v-model="studentEvaluate" border size="medium" label="5">不及格</el-radio>
+        <el-radio-group v-model="studentEvaluate" fill="#00D2A5" text-color="#00D2A5" size="medium">
+          <el-radio border size="medium" label="1">成绩超群</el-radio>
+          <el-radio border size="medium" label="2">成绩优秀</el-radio>
+          <el-radio border size="medium" label="3">成绩良好</el-radio>
+          <el-radio border size="medium" label="4">成绩一般</el-radio>
+          <el-radio border size="medium" label="5">不及格</el-radio>
+        </el-radio-group>
       </div>
-
-      <span slot="footer" class="dialog-footer">
-        <span />
-        <el-button type="primary" @click="onComment">提交评价</el-button>
+      <span slot="footer">
+        <el-button @click="isGraduateShow=false">取 消</el-button>
+        <el-button class="colorfulBtn" type="primary" @click="onComment">立即结业</el-button>
       </span>
     </el-dialog>
 
@@ -288,18 +280,16 @@
         ref="refundFrom"
         :inline-message="true"
         label-width="7em"
-        :rules="refundFormRules"
-        :model="refundForm"
       >
         <el-form-item label="退款金额">
-          <el-input v-model="refundForm.money" placeholder="输入退款金额" />
+          <el-input v-model="refundForm.applyPrice" placeholder="输入退款金额" @keyup.native="proving" />
+        </el-form-item>
+        <el-form-item label="退款描述">
+          <el-input v-model="refundForm.refundDescription" type="textarea" placeholder="输入退款描述" />
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <span>
-          <el-alert title="错误提示" type="error" :closable="false" show-icon />
-        </span>
-        <el-button type="primary" @click="onRefund('refundFrom')">提交评价</el-button>
+        <el-button class="colorfulBtn" type="primary" @click="onRefund">提交评价</el-button>
       </span>
     </el-dialog>
 
@@ -309,27 +299,49 @@
         ref="teacherFrom"
         :inline-message="true"
         label-width="7em"
-        :rules="teacherFormRules"
-        :model="teacherForm"
       >
         <el-form-item label="课程讲师">
-          <el-select v-model="teacherForm.teacher" placeholder="选择课程讲师" />
+          <el-select v-model="teacherStr" placeholder="选择课程讲师" @change="teacherChange">
+            <el-option
+              v-for="item of teacherList"
+              :key="item.realName"
+              :value="item.realName"
+              :label="item.realName"
+            />
+          </el-select>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <span>
-          <el-alert title="错误提示" type="error" :closable="false" show-icon />
-        </span>
-        <el-button type="primary" @click="onChangeTeacher('teacherFrom')">确认切换</el-button>
+        <el-button class="colorfulBtn" type="primary" @click="onChangeTeacher">确认切换</el-button>
       </span>
     </el-dialog>
   </div>
 </template>
 <script>
+import { getDetails, getStudentClassList, getStudentOrder, getCommentList, submitRefund, submitCourse } from '@/api/student'
+import { getDetail, editTeacher } from '@/api/course'
 import Star from '@/components/Star'
+import { formatTime } from '@/utils/date'
 export default {
   name: 'StudentDetail',
   components: { Star },
+  filters: {
+    storeEvaluateStr(val) {
+      return val === 0 ? '成绩超群' : val === 1 ? '成绩优异' : val === 2 ? '成绩良好' : val === 3 ? '成绩一般' : val === 4 ? '不及格' : ''
+    },
+    refundStatusStr(val) {
+      return val === 0 ? '待店长审核' : val === 1 ? '待平台审核' : val === 2 ? '待店长再次待审核' : val === 3 ? '用户课程终止' : '已到账'
+    },
+    orderTimeStr(val) {
+      return val && formatTime(val)
+    },
+    commentTimeStr(val) {
+      return val && formatTime(val)
+    },
+    statusStr(val) {
+      return val === 4 ? '已结业' : val === 6 ? '退款完成，课程终止' : '其他'
+    }
+  },
   data() {
     return {
       list: [{}],
@@ -342,54 +354,192 @@ export default {
       isRefundShow: false,
       refundForm: {
         // 退款
-        money: ''
+        applyPrice: '',
+        refundDescription: ''
       },
       refundFormRules: {},
       isChangeShow: false,
-      teacherForm: {
-        // 切换讲师
-        teacher: ''
+      teacherStr: '',
+      teacherFormRules: {},
+      studentContent: {},
+      viewId: '',
+      classList: {
+        studying: [],
+        refund: [],
+        complete: []
       },
-      teacherFormRules: {}
+      classOrder: [],
+      commentList: {
+        comment4StudentCurriculumViews: [],
+        comment4StudentStoreViews: [],
+        comment4StudentTeacherViews: []
+      },
+      refundId: '',
+      curriculumId: '',
+      teacherList: [],
+      teacherId: '',
+      editId: ''
+    }
+  },
+  created() {
+    const id = this.$route.query.id
+    if (id) {
+      this.viewId = id
+      this.getView(id)
+      this.getClassList(id)
+      this.getClassOrder(id)
+      this.getComment(id)
     }
   },
   methods: {
-    handleTabClick(tab, event) {
-      console.log(tab, event)
+    getView(id) {
+      const submitObj = {
+        id
+      }
+      getDetails(submitObj).then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        if (!res.data) return
+        this.studentContent = res.data
+      })
     },
-
+    getTeacher(id) {
+      const getObj = {
+        id: id
+      }
+      getDetail(getObj).then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        if (!res.data) return
+        this.teacherList = res.data.teachers
+        if (this.teacherList.length === 1) {
+          this.$warn('该门课只有一位老师上课，无法切换！')
+          this.isChangeShow = false
+        }
+      })
+    },
+    // select教师切换
+    teacherChange() {
+      for (const item of this.teacherList) {
+        if (item.realName === this.teacherStr) {
+          this.teacherId = item.id
+          return
+        }
+      }
+    },
+    // 验证只能输入正整数
+    proving() {
+      this.refundForm.applyPrice = this.refundForm.applyPrice.replace(/[^\.\d]/g, '')
+      this.refundForm.applyPrice = this.refundForm.applyPrice.replace('.', '')
+    },
+    // 获取学员评价
+    getComment(id) {
+      const submitObj = {
+        id
+      }
+      getCommentList(submitObj).then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        if (!res.data) return
+        this.commentList = res.data
+      })
+    },
+    // 获取学员消费记录
+    getClassOrder(id) {
+      const submitObj = {
+        id
+      }
+      getStudentOrder(submitObj).then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        if (!res.data) return
+        this.classOrder = res.data
+      })
+    },
+    // 获取课程列表
+    getClassList(id) {
+      const submitObj = {
+        id
+      }
+      getStudentClassList(submitObj).then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        if (!res.data) return
+        this.classList = res.data
+      })
+    },
     // 结业
-    openGraduate(item) {
+    openGraduate(id) {
       this.isGraduateShow = true
     },
-
-    // 打开评价
-    openComment() {
-      this.isCommentShow = true
+    // 结业请求
+    onComment() {
+      const submitObj = {
+        courseCompletionSubViews: [{
+          curriculumId: this.curriculumId,
+          studentId: this.viewId
+        }],
+        storeEvaluate: this.studentEvaluate
+      }
+      submitCourse(submitObj).then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        this.$success(res.message)
+        this.getClassList(this.viewId)
+        this.isGraduateShow = false
+      })
     },
 
-    // 评价
-    onComment() {},
-
     // 打开退款
-    openRefund() {
+    openRefund(id) {
       this.isRefundShow = true
+      this.refundId = id
     },
 
     // 退款
-    onRefund(form) {
-      this.$refs[form].validate(isValid => {
-        if (!isValid) return
+    onRefund() {
+      const submitObj = {
+        refundId: this.refundId,
+        ...this.refundForm
+      }
+      submitRefund(submitObj).then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        this.$success(res.message)
+        this.getClassList(this.viewId)
+        this.isRefundShow = false
       })
     },
 
     // 打开 切换教师
-    openChangeTeacher() {
+    openChangeTeacher(id, editId) {
+      this.editId = editId
+      this.getTeacher(id)
       this.isChangeShow = true
     },
 
     // 切换教师
-    onChangeTeacher() {}
+    onChangeTeacher() {
+      const submitObj = {
+        teacherId: this.teacherId,
+        tscId: this.editId
+      }
+      editTeacher(submitObj).then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        this.$success(res.message)
+        this.isChangeShow = false
+        this.getClassList(this.viewId)
+      })
+    }
   }
 }
 </script>
@@ -434,7 +584,7 @@ export default {
   &-avatar {
     width: 60px;
     height: 60px;
-    background: rgba(0, 210, 165, 1);
+    background: rgba(0, 210, 165, 0);
     border-radius: 4px;
     margin-right: 20px;
   }
@@ -551,7 +701,7 @@ export default {
   color: rgba(23, 23, 37, 1);
   line-height: 20px;
   margin: 0;
-  padding-bottom: 20px;
+  padding-bottom: 10px;
   border-bottom: 1px solid rgba(241, 241, 245, 1);
 }
 .dialog-text {
@@ -563,13 +713,6 @@ export default {
   line-height: 25px;
   font-weight: bold;
   margin-bottom: 0;
-}
-.dialog-footer {
-  padding-top: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-top: 1px solid rgba(241, 241, 245, 1);
 }
 .dialog-radio-wraper {
   width: 70%;
@@ -590,7 +733,7 @@ export default {
   background: transparent;
 }
 .el-form-item {
-  margin-bottom: 0;
+  margin-bottom: 10px;
   &__label {
     color: #333;
   }

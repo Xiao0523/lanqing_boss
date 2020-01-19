@@ -1,10 +1,10 @@
 import request from '@/utils/request'
 
 function getstudentList(data) {
-  return request.post('boss/store/studentList', data)
+  return request.post('boss/store/students', data)
 }
 
-function getDetail({ id }) {
+function getDetails({ id }) {
   return request.get('boss/store/student/' + id)
 }
 
@@ -16,9 +16,29 @@ function getStudentClass({ id }) {
   return request.get('boss/store/studentOrder/' + id)
 }
 
+function getStudentOrder({ id }) {
+  return request.get('boss/store/studentOrder/' + id)
+}
+
+function getCommentList({ id }) {
+  return request.get('boss/store/comment4StudentView/' + id)
+}
+
+function submitRefund(data) {
+  return request.post('boss/store/refund', data)
+}
+
+function submitCourse(data) {
+  return request.post('boss/store/courseCompletion', data)
+}
+
 export {
   getstudentList,
-  getDetail,
+  getDetails,
   getStudentClassList,
-  getStudentClass
+  getStudentClass,
+  getStudentOrder,
+  getCommentList,
+  submitRefund,
+  submitCourse
 }

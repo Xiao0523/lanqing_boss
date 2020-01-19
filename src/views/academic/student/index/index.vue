@@ -36,10 +36,7 @@
 
     <el-form :inline="true">
       <el-form-item class="search-item">
-        <el-input v-model.trim="keywords.name" placeholder="输入学员名称" suffix-icon="el-icon-search" @change="onSearch" />
-      </el-form-item>
-      <el-form-item label="课程类目">
-        <el-select v-model="keywords.category" @change="onSearch" />
+        <el-input v-model.trim="keywords.studentName" placeholder="输入学员名称" suffix-icon="el-icon-search" @blur="fetchList" />
       </el-form-item>
     </el-form>
 
@@ -55,57 +52,69 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="手机号" prop="" />
+        <el-table-column label="手机号" prop="phone" />
         <el-table-column width="320px" label="课程情况">
-          <template>
+          <template slot-scope="scope">
             <div class="course-info">
               <div class="course-info__item">
                 <h6 class="info-title">学习中</h6>
-                <div class="info-number green">3</div>
+                <div class="info-number green">{{ scope.row.studyNum }}</div>
               </div>
               <div class="course-info__item">
                 <h6 class="info-title">退款课程</h6>
-                <div class="info-number red">3</div>
+                <div class="info-number red">{{ scope.row.refundNum }}</div>
               </div>
               <div class="course-info__item">
                 <h6 class="info-title">结束课程</h6>
-                <div class="info-number">3</div>
+                <div class="info-number">{{ scope.row.completeNum }}</div>
               </div>
             </div>
 
           </template>
         </el-table-column>
 
-        <el-table-column label="消费总额（元）" />
+        <el-table-column label="消费总额（元）" prop="money" />
         <el-table-column label="操作">
-          <template>
-            <router-link :to="{name: 'Student-detail'}">
+          <template slot-scope="scope">
+            <router-link :to="{name: 'Student-detail', query: {id: scope.row.studentId}}">
               <el-button size="mini">详情</el-button>
             </router-link>
           </template>
         </el-table-column>
       </el-table>
     </div>
-
+    <!--分页-->
+    <div>
+      <pagination
+        v-show="total > 0"
+        :total="total"
+        :page.sync="listQuery.pageNum"
+        :limit.sync="listQuery.pageSize"
+        @pagination="fetchList"
+      />
+    </div>
   </div>
 </template>
 <script>
 import { getStoreHome } from '@/api/store'
 import { getstudentList } from '@/api/student'
+import Pagination from '@/components/Pagination'
 export default {
   name: 'Stuedent',
+  components: { Pagination },
   data() {
     return {
       list: [],
       keywords: {
-        name: '',
-        categoryId: ''
+        studentName: ''
       },
       content: {},
       activeName: 'second',
-      total: 1, // 总记录数
-      pageNum: 1, // 分页页面
-      pageSize: 10// 分页容量
+      listQuery: {
+        pageNum: 1,
+        pageSize: 9
+      },
+      total: 0
     }
   },
   created() {
@@ -124,6 +133,7 @@ export default {
     },
     fetchList() {
       const submitObj = {
+        ...this.listQuery,
         ...this.keywords
       }
       getstudentList(submitObj).then(res => {
@@ -131,7 +141,10 @@ export default {
           return res.message && this.$warn(res.message)
         }
         if (!res.data) return
-        this.list = res.data
+        const data = res.data
+        this.total = data.total
+        const records = data.records
+        this.list = records && records.length ? records : []
       })
     },
     onDel(item) {

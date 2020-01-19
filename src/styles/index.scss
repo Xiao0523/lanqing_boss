@@ -130,3 +130,14 @@ $cursor: #92929d;
 .el-transfer-panel__body .el-checkbox, .el-transfer-panel__body .el-checkbox__input {
   display: block;
 }
+
+.colorfulBtn {
+  width:96px;
+  height:38px;
+  background:linear-gradient(90deg,rgba(0,214,211,1) 0%,rgba(0,206,124,1) 100%);
+  border-radius:4px;
+}
+
+.dialog-radio-wraper .el-radio__input.is-checked+.el-radio__label {
+  color: #00D2A5;
+}
