@@ -12,7 +12,7 @@
       </el-form-item>
       <el-form-item label="请选择地址">
         <div class="address">
-          <el-select v-model="form.provinceStr" placeholder="请选择" @change="getSonList('province')">
+          <el-select v-model="form.provinceName" placeholder="请选择" @change="getSonList('province')">
             <el-option
               v-for="item in cityList.province"
               :key="item.name"
@@ -20,7 +20,7 @@
               :value="item.name"
             />
           </el-select>
-          <el-select v-model="form.cityStr" placeholder="请选择" @change="getSonList('city')">
+          <el-select v-model="form.cityName" placeholder="请选择" @change="getSonList('city')">
             <el-option
               v-for="item in cityList.city"
               :key="item.name"
@@ -28,9 +28,17 @@
               :value="item.name"
             />
           </el-select>
-          <el-select v-model="form.districtStr" placeholder="请选择" @change="getSonList('district')">
+          <el-select v-model="form.districtName" placeholder="请选择" @change="getSonList('district')">
             <el-option
               v-for="item in cityList.district"
+              :key="item.name"
+              :label="item.name"
+              :value="item.name"
+            />
+          </el-select>
+          <el-select v-model="form.streetName" placeholder="请选择" @change="getSonList('street')">
+            <el-option
+              v-for="item in cityList.street"
               :key="item.name"
               :label="item.name"
               :value="item.name"
@@ -142,12 +150,13 @@ export default {
         teacherAmount: '',
         categories: [],
         provinceCode: '',
-        provinceStr: '',
+        provinceName: '',
         cityCode: '',
-        cityStr: '',
+        cityName: '',
         districtCode: '',
-        districtStr: '',
-        streetCode: ''
+        districtName: '',
+        streetCode: '',
+        streetName: ''
       },
       categoriesValList: [],
       rules: {
@@ -206,14 +215,18 @@ export default {
       courseSeverArr: [],
       previewImg: '',
       dialogVisible: false,
+      // 接口请求数据
       chinaCity: {
         province: '',
-        city: ''
+        city: '',
+        district: ''
       },
+      // 接口返回列表
       cityList: {
-        province: [{ name: '暂无数据' }],
-        city: [{ name: '暂无数据' }],
-        district: [{ name: '暂无数据' }]
+        province: [],
+        city: [],
+        district: [],
+        street: []
       },
       isAdd: true
     }
@@ -256,7 +269,7 @@ export default {
         this.form.districtCode = res.data.areaCode
         this.getCityList()
         for (const item in this.chinaCity) {
-          this.chinaCity[item] = res.data[item + 'Code']
+          this.chinaCity[item] = this.form[item + 'Code']
           this.getCityList()
         }
       })
@@ -274,7 +287,6 @@ export default {
     // 获取城市列表
     getCityList() {
       getChinaCity(this.chinaCity).then(res => {
-        console.log(res)
         if (res.code) {
           return res.message && this.$warn(res.message)
         }
@@ -285,7 +297,8 @@ export default {
         if (this.form[keys + 'Code']) {
           for (const item of data) {
             if (this.form[keys + 'Code'] === item.adcode) {
-              this.form[keys + 'Str'] = item.name
+              if (keys === 'street') return
+              this.form[keys + 'Name'] = item.name
               return
             }
           }
@@ -298,27 +311,32 @@ export default {
       switch (key) {
         case 'province':
           this.form.cityCode = ''
-          this.form.cityStr = ''
+          this.form.cityName = ''
           this.chinaCity.province = ''
           this.chinaCity.city = ''
+          this.cityList.city = []
         case 'city':
           this.form.districtCode = ''
-          this.form.districtStr = ''
+          this.form.districtName = ''
+          this.chinaCity.district = ''
+          this.cityList.district = []
+        case 'district':
+          this.form.streetCode = ''
+          this.form.streetName = ''
+          this.cityList.street = []
           break
         default:
           break
       }
-      const keyStr = this.form[key + 'Str']
+      const keyStr = this.form[key + 'Name']
       for (const item of this.cityList[key]) {
         if (item.name === keyStr) {
           this.form[key + 'Code'] = item.adcode
           this.chinaCity[key] = item.adcode
-          if (key === 'district') {
-            this.form.streetCode = item.adcode
-          }
           break
         }
       }
+      if (key === 'street') return
       this.getCityList()
     },
     handleRemove(file, fileList) {
@@ -360,7 +378,7 @@ export default {
       this.$refs[form].validate(isValid => {
         if (!isValid) return
         const addObj = this.form
-        addObj.businessAddressSystem = addObj.provinceStr + addObj.cityStr + addObj.districtStr + addObj.businessAddress
+        addObj.businessAddressSystem = addObj.provinceName + addObj.cityName + addObj.districtName + addObj.streetName + addObj.businessAddress
         addObj.areaCode = addObj.districtCode
         if (!this.isAdd) {
           addObj.storeId = this.$route.query.id

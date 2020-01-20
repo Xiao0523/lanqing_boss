@@ -10,7 +10,7 @@
           <div class="flex">
             <div class="flex__hd">店铺logo</div>
             <div class="flex__bd">
-              <img v-show="content.covers.length" :src="content.covers[0] | imageUrl" class="avatar">
+              <img v-show="content.logo" :src="content.logo | imageUrl" class="avatar">
             </div>
           </div>
           <div class="flex">
@@ -179,6 +179,7 @@ export default {
     font-weight:400;
     color:rgba(23,23,37,1);
     line-height:42px;
+    flex:1;
   }
 }
 

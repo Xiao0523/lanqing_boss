@@ -89,16 +89,13 @@ const actions = {
     }
     const PermissionRouters = deepClone(clientRoute)
     // const PermissionRouters = getRouter(mockRouters, clientRoutes)
-    console.log(PermissionRouters)
     return new Promise(resolve => {
       let accessedRoutes
       if (roles.includes('admin')) {
-        console.log(PermissionRouters)
         accessedRoutes = PermissionRouters || []
       } else {
         accessedRoutes = filterAsyncRoutes(PermissionRouters, roles)
       }
-      console.log(accessedRoutes)
       commit('SET_ROUTES', accessedRoutes)
       resolve(accessedRoutes)
     })

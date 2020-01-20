@@ -286,6 +286,7 @@ export default {
           return res.message && this.$warn(res.message)
         }
         this.$success(res.message)
+        this.getHomeInfo()
         this.fetchList()
       })
     }
@@ -426,6 +427,10 @@ export default {
     line-height:18px;
   }
   &-slogan{
+    width: 100%;
+    overflow: hidden;
+    height: 24px;
+    line-height: 24px;
     font-size:12px;
     font-family:PingFangSC-Regular,PingFang SC;
     font-weight:400;

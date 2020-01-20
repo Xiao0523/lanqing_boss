@@ -209,6 +209,12 @@ export default {
           return res.message && this.$warn(res.message)
         }
         this.$success(res.message)
+        this.$store.commit('user/temp_Roles', [res.data.role])
+        this.$store.commit('user/SET_TOKEN', res.data.role)
+        if (res.data.role && res.data.role !== 'store') {
+          this.$router.replace({ path: '/business' })
+          return
+        }
       })
     },
 
@@ -242,6 +248,9 @@ export default {
           // if (this.isCertificate) {
           //   return this.$router.push({ path: this.redirect || '/' })
           // }
+          if (res.code) {
+            return res.message && this.$warn(res.message)
+          }
           this.$success(res.message)
           if (res.data.role && res.data.role !== 'store') {
             this.$router.replace({ path: '/business' })

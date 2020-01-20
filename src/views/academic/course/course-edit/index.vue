@@ -6,9 +6,10 @@
 
     <div class="wraper">
       <el-form
-        ref="courseForm"
+        ref="content"
         :model="content"
-        :rules="courseFormRules"
+        :rules="content"
+        class="content"
         label-width="7em"
       >
         <el-form-item label="课程封面">
@@ -52,13 +53,13 @@
           </el-select>
         </el-form-item>
         <el-form-item label="课程价格">
-          <el-input v-model.trim="content.price" placeholder="输入课程价格" />
+          <el-input v-model.number="content.price" placeholder="输入课程价格" @blur="isNumber('price')" />
         </el-form-item>
         <el-form-item label="开课日期">
           <el-date-picker v-model.trim="content.beginDate" type="date" placeholder="选择开课日期" />
         </el-form-item>
         <el-form-item label="课程时长">
-          <el-input v-model.trim="content.hours" placeholder="请输入课程时长" />
+          <el-input v-model.number="content.hours" placeholder="请输入课程时长" @blur="isNumber('hours')" />
         </el-form-item>
         <el-form-item label="课程登记人数">
           <el-input v-model.trim="content.enrolment" placeholder="请输入课程登记人数" />
@@ -152,7 +153,7 @@
           </el-upload>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="save">保存</el-button>
+          <el-button type="primary" @click="save('content')">保存</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -193,7 +194,8 @@ export default {
       },
       teacherStr: '',
       isEdit: false,
-      courseFormRules: {},
+      courseFormRules: {
+      },
       teacherArr: [],
       imageUrl: '',
       dialogImageUrl: '',
@@ -259,6 +261,8 @@ export default {
             url: item
           })
         })
+        this.content.price = Number(res.data.price)
+        this.content.hours = Number(res.data.hours)
         this.teacherArr = this.content.teachers
         this.categoryStr = this.content.categoryName
         for (const item of this.ageList) {
@@ -370,25 +374,28 @@ export default {
       return this.$confirm(`确定移除 ${file.name}？`)
     },
     // 保存
-    save() {
-      const saveObj = this.content
-      const callFn = this.isAdd ? addCourse : editCourse
-      if (typeof this.content.beginDate === 'object') {
-        saveObj.beginDate = formatTime(this.content.beginDate.getTime(), 'YYYY-MM-DD')
-      }
-      saveObj.teachers = []
-      this.teacherArr.forEach(item => {
-        saveObj.teachers.push(item.id)
-      })
-      if (!this.isAdd) {
-        saveObj.status = this.content.status
-      }
-      callFn(saveObj).then(res => {
-        if (res.code) {
-          return res.message && this.$warn(res.message)
+    save(form) {
+      this.$refs[form].validate(isValid => {
+        if (!isValid) return
+        const saveObj = this.content
+        const callFn = this.isAdd ? addCourse : editCourse
+        if (typeof this.content.beginDate === 'object') {
+          saveObj.beginDate = formatTime(this.content.beginDate.getTime(), 'YYYY-MM-DD')
         }
-        this.$success(res.message)
-        this.$router.push({ name: 'Course' })
+        saveObj.teachers = []
+        this.teacherArr.forEach(item => {
+          saveObj.teachers.push(item.id)
+        })
+        if (!this.isAdd) {
+          saveObj.status = this.content.status
+        }
+        callFn(saveObj).then(res => {
+          if (res.code) {
+            return res.message && this.$warn(res.message)
+          }
+          this.$success(res.message)
+          this.$router.push({ name: 'Course' })
+        })
       })
     },
     // 类目选择改变
@@ -440,6 +447,11 @@ export default {
         if (!res.data) return
         this.teacherList = res.data
       })
+    },
+    isNumber(key) {
+      if (typeof this.content[key] !== 'number') {
+        this.$warn('必须是数字')
+      }
     }
   }
 }
