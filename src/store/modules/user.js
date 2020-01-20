@@ -35,6 +35,7 @@ const mutations = {
   // 临时保存角色
   SET_TEMP_ROLES: (state, roles) => {
     state.temp_Roles = roles
+    setLocal('temp_Roles', roles)
   }
 }
 
@@ -45,17 +46,19 @@ const actions = {
     return new Promise((resolve, reject) => {
       login({ username, password, code }).then(response => {
         const { data } = response
-        commit('SET_TOKEN', data)
+        commit('SET_TOKEN', data.role)
         // 临时保存
         // 规避router 问题
-        if (data === 'store') {
+        if (data.role === 'store') {
           commit('SET_TEMP_ROLES', ['store'])
           setToken('store')
         } else {
-          commit('SET_TEMP_ROLES', ['admin'])
-          setToken('admin')
+          commit('SET_TEMP_ROLES', [data.role])
+          setToken(data.role)
         }
-
+        // const routers = JSON.parse(data.json)
+        // console.log('data JSON.parse', typeof routers)
+        // asyncRoutes.push(routers)
         commit('SET_NAME', userInfo.username)
         resolve(response)
       }).catch(error => {

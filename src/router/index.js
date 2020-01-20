@@ -39,20 +39,10 @@ export const constantRoutes = [
     hidden: true
   },
   {
-    path: '/business',
-    name: 'Business',
-    component: () => import('@/views/business/index'),
-    hidden: true
-  },
-  {
     path: '/404',
     name: '404',
     component: () => import('@/views/404'),
     hidden: true
-  },
-  {
-    path: '/',
-    redirect: '/home'
   }
 
   /*  {
@@ -95,39 +85,50 @@ export const constantRoutes = [
  * asyncRoutes
  * the routes that need to be dynamically loaded based on user roles
  */
-export const asyncRoutes = [
+export const adminRoutes = [
   {
-    path: '/home',
+    path: '/',
     component: Layout,
     alwaysShow: false,
+    redirect: '/home',
+    name: 'Home',
+    meta: { title: '机构中心', icon: 'dashboard', roles: ['businessPassed', 'businessUnPassed'] },
     children: [
       {
         path: '/home',
-        name: 'Home',
+        name: 'HomeContent',
         component: () => import('@/views/home/index'),
-        meta: { title: '机构中心', icon: 'dashboard' }
+        meta: { title: '机构中心', roles: ['businessPassed', 'businessUnPassed'] }
       }
     ]
+  },
+  {
+    path: '/business',
+    name: 'Business',
+    component: () => import('@/views/business/index'),
+    hidden: true,
+    meta: { roles: ['businessPassed', 'businessUnPassed'] }
   },
   {
     path: '/subbranch',
     redirect: '/subbranch/subbranchList',
     component: Layout,
     alwaysShow: true,
-    meta: { title: '分店管理', icon: 'list' },
+    name: 'Subbranch',
+    meta: { title: '分店管理', icon: 'list', roles: ['businessPassed', 'businessUnPassed'] },
     children: [
       {
         path: 'subbranchList',
-        name: 'Subbranch',
+        name: 'SubbranchList',
         alwaysShow: false,
         component: () => import('@/views/subbranch/index'),
-        meta: { title: '分店列表' }
+        meta: { title: '分店列表', roles: ['businessPassed', 'businessUnPassed'] }
       },
       {
         path: 'editSubbranch',
         name: 'EditSubbranch',
         component: () => import('@/views/subbranch/add/index'),
-        meta: { title: '编辑店铺' },
+        meta: { title: '编辑店铺', roles: ['businessPassed', 'businessUnPassed'] },
         hidden: true
       }
     ]
@@ -137,25 +138,34 @@ export const asyncRoutes = [
     redirect: '/category/subbranchList',
     component: Layout,
     alwaysShow: false,
+    name: 'Category',
+    meta: { title: '类目管理', icon: 'list', roles: ['businessPassed', 'businessUnPassed'] },
     children: [
       {
         path: 'categoryList',
-        name: 'Category',
+        name: 'CategoryList',
         component: () => import('@/views/category/index'),
-        meta: { title: '类目管理', icon: 'list' }
+        meta: { title: '类目管理', roles: ['businessPassed', 'businessUnPassed'] }
       }
     ]
   },
+  // 404 page must be placed at the end !!!
+  { path: '*', redirect: '/404', hidden: true }
+]
+
+export const storeRoutes = [
   {
-    path: '/shop',
+    path: '/',
     component: Layout,
     alwaysShow: false,
-    meta: { title: '店铺中心', icon: 'education' },
+    redirect: '/shop',
+    name: 'Shop',
+    meta: { title: '店铺中心', icon: 'dashboard', roles: ['store'] },
     children: [{
-      path: '',
-      name: 'Shop',
+      path: '/shop',
+      name: 'ShopContent',
       component: () => import('@/views/shop/index'),
-      meta: { title: '店铺中心' }
+      meta: { title: '店铺中心', roles: ['store'] }
     }]
   },
   {
@@ -164,83 +174,65 @@ export const asyncRoutes = [
     redirect: '/academic/course',
     alwaysShow: true,
     name: 'Academic',
-    meta: { title: '教务中心', icon: 'education' },
+    meta: { title: '教务中心', icon: 'education', roles: ['store'] },
     children: [
       {
         path: 'course',
-        component: () => import('@/views/academic/course/index'),
-        children: [
-          {
-            path: '',
-            name: 'Course',
-            component: () => import('@/views/academic/course/index/index'),
-            meta: { title: '课程管理' }
-          },
-          {
-            path: 'detail',
-            name: 'Course-detail',
-            component: () =>
-            import('@/views/academic/course/course-detail/index'),
-            hidden: true,
-            meta: { title: '课程详情' }
-          },
-          {
-            path: 'edit',
-            name: 'Course-edit',
-            component: () =>
-            import('@/views/academic/course/course-edit/index'),
-            hidden: true,
-            meta: { title: '课程编辑' }
-          }
-        ]
+        name: 'Course',
+        component: () => import('@/views/academic/course/index/index'),
+        meta: { title: '课程管理', roles: ['store'] }
+      },
+      {
+        path: 'courseDetail',
+        name: 'Course-detail',
+        component: () =>
+        import('@/views/academic/course/course-detail/index'),
+        hidden: true,
+        meta: { title: '课程详情', roles: ['store'] }
+      },
+      {
+        path: 'courseEdit',
+        name: 'Course-edit',
+        component: () =>
+        import('@/views/academic/course/course-edit/index'),
+        hidden: true,
+        meta: { title: '课程编辑', roles: ['store'] }
       },
       {
         path: 'teacher',
-        component: () => import('@/views/academic/teacher/index'),
-        children: [
-          {
-            path: '',
-            name: 'Teacher',
-            component: () => import('@/views/academic/teacher/index/index'),
-            meta: { title: '讲师管理' }
-          },
-          {
-            path: 'detail',
-            name: 'Teacher-detail',
-            component: () =>
-            import('@/views/academic/teacher/teacher-detail/index'),
-            hidden: true,
-            meta: { title: '讲师详情' }
-          },
-          {
-            path: 'edit',
-            name: 'Teacher-edit',
-            component: () =>
-            import('@/views/academic/teacher/teacher-edit/index'),
-            hidden: true,
-            meta: { title: '讲师编辑' }
-          }
-        ]
+        name: 'Teacher',
+        component: () => import('@/views/academic/teacher/index/index'),
+        meta: { title: '讲师管理', roles: ['store'] }
+      },
+      {
+        path: 'teacherDetail',
+        name: 'Teacher-detail',
+        component: () =>
+        import('@/views/academic/teacher/teacher-detail/index'),
+        hidden: true,
+        meta: { title: '讲师详情', roles: ['store'] }
+      },
+      {
+        path: 'teacherEdit',
+        name: 'Teacher-edit',
+        component: () =>
+        import('@/views/academic/teacher/teacher-edit/index'),
+        hidden: true,
+        meta: { title: '讲师编辑', roles: ['store'] }
       },
       {
         path: 'student',
-        component: () => import('@/views/academic/student/index'),
-        children: [
-          {
-            path: '',
-            name: 'Student',
-            component: () => import('@/views/academic/student/index/index'),
-            meta: { title: '学员管理' }
-          },
-          {
-            path: 'detail',
-            name: 'Student-detail',
-            component: () =>
-              import('@/views/academic/student/student-detail/index'),
-            hidden: true,
-            meta: { title: '学员详情' }
-          }
-        ]
+        name: 'Student',
+        component: () => import('@/views/academic/student/index/index'),
+        meta: { title: '学员管理', roles: ['store'] }
+      },
+      {
+        path: 'studentDetail',
+        name: 'Student-detail',
+        component: () =>
+          import('@/views/academic/student/student-detail/index'),
+        hidden: true,
+        meta: { title: '学员详情', roles: ['store'] }
       }
     ]
   },
@@ -250,25 +242,25 @@ export const asyncRoutes = [
     redirect: '/finance/course-order',
     alwaysShow: true,
     name: 'Finance',
-    meta: { title: '财务中心', icon: 'money' },
+    meta: { title: '财务中心', icon: 'money', roles: ['store'] },
     children: [
       {
         path: 'course-order',
         name: 'Course-order',
         component: () => import('@/views/finance/course-order/index'),
-        meta: { title: '订单管理' }
+        meta: { title: '订单管理', roles: ['store'] }
       },
       {
         path: 'scholarship',
         name: 'ScholaSrship',
         component: () => import('@/views/finance/scholarship/index'),
-        meta: { title: '奖学金币' }
+        meta: { title: '奖学金币', roles: ['store'] }
       },
       {
         path: 'property',
         name: 'Property',
         component: () => import('@/views/finance/property/index'),
-        meta: { title: '资产管理' }
+        meta: { title: '资产管理', roles: ['store'] }
       }
     ]
   },

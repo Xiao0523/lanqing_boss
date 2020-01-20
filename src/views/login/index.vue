@@ -243,7 +243,7 @@ export default {
           //   return this.$router.push({ path: this.redirect || '/' })
           // }
           this.$success(res.message)
-          if (res.data && res.data !== 'store') {
+          if (res.data.role && res.data.role !== 'store') {
             this.$router.replace({ path: '/business' })
             return
           }
