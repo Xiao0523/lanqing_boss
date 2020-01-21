@@ -26,7 +26,7 @@
           </tamplate>
         </el-table-column>
         <el-table-column label="订单状态" prop="statusDescription" />
-        <el-table-column label="课程名称" />
+        <el-table-column label="课程名称" prop="curriculumName" />
         <el-table-column label="课程价格" prop="price" />
         <el-table-column label="实际支付价格" prop="payPrice" />
       </el-table>

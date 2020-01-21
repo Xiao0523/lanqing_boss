@@ -475,6 +475,7 @@ export default {
     },
     // 结业
     openGraduate(id) {
+      this.curriculumId = id
       this.isGraduateShow = true
     },
     // 结业请求

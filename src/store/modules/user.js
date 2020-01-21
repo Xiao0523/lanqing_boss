@@ -108,6 +108,10 @@ const actions = {
     return new Promise((resolve, reject) => {
       commit('SET_TOKEN', '')
       commit('SET_ROLES', [])
+      commit('SET_NAME', '')
+      commit('SET_AVATAR', '')
+      commit('SET_STATUS', '')
+      commit('SET_TEMP_ROLES', [])
       removeToken()
       resetRouter()
       resolve()
@@ -128,6 +132,10 @@ const actions = {
     return new Promise(resolve => {
       commit('SET_TOKEN', '')
       commit('SET_ROLES', [])
+      commit('SET_NAME', '')
+      commit('SET_AVATAR', '')
+      commit('SET_STATUS', '')
+      commit('SET_TEMP_ROLES', [])
       removeToken()
       resolve()
     })
