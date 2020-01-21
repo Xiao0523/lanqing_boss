@@ -64,10 +64,11 @@ $light_gray: #eee;
     position: relative;
     .title {
       font-size: 22px;
-      color: #171725;
-      margin: 8px auto 22px;
+      font-family: PingFangSC-Medium,PingFang SC;
+      font-weight: 500;
+      color: rgba(23,23,37,1);
+      line-height: 22px;
       text-align: center;
-      font-weight: bold;
     }
   }
 
@@ -115,7 +116,7 @@ $light_gray: #eee;
     width: 510px;
     margin: 80px auto;
     background: #fff;
-    padding: 30px 50px;
+    padding: 30px 50px 50px;
     border-radius: 8px;
     overflow: hidden;
     & /deep/ .el-form-item__label {
@@ -131,13 +132,13 @@ $light_gray: #eee;
       margin-bottom: 18px;
     }
     .label {
-      width: 79px;
-      font-size: 13px;
-      font-weight: 400;
-      color: rgba(23, 23, 37, 1);
-      font-weight: bold;
+      width:79px;
+      font-size:13px;
+      font-family:PingFangSC-Regular,PingFang SC;
+      font-weight:400;
+      color:rgba(23,23,37,1);
+      margin-right: 15px;
       text-align: right;
-      margin-right: 20px;
     }
     .upload-label{
       line-height: 22px;

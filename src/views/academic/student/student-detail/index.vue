@@ -201,7 +201,7 @@
               <el-table class="table" :data="commentList.comment4StudentCurriculumViews">
                 <el-table-column label="课程名称" prop="curriculumName" />
                 <el-table-column label="发布时间">
-                  <template slot-scope="scope">{{ scope.row.createTime | commentTimeStr }}</template>
+                  <template slot-scope="scope">{{ scope.row.commentTime | commentTimeStr }}</template>
                 </el-table-column>
                 <el-table-column label="评价星级">
                   <template slot-scope="scope">
@@ -230,7 +230,7 @@
               <el-table class="table" :data="commentList.comment4StudentTeacherViews">
                 <el-table-column label="讲师名称" prop="realName" />
                 <el-table-column label="发布时间">
-                  <template slot-scope="scope">{{ scope.row.createTime | commentTimeStr }}</template>
+                  <template slot-scope="scope">{{ scope.row.commentTime | commentTimeStr }}</template>
                 </el-table-column>
                 <el-table-column label="评价星级">
                   <template slot-scope="scope">

@@ -8,7 +8,7 @@
       class="organize-form"
     >
       <div class="title-container">
-        <h3 class="title">蓝青教育----机构认证</h3>
+        <h3 class="title">机构认证</h3>
       </div>
       <div class="cell">
         <div class="label">企业名称</div>
