@@ -8,13 +8,18 @@ $light_gray: #eee;
   background: $bg;
   overflow: hidden;
   position: relative;
-  .bg-img{
+  .bg-img {
     position: absolute;
     left: 0;
     right: 0;
     top: 0;
     bottom: 0;
     object-fit: cover;
+    z-index: 1;
+    img {
+      display: block;
+      width: 100%;
+    }
   }
   .top-tip{
     font-size:13px;
@@ -44,6 +49,7 @@ $light_gray: #eee;
     margin: 274px auto 0;
     border-radius: 8px;
     overflow: hidden;
+    z-index: 2;
   }
 
   .tips {

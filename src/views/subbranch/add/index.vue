@@ -73,6 +73,20 @@
           <i class="el-icon-plus" />
         </el-upload>
       </el-form-item>
+
+      <el-form-item label="店铺视频">
+        <el-upload
+          :action="videoUrl"
+          :before-upload="showMock"
+          :on-success="handleVideoSuccess"
+          :on-remove="handleVideoRemove"
+          :limit="1"
+          name="multipartFile"
+          :file-list="videoList"
+        >
+          <el-button size="small" type="primary">点击上传</el-button>
+        </el-upload>
+      </el-form-item>
       <el-form-item label="学员数" prop="studentAmount">
         <el-input v-model="form.studentAmount" />
       </el-form-item>
@@ -113,7 +127,8 @@
       </el-form-item>
 
       <el-form-item>
-        <el-button type="primary" @click="onSubmit('submitForm')">提交</el-button>
+        <el-button type="primary" :loading="videoLoading" @click="onSubmit('submitForm')">提交</el-button>
+        <span v-show="videoLoading" class="el-form-item__error">请等待视频上传完成！</span>
       </el-form-item>
     </el-form>
 
@@ -124,7 +139,7 @@
 </template>
 
 <script>
-import { Upload_Pic } from '@/api/URL'
+import { Upload_Pic, Upload_Video } from '@/api/URL'
 import { getChinaCity } from '@/api/globl'
 import { addBusiness, getBusinessView, editBusiness } from '@/api/subbranch'
 import { getCategoriesList } from '@/api/categories'
@@ -156,8 +171,13 @@ export default {
         districtCode: '',
         districtName: '',
         streetCode: '',
-        streetName: ''
+        streetName: '',
+        videoInfo: {
+          videoCoverUrl: '',
+          videoUrl: ''
+        }
       },
+      videoLoading: false,
       categoriesValList: [],
       rules: {
         name: [
@@ -210,7 +230,9 @@ export default {
         } */
       ],
       imgList: [],
+      videoList: [],
       uploadUrl: Upload_Pic, // 图片上传地址
+      videoUrl: Upload_Video, // 视频上传地址
       catelogArr: [],
       courseSeverArr: [],
       previewImg: '',
@@ -271,6 +293,12 @@ export default {
         for (const item in this.chinaCity) {
           this.chinaCity[item] = this.form[item + 'Code']
           this.getCityList()
+        }
+        if (this.form.videoInfo.videoUrl) {
+          this.videoList.push({
+            name: '店铺视频',
+            url: this.form.videoInfo.videoUrl
+          })
         }
       })
     },
@@ -373,6 +401,23 @@ export default {
       if (!res.data) return
       this.form.covers.push(res.data)
     },
+    handleVideoSuccess(res, file) {
+      this.videoLoading = false
+      if (res.code) {
+        return res.message && this.$warn(res.message)
+      }
+      this.$success('视频上传成功！！！')
+      this.form.videoInfo.videoCoverUrl = res.data.videoBase.coverURL
+      this.form.videoInfo.videoUrl = res.data.playInfoList[0].playURL
+    },
+    handleVideoRemove() {
+      this.videoLoading = false
+      this.form.videoInfo.videoCoverUrl = ''
+      this.form.videoInfo.videoUrl = ''
+    },
+    showMock() {
+      this.videoLoading = true
+    },
     onSubmit(form) {
       const callFn = this.isAdd ? addBusiness : editBusiness
       this.$refs[form].validate(isValid => {
@@ -380,6 +425,9 @@ export default {
         const addObj = this.form
         addObj.businessAddressSystem = addObj.provinceName + addObj.cityName + addObj.districtName + addObj.streetName + addObj.businessAddress
         addObj.areaCode = addObj.districtCode
+        if (!this.form.covers.length && !this.form.videoInfo.videoUrl) {
+          return this.$warn('店铺视频或店铺封面必须上传其中之一！！！')
+        }
         if (!this.isAdd) {
           addObj.storeId = this.$route.query.id
         }
@@ -433,6 +481,10 @@ export default {
     height: 178px;
     display: block;
     object-fit: scale-down;
+    .video-pic {
+      width: 100%;
+      height: 100%;
+    }
   }
 }
 

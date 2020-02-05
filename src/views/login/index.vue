@@ -115,6 +115,9 @@
         <el-button type="primary" class="btn" @click="codeClick">确 定</el-button>
       </span>
     </el-dialog>
+    <div class="bg-img">
+      <img src="../../assets/Background.png" alt="">
+    </div>
   </div>
 </template>
 

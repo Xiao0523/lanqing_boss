@@ -2,6 +2,7 @@ import { login /* logout */ } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
 import { setLocal } from '@/utils/local'
+import { Message } from 'element-ui'
 
 const state = {
   token: getToken(),
@@ -46,6 +47,13 @@ const actions = {
     const { username, password, code } = userInfo
     return new Promise((resolve, reject) => {
       login({ username, password, code }).then(response => {
+        if (response.code) {
+          return response.message && Message({
+            message: response.message || 'Error',
+            type: 'error',
+            duration: 5 * 1000
+          })
+        }
         const { data } = response
         commit('SET_TOKEN', data.role)
         // 临时保存
