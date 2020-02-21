@@ -48,7 +48,7 @@ const actions = {
     return new Promise((resolve, reject) => {
       login({ username, password, code }).then(response => {
         if (response.code) {
-          return response.message && Message({
+          response.message && Message({
             message: response.message || 'Error',
             type: 'error',
             duration: 5 * 1000

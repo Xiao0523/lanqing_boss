@@ -55,7 +55,7 @@ export default {
 <style lang="scss" scoped>
 .container{
   padding: 30px;
-  background: rgba(250, 250, 251, 1)
+  background: rgba(255, 255, 255, 1)
 }
 .title{
   font-size:24px;

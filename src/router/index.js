@@ -115,7 +115,7 @@ export const adminRoutes = [
     component: Layout,
     alwaysShow: true,
     name: 'Subbranch',
-    meta: { title: '分店管理', icon: 'list', roles: ['businessPassed', 'businessUnPassed'] },
+    meta: { title: '分店管理', icon: 'component', roles: ['businessPassed', 'businessUnPassed'] },
     children: [
       {
         path: 'subbranchList',

@@ -8,8 +8,8 @@
         :data="list"
         style="width: 100%"
       >
-        <el-table-column align="center" label="类目编号" prop="categoryId" />
-        <el-table-column align="center" label="类目名称" prop="categoryName" />
+        <el-table-column align="center" label="一级类目名称" prop="pcategoryName" />
+        <el-table-column align="center" label="二级类目名称" prop="categoryName" />
         <el-table-column align="center" label="操作">
           <template slot-scope="scope">
             <el-popconfirm

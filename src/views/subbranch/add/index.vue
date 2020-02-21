@@ -1,6 +1,6 @@
 <template>
   <section class="container">
-    <el-form ref="submitForm" class="submitForm" label-width="7em" :model="form" :rules="rules">
+    <el-form ref="submitForm" class="submitForm" label-width="10em" :model="form" :rules="rules" :hide-required-asterisk="true">
       <el-form-item label="机构名称" prop="name">
         <el-input v-model="form.name" />
       </el-form-item>
@@ -12,7 +12,7 @@
       </el-form-item>
       <el-form-item label="请选择地址">
         <div class="address">
-          <el-select v-model="form.provinceName" placeholder="请选择" @change="getSonList('province')">
+          <el-select v-model="form.provinceName" class="select" placeholder="请选择" @change="getSonList('province')">
             <el-option
               v-for="item in cityList.province"
               :key="item.name"
@@ -20,7 +20,7 @@
               :value="item.name"
             />
           </el-select>
-          <el-select v-model="form.cityName" placeholder="请选择" @change="getSonList('city')">
+          <el-select v-model="form.cityName" class="select" placeholder="请选择" @change="getSonList('city')">
             <el-option
               v-for="item in cityList.city"
               :key="item.name"
@@ -28,7 +28,7 @@
               :value="item.name"
             />
           </el-select>
-          <el-select v-model="form.districtName" placeholder="请选择" @change="getSonList('district')">
+          <el-select v-model="form.districtName" class="select" placeholder="请选择" @change="getSonList('district')">
             <el-option
               v-for="item in cityList.district"
               :key="item.name"
@@ -36,7 +36,7 @@
               :value="item.name"
             />
           </el-select>
-          <el-select v-model="form.streetName" placeholder="请选择" @change="getSonList('street')">
+          <el-select v-model="form.streetName" class="select" placeholder="请选择" @change="getSonList('street')">
             <el-option
               v-for="item in cityList.street"
               :key="item.name"
@@ -183,12 +183,12 @@ export default {
         name: [
           { required: true, message: '请填写店铺名称', trigger: 'blur' }
         ],
-        // contactName: [
-        //   { type: 'string', required: true, message: '请输入联系人', trigger: 'blur' }
-        // ],
-        // contactPhone: [
-        //   { required: true, message: '请输入手机号码', trigger: 'blur' }
-        // ],
+        contactName: [
+          { required: true, message: '请输入联系人', trigger: 'blur' }
+        ],
+        contactPhone: [
+          { required: true, message: '请输入联系方式', trigger: 'blur' }
+        ],
         businessHours: [
           { required: true, message: '请选择营业时间', trigger: 'blur' }
         ],
@@ -501,15 +501,38 @@ export default {
 
 .address {
   display: flex;
-  width: 60%;
   flex: 1;
-  align-content: space-around;
+  align-content: flex-start;
+  justify-content: flex-start;
   & > * {
     flex-grow: 1;
-    margin: 0 .25em;
+    margin: 0 1em 0 0;
   }
   & > .input {
     flex-grow: 2
+  }
+}
+.submitForm {
+  & /deep/ {
+    .el-form-item__label {
+      padding: 0 30px 0 0;
+    }
+    .select .el-input__inner {
+      width: 150px;
+    }
+    .input .el-input__inner {
+      width: 240px;
+    }
+    .el-upload-list__item .el-progress {
+      width: 400px;
+    }
+    .el-input__inner {
+      width: 400px;
+      height: 42px;
+    }
+    .el-textarea__inner {
+      width: 400px;
+    }
   }
 }
 </style>

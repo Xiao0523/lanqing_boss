@@ -46,10 +46,11 @@
       <div v-for="(item, index) in list" :key="index" class="flex-item">
         <div class="shop">
           <div class="shop__hd">
+            <div v-show="activeStatus === 1" class="img-mack" />
             <img class="shop-logo" :src="item.covers[0] | coversStr" alt>
             <div class="shop-info">
-              <h6 class="shop-name">{{ item.name }}</h6>
-              <div class="shop-slogan">{{ item.selfDescription }}</div>
+              <h6 class="shop-name" :class="{'status-back': activeStatus === 1}">{{ item.name }}</h6>
+              <div class="shop-slogan" :class="{'status-back': activeStatus === 1}">{{ item.selfDescription }}</div>
             </div>
             <more>
               <div class="shop-action-wraper">
@@ -63,31 +64,32 @@
           </div>
           <div class="shop__bd">
             <div class="shop-data">
-              <div class="shop-data-title">课程数</div>
-              <div class="shop-data-number">{{ item.curriculumAmount }}</div>
+              <div class="shop-data-title" :class="{'status-back': activeStatus === 1}">课程数</div>
+              <div class="shop-data-number" :class="{'status-back': activeStatus === 1}">{{ item.curriculumAmount }}</div>
             </div>
             <div class="shop-data">
-              <div class="shop-data-title">学生数</div>
-              <div class="shop-data-number">{{ item.studentAmount }}</div>
+              <div class="shop-data-title" :class="{'status-back': activeStatus === 1}">学生数</div>
+              <div class="shop-data-number" :class="{'status-back': activeStatus === 1}">{{ item.studentAmount }}</div>
             </div>
             <div class="shop-data">
-              <div class="shop-data-title">讲师数</div>
-              <div class="shop-data-number">{{ item.teacherAmount }}</div>
+              <div class="shop-data-title" :class="{'status-back': activeStatus === 1}">讲师数</div>
+              <div class="shop-data-number" :class="{'status-back': activeStatus === 1}">{{ item.teacherAmount }}</div>
             </div>
             <div class="shop-data">
-              <div class="shop-data-title">评分</div>
-              <div class="shop-data-number">{{ item.score }}</div>
+              <div class="shop-data-title" :class="{'status-back': activeStatus === 1}">评分</div>
+              <div class="shop-data-number" :class="{'status-back': activeStatus === 1}">{{ item.score }}</div>
             </div>
           </div>
           <div class="shop__ft">
+            <div v-show="activeStatus === 1" class="avatar-mack" />
             <img class="shop-avatar" :src="item.covers[0] | coversStr" alt>
             <div class="shop-manager-info">
-              <h6 class="shop-manager">{{ item.contactName | contactPeo }}</h6>
-              <div class="shop-phone">手机号：{{ item.contactPhone | contactPhoneStr }}</div>
+              <h6 class="shop-manager" :class="{'status-back': activeStatus === 1}">{{ item.contactName | contactPeo }}</h6>
+              <div class="shop-phone" :class="{'status-back': activeStatus === 1}">手机号：{{ item.contactPhone | contactPhoneStr }}</div>
             </div>
             <!-- <el-button type="primary" class="btn-setting">设置店长</el-button> -->
-            <el-button v-show="!item.contactName" class="btn-change" @click="onOpenSetDialog('set', item.id)">设置店长</el-button>
-            <el-button v-show="item.contactName" class="btn-change-edit" @click="onOpenSetDialog('edit', item.id)">更改店长</el-button>
+            <el-button v-show="!item.storeAdminLoginName && !item.storeAdminNickName" class="btn-change" :disabled="activeStatus === 1" @click="onOpenSetDialog('set', item.id, item.storeAdminLoginName, item.storeAdminNickName)">设置店长</el-button>
+            <el-button v-show="item.storeAdminLoginName && item.storeAdminNickName" class="btn-change" :disabled="activeStatus === 1" @click="onOpenSetDialog('edit', item.id, item.storeAdminLoginName, item.storeAdminNickName)">更改店长</el-button>
             <!-- <el-button type="primary" class="btn-setting">设置店长</el-button> -->
           </div>
         </div>
@@ -101,7 +103,7 @@
 
     <div>
       <pagination
-        v-show="total > 0"
+        v-show="total > 9"
         :total="total"
         :page.sync="listQuery.pageNum"
         :limit.sync="listQuery.pageSize"
@@ -111,26 +113,28 @@
 
     <el-dialog
       :visible.sync="isManangerShow"
+      class="dialog"
+      top="-178px"
       @close="closeDialog()"
     >
       <h6 slot="title" class="dialog-title">店长管理</h6>
       <el-form
         :inline-message="true"
-        label-width="5em"
+        label-width="6em"
         :model="setManagerForm"
       >
         <el-form-item class="mb-10" label="店长" prop="subbranchName">
           <el-input v-model="setManagerForm.userName" placeholder="请输入店长登录名" />
         </el-form-item>
         <el-form-item class="mb-10" label="登录密码" prop="subbranchName">
-          <el-input v-model="setManagerForm.password" placeholder="请输入登录密码" />
+          <el-input v-model="setManagerForm.password" type="password" placeholder="请输入登录密码" />
         </el-form-item>
         <el-form-item label="昵称" prop="subbranchName">
           <el-input v-model="setManagerForm.nickName" placeholder="请输入昵称" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="onSubmit">确定</el-button>
+        <el-button type="primary" class="colorfullBtn" @click="onSubmit">确定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -219,6 +223,7 @@ export default {
         this.total = data.total
         const records = data.records
         this.list = records && records.length ? records : []
+        console.log(this.list)
       })
     },
     onAudit(item) {},
@@ -239,6 +244,9 @@ export default {
     onSubmit() {
       const submitObj = this.setManagerForm
       submitObj.storeId = this.activeId
+      if (!submitObj.password) {
+        return this.$warn('请输入新密码！！！')
+      }
       addStore(submitObj).then(res => {
         if (res.code) {
           return res.message && this.$warn(res.message)
@@ -254,12 +262,15 @@ export default {
     },
 
     // 设置店长
-    onOpenSetDialog(key, id) {
+    onOpenSetDialog(key, id, loginName, nickName) {
       if (key === 'set') {
         this.isAdd = true
       } else {
         this.isAdd = false
       }
+      this.setManagerForm.nickName = nickName
+      this.setManagerForm.userName = loginName
+      this.setManagerForm.password = ''
       this.activeId = id
       this.isManangerShow = true
     },
@@ -298,7 +309,13 @@ export default {
   padding: 30px;
   background: rgba(250, 250, 251, 1);
 }
-
+.colorfullBtn {
+  display: inline-block;
+  width:96px;
+  height:38px;
+  background:linear-gradient(90deg,rgba(0,214,211,1) 0%,rgba(0,206,124,1) 100%);
+  border-radius:4px;
+}
 .card {
   background: #fff;
   padding: 20px 25px;
@@ -399,6 +416,13 @@ export default {
   &-info{
     flex: 1
   }
+  .img-mack {
+    width:60px;
+    height:60px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius:4px;
+    position: absolute;
+  }
   &-logo{
     width:60px;
     height:60px;
@@ -456,6 +480,13 @@ export default {
       line-height:24px;
     }
   }
+  .avatar-mack {
+    width:42px;
+    height:42px;
+    border-radius: 50%;
+    position: absolute;
+    background:rgba( 255,255,255,.6);
+  }
   &-avatar{
     width:42px;
     height:42px;
@@ -501,16 +532,24 @@ export default {
   }
 }
 
+.status-back {
+  color: #92929D;
+}
+
 .btn-change {
   border-radius:4px;
   border: 1px solid rgba(0,210,165,1);
-  color: #FFFFFF;
-  background: linear-gradient(to right, #00D6D3, #00CE7C);
+  color: #00D2A5;
+  background: transparent;
+  &:hover {
+    color: #FFFFFF;
+    background: linear-gradient(to right, #00D6D3, #00CE7C);
+    transition: all .5s;
+  }
 }
 
-.btn-change-edit {
-  background: transparent;
-}
+// .btn-change-edit {
+// }
 
 .select-box {
   margin-right: 20px;
@@ -530,7 +569,7 @@ export default {
   padding-top: 20px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   border-top: 1px solid rgba(241,241,245,1)
 }
 .el-alert--error {
@@ -542,13 +581,29 @@ export default {
     color: #333;
   }
 }
+.dialog {
+  & /deep/ {
+    .el-dialog {
+      width: 500px;
+      top: 50%;
+    }
+    .el-form-item__label {
+      padding: 0 20px 0 0;
+    }
+    .el-dialog__footer {
+      padding: 0 30px 20px;
+    }
+  }
+}
 .el-input{
   width: 240px;
   & /deep/ {
     .el-input__inner{
-      background: rgba(250,250,251,1);
-      color: #333;
-      font-weight: bold;
+      width:240px;
+      height:42px;
+      background:rgba(250,250,251,1);
+      border-radius:4px;
+      border:1px solid rgba(241,241,245,1);
       &:focus{
         border-color: #00D2A5
       }
