@@ -208,13 +208,18 @@ export default {
         userName: registForm.username
       }
       register(regigstData).then(res => {
+        console.log(res)
         if (res.code) {
           return res.message && this.$warn(res.message)
         }
         this.$success(res.message)
-        this.$store.commit('user/temp_Roles', [res.data.role])
+        const roleArr = []
+        roleArr.push(res.data.role)
+        console.log(roleArr)
+        this.$store.commit('user/SET_TEMP_ROLES', roleArr)
         this.$store.commit('user/SET_TOKEN', res.data.role)
         if (res.data.role && res.data.role !== 'store') {
+          console.log(1111)
           this.$router.replace({ path: '/business' })
           return
         }
