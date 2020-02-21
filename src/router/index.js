@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-
+import { getLocal } from '@/utils/local'
 Vue.use(Router)
 
 /* Layout */
@@ -30,6 +30,8 @@ import Layout from '@/layout'
  * a base page that does not have permission requirements
  * all roles can be accessed
  */
+
+const whiteList = ['/login', '/business']
 
 export const constantRoutes = [
   {
@@ -276,6 +278,18 @@ const createRouter = () =>
   })
 
 const router = createRouter()
+
+router.beforeEach((to, from, next) => {
+  const role = getLocal('temp_Roles')
+  if (!(whiteList.includes(to.path)) && role && role[0] !== 'store') {
+    const status = getLocal('examineStatus')
+    if (status && status !== 1) {
+      next({ path: '/business' })
+      return
+    }
+  }
+  next()
+})
 
 // Detail see: https://github.com/vuejs/vue-router/issues/1234#issuecomment-357941465
 export function resetRouter() {

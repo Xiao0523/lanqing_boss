@@ -215,7 +215,6 @@ export default {
         this.$success(res.message)
         const roleArr = []
         roleArr.push(res.data.role)
-        console.log(roleArr)
         this.$store.commit('user/SET_TEMP_ROLES', roleArr)
         this.$store.commit('user/SET_TOKEN', res.data.role)
         if (res.data.role && res.data.role !== 'store') {
