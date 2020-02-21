@@ -125,9 +125,6 @@ export default {
     padding-right: 20px;
     border-right: 1px solid #000;
   }
-  &-start{
-
-  }
   &-end{
     margin-top: 10px;
   }
