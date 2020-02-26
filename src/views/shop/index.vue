@@ -40,7 +40,8 @@
           <div class="flex">
             <div class="flex__hd">店铺介绍</div>
             <div class="flex__bd">
-              <p class="shop-intro">{{ content.selfDescription }}</p>
+              <strong>{{ content.selfDescription }}</strong>
+              <!-- <p class="shop-intro">{{ content.selfDescription }}</p> -->
             </div>
           </div>
           <div class="flex">
@@ -56,8 +57,11 @@
           <div class="flex">
             <div class="flex__hd">店铺资质</div>
             <div class="flex__bd">
-              <ul v-show="content.qualifications" class="list">
-                <li v-for="item in content.qualifications" :key="item">
+              <ul v-show="(content.qualifications && content.qualifications.length) || (content.videoCover && content.videoUrl)" class="list">
+                <li v-show="content.videoCover && content.videoUrl" class="video-img" @click="handleVideo">
+                  <img class="list-img" :src="content.videoCover" alt="">
+                </li>
+                <li v-for="item in content.qualifications" v-show="content.qualifications.length" :key="item">
                   <img class="list-img" :src="item" alt="">
                 </li>
               </ul>
@@ -89,7 +93,22 @@
         <el-button class="contact-btn">请联系超管 修改密码</el-button>
       </div>
     </div>
-
+    <div v-show="videoFlag" class="video-mack" @click="closeMack">
+      <video
+        id="video"
+        :src="content.videoUrl"
+        :poster="content.videoCover"
+        controls
+        preload="auto"
+        webkit-playsinline="true"
+        playsinline="true"
+        x-webkit-airplay="allow"
+        x5-video-player-type="h5"
+        x5-video-player-fullscreen="false"
+        x5-video-orientation="portraint"
+        style="object-fit:fill"
+      />
+    </div>
   </section>
 </template>
 <script>
@@ -108,7 +127,8 @@ export default {
         covers: []
       },
       radio: '',
-      isEmpty: true
+      isEmpty: true,
+      videoFlag: false
     }
   },
   created() {
@@ -123,12 +143,63 @@ export default {
         if (!res.data) return
         this.content = res.data
       })
+    },
+    handleVideo() {
+      this.videoFlag = true
+    },
+    closeMack() {
+      this.videoFlag = false
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
+.video-mack {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.3);
+  video {
+    position: absolute;
+    max-width: 400px;
+    max-height: 300px;
+    top: 50%;
+    left: 50%;
+    margin-top: -150px;
+    margin-left: -200px;
+  }
+}
+.video-img {
+  position: relative;
+  &:before {
+    display: block;
+    position: absolute;
+    content: '';
+    top: 50%;
+    margin-top: -15px;
+    left: 50%;
+    margin-left: -10px;
+    width: 0;
+    height: 0;
+    border: 20px solid #fff;
+    border-width: 15px 0 15px 20px;
+    border-color: transparent transparent transparent #fff;
+    z-index: 2;
+  }
+  &:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    background: rgba(0, 0, 0, .4);
+  }
+}
 .container {
   padding: 30px;
 }

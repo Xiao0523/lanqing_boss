@@ -40,13 +40,16 @@ $light_gray: #eee;
   }
 
   .login-form {
-    position: relative;
+    position: absolute;
     box-sizing: border-box;
+    top: 45%;
+    margin-top: -165px;
+    left: 50%;
+    margin-left: -205px;
     width: 410px;
     background: #fff;
     max-width: 100%;
     padding: 30px 50px;
-    margin: 274px auto 0;
     border-radius: 8px;
     overflow: hidden;
     z-index: 2;
@@ -80,9 +83,9 @@ $light_gray: #eee;
 
   .validcode{
     display: flex;
-    &-input{
+    &-input {
       flex: 1;
-      & > .el-form-item{
+      & > .el-form-item {
         margin-bottom: 0;
       }
     }

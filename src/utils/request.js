@@ -7,6 +7,9 @@ import { getToken } from '@/utils/auth'
 
 // create an axios instance
 const service = axios.create({
+  headers: {
+    'X-Requested-With': 'XMLHttpRequest'
+  },
   // baseURL: Api_url, // process.env.VUE_APP_BASE_API, // url = base url + request url
   withCredentials: true, // send cookies when cross-domain requests
   timeout: 5000 // request timeout\
@@ -34,7 +37,7 @@ service.interceptors.request.use(
   },
   error => {
     // do something with request error
-    console.log(error) // for debug
+    console.log('error::::::::::', error) // for debug
     return Promise.reject(error)
   }
 )
@@ -81,24 +84,16 @@ service.interceptors.response.use(
     return res
   },
   error => {
-    if (error && error.response) {
-      let message
-      if (error.response.status === 403) {
-        message = error.response.data.message || error.response.data.data
-        store.dispatch('user/resetToken')
-        setTimeout(() => {
-          router.replace({ path: '/login', params: { redirect: router.currentRoute.fullPath }})
-        }, 1000)
-      } else {
-        message = error.response.data.message || error.response.data.message
-      }
-      message = message || '网络错误'
-      Message({
-        message: message,
-        type: 'error'
-      })
-    }
-
+    console.log('err' + error) // for debug
+    Message({
+      message: '登陆超时，请重新登陆！！！',
+      type: 'error',
+      duration: 1 * 1000
+    })
+    store.dispatch('user/resetToken')
+    setTimeout(() => {
+      router.replace({ path: '/login', params: { redirect: router.currentRoute.fullPath }})
+    }, 1000)
     return Promise.reject(error)
   }
 )
