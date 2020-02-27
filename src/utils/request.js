@@ -55,7 +55,21 @@ service.interceptors.response.use(
    * You can also judge the status by HTTP Status Code
    */
   response => {
+    console.timeLog(response)
     const res = response.data
+
+    if (res.code === 403) {
+      Message({
+        message: res.message || '登陆超时，请重新登陆！！！',
+        type: 'error',
+        duration: 1 * 1000
+      })
+      store.dispatch('user/resetToken')
+      setTimeout(() => {
+        router.replace({ path: '/login', params: { redirect: router.currentRoute.fullPath }})
+      }, 1000)
+    }
+
     // if the custom code is not 20000, it is judged as an error.
     if (response.status !== 200) {
       Message({
@@ -63,7 +77,6 @@ service.interceptors.response.use(
         type: 'error',
         duration: 5 * 1000
       })
-
       // 50008: Illegal token; 50012: Other clients logged in; 50014: Token expired;
       /* if (res.code === 50008 || res.code === 50012 || res.code === 50014) {
         // to re-login
@@ -84,9 +97,9 @@ service.interceptors.response.use(
     return res
   },
   error => {
-    console.log('err' + error) // for debug
+    console.log('error::::', error)
     Message({
-      message: '登陆超时，请重新登陆！！！',
+      message: error.message || '登陆超时，请重新登陆！！！',
       type: 'error',
       duration: 1 * 1000
     })

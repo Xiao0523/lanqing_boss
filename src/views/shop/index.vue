@@ -22,7 +22,8 @@
           <div class="flex">
             <div class="flex__hd">店铺标语</div>
             <div class="flex__bd">
-              <strong>{{ content.introduce }}</strong>
+              <strong>{{ content.selfDescription }}</strong>
+              <!-- <p class="shop-intro">{{ content.selfDescription }}</p> -->
             </div>
           </div>
           <div class="flex">
@@ -40,8 +41,7 @@
           <div class="flex">
             <div class="flex__hd">店铺介绍</div>
             <div class="flex__bd">
-              <strong>{{ content.selfDescription }}</strong>
-              <!-- <p class="shop-intro">{{ content.selfDescription }}</p> -->
+              <strong>{{ content.introduce }}</strong>
             </div>
           </div>
           <div class="flex">

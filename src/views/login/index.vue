@@ -156,6 +156,14 @@ export default {
       errorText: ''
     }
   },
+  mounted() {
+    this.$store.commit('SET_TOKEN', '')
+    this.$store.commit('SET_ROLES', [])
+    this.$store.commit('SET_NAME', '')
+    this.$store.commit('SET_AVATAR', '')
+    this.$store.commit('SET_STATUS', '')
+    this.$store.commit('SET_TEMP_ROLES', [])
+  },
   methods: {
     switchForm() {
       this.isRegist = !this.isRegist
@@ -208,7 +216,6 @@ export default {
         userName: registForm.username
       }
       register(regigstData).then(res => {
-        console.log(res)
         if (res.code) {
           return res.message && this.$warn(res.message)
         }

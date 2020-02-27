@@ -10,7 +10,7 @@
       <el-form-item label="联系电话" prop="contactPhone">
         <el-input v-model="form.contactPhone" />
       </el-form-item>
-      <el-form-item label="请选择地址">
+      <el-form-item label="店铺地址">
         <div class="address">
           <el-select v-model="form.provinceName" class="select" placeholder="请选择" @change="getSonList('province')">
             <el-option
@@ -108,11 +108,11 @@
           value-format="yyyy-MM-dd"
         />
       </el-form-item>
-      <el-form-item label="简介" prop="introduce">
-        <el-input v-model="form.introduce" type="textarea" class="el-textarea" :rows="4" />
-      </el-form-item>
-      <el-form-item label="自我描述" prop="selfDescription">
+      <el-form-item label="店铺标语" prop="selfDescription">
         <el-input v-model="form.selfDescription" type="textarea" class="el-textarea" :rows="4" />
+      </el-form-item>
+      <el-form-item label="店铺介绍" prop="introduce">
+        <el-input v-model="form.introduce" type="textarea" class="el-textarea" :rows="4" />
       </el-form-item>
       <el-form-item label="课程类目选择">
         <el-transfer
