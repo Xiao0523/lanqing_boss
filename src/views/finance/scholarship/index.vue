@@ -273,7 +273,7 @@ export default {
 
 .empty {
   &-table {
-    width: 1140px;
+    width: 100%;
     background: rgba(250, 250, 251, 1);
     border-radius: 2px;
     display: flex;
