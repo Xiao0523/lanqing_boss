@@ -64,7 +64,7 @@ service.interceptors.response.use(
         type: 'error',
         duration: 1 * 1000
       })
-      store.dispatch('user/resetToken')
+      store.dispatch('user/logout')
       setTimeout(() => {
         router.replace({ path: '/login', params: { redirect: router.currentRoute.fullPath }})
       }, 1000)
