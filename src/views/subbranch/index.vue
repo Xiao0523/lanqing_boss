@@ -37,6 +37,7 @@
           v-for="item in selectList"
           :key="item.label"
           :value="item.label"
+          class="select-color"
         />
       </el-select>
       <el-button type="primary" class="el-icon-plus add-btn" @click="openCreateDialog">新增分店</el-button>
@@ -379,6 +380,7 @@ export default {
 }
 .add-btn{
   text-align: right;
+  background:linear-gradient(90deg,rgba(0,214,211,1) 0%,rgba(0,206,124,1) 100%);
 }
 
 .flex {
@@ -633,5 +635,10 @@ export default {
     line-height:15px;
     margin-top: 20px;
   }
+}
+
+.selected {
+  color: #00D2A5;
+  font-weight: 700;
 }
 </style>

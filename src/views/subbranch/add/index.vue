@@ -54,11 +54,13 @@
           list-type="picture-card"
           :file-list="CoverImgList"
           :on-preview="handlePicturePreview"
+          :before-upload="beforeAvatarUpload"
           :on-remove="handleCoversRemove"
           :on-success="handlePicctureCoversSuccess"
         >
           <i class="el-icon-plus" />
         </el-upload>
+        <span>只能上传jpg/png文件，建议尺寸为513x321px。</span>
       </el-form-item>
       <el-form-item label="店铺资质">
         <el-upload
@@ -67,11 +69,13 @@
           list-type="picture-card"
           :file-list="imgList"
           :on-preview="handlePicturePreview"
+          :before-upload="beforeAvatarUpload"
           :on-remove="handleRemove"
           :on-success="handlePicctureSuccess"
         >
           <i class="el-icon-plus" />
         </el-upload>
+        <span>只能上传jpg/png文件，且最多上传9张，建议尺寸宽为750，高不宜超过1200px。</span>
       </el-form-item>
 
       <el-form-item label="店铺视频">
@@ -369,7 +373,7 @@ export default {
     },
     handleRemove(file, fileList) {
       if (file.status !== 'success') {
-        return this.$warn('删除失败')
+        return
       }
       if (!file.url) return
       const index = this.form.qualifications.indexOf(file.url)
@@ -377,7 +381,7 @@ export default {
     },
     handleCoversRemove(file, fileList) {
       if (file.status !== 'success') {
-        return this.$warn('删除失败')
+        return
       }
       if (!file.url) return
       const index = this.form.covers.indexOf(file.url)
@@ -386,6 +390,20 @@ export default {
     handlePicturePreview(file) {
       this.previewImg = file.url
       this.dialogVisible = true
+    },
+    beforeAvatarUpload(file) {
+      const imgType = file.type
+      const isLt2M = file.size / 1024 / 1024 < 2
+      let isImg = true
+
+      if (!(imgType === 'image/jpeg' || imgType === 'image/png')) {
+        this.$warn('上传图片只能是 JPG 或 PNG 格式!')
+        isImg = false
+      }
+      if (!isLt2M) {
+        this.$warn('上传图片大小不能超过 2MB!')
+      }
+      return isImg && isLt2M
     },
     handlePicctureSuccess(res, file) {
       if (res.code) {

@@ -55,7 +55,6 @@ service.interceptors.response.use(
    * You can also judge the status by HTTP Status Code
    */
   response => {
-    console.timeLog(response)
     const res = response.data
 
     if (res.code === 403) {
@@ -97,13 +96,13 @@ service.interceptors.response.use(
     return res
   },
   error => {
-    console.log('error::::', error)
+    console.log('error::::', error.code)
     Message({
-      message: error.message || '登陆超时，请重新登陆！！！',
+      message: '系统异常，请重新登陆！！！',
       type: 'error',
       duration: 1 * 1000
     })
-    store.dispatch('user/resetToken')
+    store.dispatch('user/logout')
     setTimeout(() => {
       router.replace({ path: '/login', params: { redirect: router.currentRoute.fullPath }})
     }, 1000)

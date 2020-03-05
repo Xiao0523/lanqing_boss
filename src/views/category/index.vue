@@ -28,7 +28,7 @@
     <div>
       <pagination v-show="total > 0" :total="total" :page.sync="pageNum" :limit.sync="pageSize" @pagination="pageChange" />
     </div>
-    <el-dialog title="添加类目" :visible.sync="dialogFormVisible">
+    <el-dialog title="添加类目" class="dialogs" :visible.sync="dialogFormVisible">
       <div class="dialog-box">
         <el-select v-model="keywords.categoryTitle" @change="getSonList">
           <el-option
@@ -225,6 +225,7 @@ export default {
       color:rgba(68,68,79,1);
       line-height:18px;
     }
+
   }
 }
 .add{
@@ -253,5 +254,21 @@ export default {
   & > .add-btn {
     flex-grow: 2;
   }
+}
+
+.dialogs {
+  /deep/ {
+    .el-dialog__headerbtn:focus .el-dialog__close, .el-dialog__headerbtn:hover .el-dialog__close {
+      color:#00D2A5;
+    }
+    .el-select .el-input.is-focus .el-input__inner {
+      border-color: #00D2A5;
+    }
+  }
+}
+
+.selected {
+  color: #00D2A5;
+  font-weight: 700;
 }
 </style>

@@ -69,6 +69,7 @@ export default {
   position: relative;
   background: #fff;
   box-shadow: 0 1px 4px rgba(0,21,41,.08);
+  z-index: 1;
 
   .hamburger-container {
     line-height: 46px;
@@ -159,6 +160,11 @@ export default {
         }
       }
     }
+  }
+}
+/deep/ {
+  .el-dropdown-menu__item:focus, .el-dropdown-menu__item:not(.is-disabled):hover {
+    color: #00D2A5;
   }
 }
 </style>
