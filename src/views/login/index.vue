@@ -268,7 +268,7 @@ export default {
           this.$success(res.message)
           if (res.data.role && res.data.role !== 'store') {
             this.$router.replace({ path: '/business' })
-            return
+            return false
           }
           this.$router.replace({ path: '/shop' })
         })

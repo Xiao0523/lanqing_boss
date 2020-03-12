@@ -57,18 +57,6 @@ service.interceptors.response.use(
   response => {
     const res = response.data
 
-    if (res.code === 403) {
-      Message({
-        message: res.message || '登陆超时，请重新登陆！！！',
-        type: 'error',
-        duration: 1 * 1000
-      })
-      store.dispatch('user/logout')
-      setTimeout(() => {
-        router.replace({ path: '/login', params: { redirect: router.currentRoute.fullPath }})
-      }, 1000)
-    }
-
     // if the custom code is not 20000, it is judged as an error.
     if (response.status !== 200) {
       Message({
