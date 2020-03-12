@@ -169,7 +169,25 @@ export default {
     }
   },
   mounted() {
-    this.getBusiness()
+    getExamine().then(res => {
+      if (res.code) {
+        return res.message && this.$warn(res.message)
+      }
+      this.examineResult = !res.data ? -1 : res.data.status
+      if (this.examineResult === 1) {
+        this.$router.push({ name: 'Home' })
+      }
+      if (this.examineResult === 2) {
+        this.lastDate = formatTime(res.data.latelySubmitDate)
+        this.logInfo = res.data.logInfo
+      }
+      this.$store.commit('user/SET_STATUS', this.examineResult)
+      setTimeout(() => {
+        this.loadFlag = false
+      }, this.tranTime)
+    }).catch(err => {
+      console.log(err)
+    })
   },
   methods: {
     // 获取商家信息列表
