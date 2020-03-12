@@ -8,7 +8,7 @@
         <div class="cell"><span class="cell-hd">银行开户名</span>{{ form.bankName }}</div>
         <div class="cell"><span class="cell-hd">开户银行</span>{{ form.bankNo }}</div>
         <div class="cell"><span class="cell-hd">联系人</span>{{ form.contacts }}</div>
-        <div class="cell"><span class="cell-hd">联系方式</span> 13111111111</div>
+        <div class="cell"><span class="cell-hd">联系方式</span>{{ form.contactInformation }}</div>
         <div class="cell"><span class="cell-hd">办学许可证</span><img class="thumbnail" :src="form.schoolLicense" alt="办学许可证" srcset=""></div>
         <div class="cell"><span class="cell-hd">民办非企业单位登记证</span><img class="thumbnail" :src="form.registrationCertificateOfPrivateNonEnterpriseUnit" alt="非企业单位登记证"></div>
         <div class="cell"><span class="cell-hd">上传工商执照</span><img class="thumbnail" :src="form.businessLicense" alt="上传工商执照"></div>
