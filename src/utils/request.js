@@ -7,14 +7,16 @@ import { getToken } from '@/utils/auth'
 
 // create an axios instance
 const service = axios.create({
-  headers: {
-    'X-Requested-With': 'XMLHttpRequest',
-    'Content-Type': 'application/json;charset=utf-8'
-  },
+  // headers: {
+  //   'X-Requested-With': 'XMLHttpRequest',
+  //   'Content-Type': 'application/json;charset=utf-8'
+  // },
   // baseURL: Api_url, // process.env.VUE_APP_BASE_API, // url = base url + request url
-  withCredentials: true, // send cookies when cross-domain requests
+  // withCredentials: true // send cookies when cross-domain requests
   timeout: 5000 // request timeout\
 })
+
+service.defaults.withCredentials = true
 
 // request interceptor
 service.interceptors.request.use(
@@ -27,7 +29,7 @@ service.interceptors.request.use(
     } else {
       config.baseURL = Api_url
     }
-    config.headers['common']['Content-Type'] = 'application/x-www-form-urlencoded'
+    // config.headers['common']['Content-Type'] = 'application/x-www-form-urlencoded'
     // do something before request is sent\
     // if (store.getters.token) {
     //   // let each request carry token
