@@ -96,7 +96,7 @@ service.interceptors.response.use(
     return res
   },
   error => {
-    console.log('error::::', error.code)
+    console.log('error::::', error.message)
     Message({
       message: '系统异常，请重新登陆！！！',
       type: 'error',
