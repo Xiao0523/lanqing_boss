@@ -224,7 +224,6 @@ export default {
         this.total = data.total
         const records = data.records
         this.list = records && records.length ? records : []
-        console.log(this.list)
       })
     },
     onAudit(item) {},

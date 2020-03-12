@@ -96,16 +96,34 @@ service.interceptors.response.use(
     return res
   },
   error => {
-    console.log('error::::', error.message)
-    Message({
-      message: '系统异常，请重新登陆！！！',
-      type: 'error',
-      duration: 1 * 1000
-    })
-    store.dispatch('user/logout')
-    setTimeout(() => {
-      router.replace({ path: '/login', params: { redirect: router.currentRoute.fullPath }})
-    }, 1000)
+    console.log('error::::', error.response)
+    if (error.response && error.response.data) {
+      let msg
+      switch (error.response.data.code) {
+        case 400:
+          msg = '数据格式不正确'
+          break
+        case 403:
+          msg = '没有权限请重新登陆'
+          break
+        case 500:
+          msg = '系统异常，请联系管理员'
+          break
+        default:
+          msg = '系统异常，请重新登陆'
+      }
+      Message({
+        message: msg,
+        type: 'error',
+        duration: 1 * 1000
+      })
+      if (!(error.response.data.code === 400)) {
+        store.dispatch('user/logout')
+        setTimeout(() => {
+          router.replace({ path: '/login', params: { redirect: router.currentRoute.fullPath }})
+        }, 1000)
+      }
+    }
     return Promise.reject(error)
   }
 )
