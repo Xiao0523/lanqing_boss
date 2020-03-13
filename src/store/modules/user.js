@@ -38,6 +38,39 @@ const mutations = {
   SET_TEMP_ROLES: (state, roles) => {
     state.temp_Roles = roles
     setLocal('temp_Roles', roles)
+  },
+
+  login({ commit }, userInfo) {
+    const { username, password, code } = userInfo
+    return new Promise((resolve, reject) => {
+      login({ username, password, code }).then(response => {
+        if (response.code) {
+          response.message && Message({
+            message: response.message || 'Error',
+            type: 'error',
+            duration: 5 * 1000
+          })
+        }
+        const { data } = response
+        commit('SET_TOKEN', data.role)
+        // 临时保存
+        // 规避router 问题
+        if (data.role === 'store') {
+          commit('SET_TEMP_ROLES', ['store'])
+          setToken('store')
+        } else {
+          commit('SET_TEMP_ROLES', [data.role])
+          setToken(data.role)
+        }
+        // const routers = JSON.parse(data.json)
+        // console.log('data JSON.parse', typeof routers)
+        // asyncRoutes.push(routers)
+        commit('SET_NAME', userInfo.username)
+        resolve(response)
+      }).catch(error => {
+        reject(error)
+      })
+    })
   }
 }
 
