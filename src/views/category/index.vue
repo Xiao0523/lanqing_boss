@@ -225,7 +225,6 @@ export default {
       color:rgba(68,68,79,1);
       line-height:18px;
     }
-
   }
 }
 .add{
@@ -262,6 +261,9 @@ export default {
       color:#00D2A5;
     }
     .el-select .el-input.is-focus .el-input__inner {
+      border-color: #00D2A5;
+    }
+    .el-select .el-input__inner:focus {
       border-color: #00D2A5;
     }
   }
