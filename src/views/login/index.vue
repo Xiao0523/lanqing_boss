@@ -20,6 +20,7 @@
           tabindex="1"
           auto-complete="on"
           @input="hideError"
+          @keyup.enter.native="onCode"
         />
       </el-form-item>
 
@@ -31,6 +32,7 @@
           tabindex="2"
           auto-complete="on"
           @input="hideError"
+          @keyup.enter.native="onCode"
         />
       </el-form-item>
       <el-alert v-show="isError" type="error" show-icon :closable="false" :title="errorText" />
@@ -58,6 +60,7 @@
           v-model="registForm.username"
           placeholder="输入用户名"
           @input="hideError"
+          @keyup.enter.native="onCode"
         />
       </el-form-item>
       <el-form-item>
@@ -66,6 +69,7 @@
           placeholder="输入密码"
           type="password"
           @input="hideError"
+          @keyup.enter.native="onCode"
         />
       </el-form-item>
       <el-form-item>
@@ -74,6 +78,7 @@
           placeholder="重复密码"
           type="password"
           @input="hideError"
+          @keyup.enter.native="onCode"
         />
       </el-form-item>
 
@@ -99,6 +104,7 @@
       custom-class="validcode-custom"
       class="validcode-dialog"
       @closed="closedCode"
+      @keyup.enter.native="codeClick"
     >
       <div slot="title">
         <h5 class="validcode-title">请在下方输入图片验证码</h5>

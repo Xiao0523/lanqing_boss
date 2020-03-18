@@ -3,7 +3,7 @@ import { Message } from 'element-ui'
 import router from '@/router'
 import store from '@/store'
 import { Api_url, Web_Api_url } from '@/api/URL'
-import { getToken } from '@/utils/auth'
+// import { getToken } from '@/utils/auth'
 
 // create an axios instance
 const service = axios.create({
@@ -30,6 +30,7 @@ service.interceptors.request.use(
       config.baseURL = Api_url
     }
     config.headers['common']['Content-Type'] = 'application/x-www-form-urlencoded'
+
     // do something before request is sent\
     // if (store.getters.token) {
     //   // let each request carry token
