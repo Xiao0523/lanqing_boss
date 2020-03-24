@@ -108,6 +108,7 @@
           @click="onProve('certificateForm')"
         >立即认证</el-button>
       </div>
+      <p class="result-text back-login" @click="loginOut">返回</p>
     </el-form>
 
     <div v-if="examineResult !== -1 && !loadFlag" class="result-tip">
@@ -117,6 +118,7 @@
         </div>
         <p class="result-text">您的机构正在审核中请耐心等待…</p>
         <p class="result-text">请耐心等待…</p>
+        <p class="result-text back-login" @click="loginOut">返回</p>
       </div>
 
       <div v-if="examineResult === 2">
@@ -127,6 +129,7 @@
         <p class="result-text">反馈时间：{{ lastDate }}</p>
         <p class="result-text">失败原因是：{{ logInfo }}</p>
         <el-button class="result-btn" type="primary" @click="resetPost">重新提交审核</el-button>
+        <p class="result-text back-login" @click="loginOut">返回</p>
       </div>
     </div>
     <div v-if="loadFlag" class="result-tip loader-box">
@@ -173,6 +176,10 @@ export default {
   },
   methods: {
     // 获取商家信息列表
+    async loginOut() {
+      await this.$store.dispatch('user/logout')
+      this.$router.push(`/login`)
+    },
     getBusiness() {
       getExamine().then(res => {
         if (res.code) {
@@ -307,5 +314,18 @@ export default {
 
 .loader-box {
   font-size: 40px;
+}
+
+.login-container .result-text.back-login {
+  font-size: 14px;
+  text-align: center;
+  cursor: pointer;
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.login-container .result-btn {
+    margin-top: 15px;
 }
 </style>
