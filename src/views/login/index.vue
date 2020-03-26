@@ -276,7 +276,7 @@ export default {
             this.$router.replace({ path: '/business' })
             return false
           }
-          this.$router.replace({ path: '/shop' })
+          this.$router.replace({ path: '/shop'111 })
         })
         .catch(() => {
           this.loading = false
