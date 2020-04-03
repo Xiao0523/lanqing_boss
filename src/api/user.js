@@ -1,23 +1,15 @@
 import request from '@/utils/request'
 
 function login(data) {
-  return request.post('/boss/validUser', data)
+  return request.post('/validUser', data)
 }
 
-function register(data) {
-  return request.post('/business/register', data)
+function getValidCode(phone) {
+  return request.get(`/code/${phone}`)
 }
 
-function getValidCode(loginName) {
-  return request.get(`/code/${loginName}`)
-}
-
-function getExamine(data) {
-  return request.get('/boss/business/examine', data)
-}
-
-function postExamine(data) {
-  return request.post('/boss/business/examine', data)
+function getMessage({ phone, code }) {
+  return request.get(`/check/${phone}/${code}`)
 }
 
 /* function logout() {
@@ -26,9 +18,7 @@ function postExamine(data) {
 
 export {
   login,
-  register,
-  getValidCode,
-  getExamine,
-  postExamine
+  getMessage,
+  getValidCode
   // logout
 }

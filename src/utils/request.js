@@ -11,7 +11,7 @@ const service = axios.create({
     'X-Requested-With': 'XMLHttpRequest',
     'Content-Type': 'application/json;charset=utf-8'
   },
-  // baseURL: Api_url, // process.env.VUE_APP_BASE_API, // url = base url + request url
+  // baseURL: '', // process.env.VUE_APP_BASE_API, // url = base url + request url
   withCredentials: true, // send cookies when cross-domain requests
   timeout: 5000 // request timeout\
 
@@ -22,15 +22,13 @@ const service = axios.create({
 // request interceptor
 service.interceptors.request.use(
   config => {
-    const reg = /([a-z]*)/
-    const strUrl = reg.exec(config.url)[0]
-    if (strUrl === 'web') {
-      config.url = config.url.replace(strUrl, '')
+    const strUrl = config.url.split('/').includes('ChinaCity')
+    if (strUrl) {
       config.baseURL = Web_Api_url
     } else {
       config.baseURL = Api_url
     }
-    config.headers['common']['Content-Type'] = 'application/x-www-form-urlencoded'
+    // config.headers['common']['Content-Type'] = 'application/x-www-form-urlencoded'
 
     // do something before request is sent\
     // if (store.getters.token) {
@@ -64,6 +62,22 @@ service.interceptors.response.use(
   response => {
     const res = response.data
     // if the custom code is not 20000, it is judged as an error.
+    let msg
+    if (res.code === 403) {
+      msg = '请重新登录'
+      store.dispatch('user/logout')
+      setTimeout(() => {
+        router.replace({ path: '/login', params: { redirect: router.currentRoute.fullPath }})
+      }, 1000)
+    }
+    if (res.code === 401) msg = '没有权限'
+    if (msg) {
+      Message({
+        message: msg,
+        type: 'error',
+        duration: 1 * 1000
+      })
+    }
     return res
   },
   error => {
@@ -74,8 +88,11 @@ service.interceptors.response.use(
         case 400:
           msg = error.response.data.message || '数据格式不正确'
           break
+        case 401:
+          msg = '没有权限'
+          break
         case 403:
-          msg = '没有权限请重新登陆'
+          msg = '请重新登录'
           break
         case 500:
           msg = '系统异常，请联系管理员'
@@ -88,7 +105,7 @@ service.interceptors.response.use(
         type: 'error',
         duration: 1 * 1000
       })
-      if (!(error.response.data.code === 400)) {
+      if (!(error.response.data.code === 400 || error.response.data.code === 401)) {
         store.dispatch('user/logout')
         setTimeout(() => {
           router.replace({ path: '/login', params: { redirect: router.currentRoute.fullPath }})

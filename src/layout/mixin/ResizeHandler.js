@@ -1,5 +1,4 @@
 import store from '@/store'
-import { getLocal } from '@/utils/local'
 
 const { body } = document
 const WIDTH = 992 // refer to Bootstrap's responsive design

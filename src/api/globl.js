@@ -15,7 +15,7 @@ function getChinaCity({ province, city, district }) {
     defaultNum = 4
     pathStr = defaultNum + '/' + district
   }
-  return request.get('web/ChinaCity/' + pathStr)
+  return request.get('ChinaCity/' + pathStr)
 }
 
 export {

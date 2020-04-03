@@ -7,7 +7,10 @@
           <div class="card__bd">
             <strong class="card-number">{{ content.surplusIcon }}</strong>
           </div>
-          <div class="card__ft">当前可使用奖学金币</div>
+          <div class="card__ft">
+            当前可使用奖学金币
+            <el-button class="pay-btn">充值</el-button>
+          </div>
         </div>
       </el-col>
       <el-col :span="12">
@@ -51,7 +54,7 @@
               <strong class="empty-table-head">消费金额</strong>
             </div>
             <div class="empty-content">
-              <img class="empty-img" src="@/assets/暂无课程.png" alt>
+              <img class="empty-img" src="@/assets/no-cursor.png" alt>
               <p class="empty-text">暂无课程</p>
             </div>
           </div>
@@ -76,7 +79,7 @@
               <strong class="empty-table-head">奖学金币数</strong>
             </div>
             <div class="empty-content">
-              <img class="empty-img" src="@/assets/暂无课程.png" alt>
+              <img class="empty-img" src="@/assets/no-cursor.png" alt>
               <p class="empty-text">暂无课程</p>
             </div>
           </div>
@@ -175,7 +178,7 @@ export default {
 .card {
   background: #fff;
   padding: 20px 25px;
-  height: 155px;
+  // height: 155px;
   background: rgba(255, 255, 255, 1);
   border-radius: 10px;
   &__hd {
@@ -203,7 +206,7 @@ export default {
     font-family: PingFangSC-Regular, PingFang SC;
     font-weight: 400;
     color: rgba(105, 105, 116, 1);
-    line-height: 20px;
+    line-height: 38px;
     margin-top: 7px;
   }
 }
@@ -250,7 +253,7 @@ export default {
 }
 
 .table-wraper {
-  padding: 0 15px;
+  padding: 20px 15px 30px;
   background: #fff;
   border-radius: 2px;
 }
@@ -306,5 +309,17 @@ export default {
     color: rgba(105, 105, 116, 1);
     line-height: 15px;
   }
+}
+.pay-btn {
+  padding: 0;
+  width:146px;
+  height:38px;
+  background:linear-gradient(90deg,rgba(0,214,211,1) 0%,rgba(0,206,124,1) 100%);
+  border-radius:4px;
+  font-size:14px;
+  font-weight:600;
+  color:rgba(255,255,255,1);
+  line-height:38px;
+  float: right;
 }
 </style>

@@ -8,7 +8,7 @@
       <div v-else key="expand">
         <img class="avatar" :src="avatar" alt="头像">
         <h2 class="username">{{ username }}</h2>
-        <span class="role">{{ role }}</span>
+        <!-- <span class="role">{{ role }}</span> -->
       </div>
     </transition>
   </div>

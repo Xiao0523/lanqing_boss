@@ -3,6 +3,7 @@ import { getToken, setToken, removeToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
 import { setLocal } from '@/utils/local'
 import { Message } from 'element-ui'
+import { getExamine } from '@/api/business.js'
 
 const state = {
   token: getToken(),
@@ -10,10 +11,15 @@ const state = {
   avatar: '',
   roles: [], // admin 管理员  store 店长
   temp_Roles: [], // 登录时 临时 保存 角色
-  examineStatus: 0
+  examineStatus: null,
+  messageToken: ''
 }
 
 const mutations = {
+  SET_USERID: (state, messageToken) => {
+    state.messageToken = messageToken
+    setLocal('messageToken', messageToken)
+  },
   SET_TOKEN: (state, token) => {
     state.token = token
     setToken(token)
@@ -38,48 +44,15 @@ const mutations = {
   SET_TEMP_ROLES: (state, roles) => {
     state.temp_Roles = roles
     setLocal('temp_Roles', roles)
-  },
-
-  login({ commit }, userInfo) {
-    const { username, password, code } = userInfo
-    return new Promise((resolve, reject) => {
-      login({ username, password, code }).then(response => {
-        if (response.code) {
-          response.message && Message({
-            message: response.message || 'Error',
-            type: 'error',
-            duration: 5 * 1000
-          })
-        }
-        const { data } = response
-        commit('SET_TOKEN', data.role)
-        // 临时保存
-        // 规避router 问题
-        if (data.role === 'store') {
-          commit('SET_TEMP_ROLES', ['store'])
-          setToken('store')
-        } else {
-          commit('SET_TEMP_ROLES', [data.role])
-          setToken(data.role)
-        }
-        // const routers = JSON.parse(data.json)
-        // console.log('data JSON.parse', typeof routers)
-        // asyncRoutes.push(routers)
-        commit('SET_NAME', userInfo.username)
-        resolve(response)
-      }).catch(error => {
-        reject(error)
-      })
-    })
   }
 }
 
 const actions = {
   // user login
   login({ commit }, userInfo) {
-    const { username, password, code } = userInfo
+    const { phone, code } = userInfo
     return new Promise((resolve, reject) => {
-      login({ username, password, code }).then(response => {
+      login({ phone, code }).then(response => {
         if (response.code) {
           response.message && Message({
             message: response.message || 'Error',
@@ -88,20 +61,21 @@ const actions = {
           })
         }
         const { data } = response
-        commit('SET_TOKEN', data.role)
+        commit('SET_TOKEN', data.nickName)
+        commit('SET_AVATAR', data.logo)
+        commit('SET_USERID', data.token)
+
         // 临时保存
         // 规避router 问题
-        if (data.role === 'store') {
-          commit('SET_TEMP_ROLES', ['store'])
-          setToken('store')
-        } else {
-          commit('SET_TEMP_ROLES', [data.role])
-          setToken(data.role)
-        }
         // const routers = JSON.parse(data.json)
         // console.log('data JSON.parse', typeof routers)
         // asyncRoutes.push(routers)
-        commit('SET_NAME', userInfo.username)
+        commit('SET_NAME', data.nickName)
+
+        getExamine().then(res => {
+          if (res.code) this.$warn(res.message)
+          commit('SET_STATUS', res.data.status || 0)
+        })
         resolve(response)
       }).catch(error => {
         reject(error)
@@ -153,6 +127,7 @@ const actions = {
       commit('SET_AVATAR', '')
       commit('SET_STATUS', '')
       commit('SET_TEMP_ROLES', [])
+      commit('SET_USERID', '')
       removeToken()
       resetRouter()
       resolve()
@@ -166,21 +141,21 @@ const actions = {
         reject(error)
       }) */
     })
-  },
-
-  // remove token
-  resetToken({ commit }) {
-    return new Promise(resolve => {
-      commit('SET_TOKEN', '')
-      commit('SET_ROLES', [])
-      commit('SET_NAME', '')
-      commit('SET_AVATAR', '')
-      commit('SET_STATUS', '')
-      commit('SET_TEMP_ROLES', [])
-      removeToken()
-      resolve()
-    })
   }
+
+  // // remove token
+  // resetToken({ commit }) {
+  //   return new Promise(resolve => {
+  //     commit('SET_TOKEN', '')
+  //     commit('SET_ROLES', [])
+  //     commit('SET_NAME', '')
+  //     commit('SET_AVATAR', '')
+  //     commit('SET_STATUS', '')
+  //     commit('SET_TEMP_ROLES', [])
+  //     removeToken()
+  //     resolve()
+  //   })
+  // }
 }
 
 export default {

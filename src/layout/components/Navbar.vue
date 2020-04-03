@@ -10,7 +10,7 @@
           <img :src="avatar" class="user-avatar">
           <span class="user-info">
             <strong class="user-name">{{ username }}</strong>
-            <span class="user-role">{{ role }}</span>
+            <!-- <span class="user-role">{{ role }}</span> -->
           </span>
           <i class="el-icon-caret-bottom" />
         </div>
@@ -148,7 +148,6 @@ export default {
           color:rgba(23,23,37,1);
           line-height:14px;
           display: block;
-          margin-bottom: 5px;
         }
         .user-role{
           display: block;

@@ -3,10 +3,10 @@
     <h2 class="title">订单管理</h2>
     <el-form :inline="true">
       <el-form-item class="search-item">
-        <el-input v-model.trim="keywords.name" placeholder="输入订单号或课程" suffix-icon="el-icon-search" @blur="fetchList" />
+        <el-input v-model.trim="keywords.name" placeholder="请输入订单号或课程" suffix-icon="el-icon-search" @blur="fetchList" />
       </el-form-item>
       <el-form-item class="search-item" label="下单时间">
-        <el-select v-model="keywords.category" @change="fetchList" />
+        <el-select v-model="keywords.category" placeholder="请选择下单日期" @change="fetchList" />
       </el-form-item>
       <el-form-item label="订单状态">
         <el-select v-model="keywords.status" @change="fetchList" />
@@ -25,10 +25,17 @@
             {{ scope.row.orderTime | orderTimeStr }}
           </tamplate>
         </el-table-column>
+        <el-table-column label="学员昵称" prop="curriculumName" />
+        <el-table-column label="手机号" prop="price" />
         <el-table-column label="订单状态" prop="statusDescription" />
         <el-table-column label="课程名称" prop="curriculumName" />
         <el-table-column label="课程价格" prop="price" />
-        <el-table-column label="实际支付价格" prop="payPrice" />
+        <el-table-column label="实付金额" prop="payPrice" />
+        <el-table-column label="操作">
+          <template slot-scope="scope">
+            <el-button size="mini">退款</el-button>
+          </template>
+        </el-table-column>
       </el-table>
     </div>
 

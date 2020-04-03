@@ -8,19 +8,22 @@
       </div>
       <app-main />
     </div>
+    <status-dialog />
   </div>
 </template>
 
 <script>
 import { Navbar, Sidebar, AppMain } from './components'
 import ResizeMixin from './mixin/ResizeHandler'
+import StatusDialog from '@/components/StatusDialog'
 
 export default {
   name: 'Layout',
   components: {
     Navbar,
     Sidebar,
-    AppMain
+    AppMain,
+    StatusDialog
   },
   mixins: [ResizeMixin],
   computed: {

@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import { getLocal } from '@/utils/local'
 Vue.use(Router)
 
 /* Layout */
@@ -30,8 +29,6 @@ import Layout from '@/layout'
  * a base page that does not have permission requirements
  * all roles can be accessed
  */
-
-const whiteList = ['/login', '/business']
 
 export const constantRoutes = [
   {
@@ -87,154 +84,86 @@ export const constantRoutes = [
  * asyncRoutes
  * the routes that need to be dynamically loaded based on user roles
  */
-export const adminRoutes = [
+export const asyncRoutes = [
   {
     path: '/',
     component: Layout,
     alwaysShow: false,
     redirect: '/home',
     name: 'Home',
-    meta: { title: '机构中心', icon: 'dashboard', roles: ['businessPassed', 'businessUnPassed'] },
+    meta: { title: '工作台', icon: 'dashboard' },
     children: [
       {
         path: '/home',
         name: 'HomeContent',
         component: () => import('@/views/home/index'),
-        meta: { title: '机构中心', roles: ['businessPassed', 'businessUnPassed'] }
+        meta: { title: '工作台' }
       }
     ]
   },
   {
-    path: '/business',
-    name: 'Business',
-    component: () => import('@/views/business/index'),
-    hidden: true,
-    meta: { roles: ['businessPassed', 'businessUnPassed'] }
-  },
-  {
-    path: '/subbranch',
-    redirect: '/subbranch/subbranchList',
+    path: '/educational',
     component: Layout,
     alwaysShow: true,
-    name: 'Subbranch',
-    meta: { title: '分店管理', icon: 'component', roles: ['businessPassed', 'businessUnPassed'] },
-    children: [
-      {
-        path: 'subbranchList',
-        name: 'SubbranchList',
-        alwaysShow: false,
-        component: () => import('@/views/subbranch/index'),
-        meta: { title: '分店列表', roles: ['businessPassed', 'businessUnPassed'] }
-      },
-      {
-        path: 'editSubbranch',
-        name: 'EditSubbranch',
-        component: () => import('@/views/subbranch/add/index'),
-        meta: { title: '编辑店铺', roles: ['businessPassed', 'businessUnPassed'] },
-        hidden: true
-      }
-    ]
-  },
-  {
-    path: '/category',
-    redirect: '/category/subbranchList',
-    component: Layout,
-    alwaysShow: false,
-    name: 'Category',
-    meta: { title: '类目管理', icon: 'list', roles: ['businessPassed', 'businessUnPassed'] },
-    children: [
-      {
-        path: 'categoryList',
-        name: 'CategoryList',
-        component: () => import('@/views/category/index'),
-        meta: { title: '类目管理', roles: ['businessPassed', 'businessUnPassed'] }
-      }
-    ]
-  },
-  // 404 page must be placed at the end !!!
-  { path: '*', redirect: '/404', hidden: true }
-]
-
-export const storeRoutes = [
-  {
-    path: '/',
-    component: Layout,
-    alwaysShow: false,
-    redirect: '/shop',
-    name: 'Shop',
-    meta: { title: '店铺中心', icon: 'dashboard', roles: ['store'] },
-    children: [{
-      path: '/shop',
-      name: 'ShopContent',
-      component: () => import('@/views/shop/index'),
-      meta: { title: '店铺中心', roles: ['store'] }
-    }]
-  },
-  {
-    path: '/academic',
-    component: Layout,
-    redirect: '/academic/course',
-    alwaysShow: true,
-    name: 'Academic',
-    meta: { title: '教务中心', icon: 'education', roles: ['store'] },
+    redirect: '/educational/course',
+    name: 'Educational',
+    meta: { title: '教务中心', icon: 'education' },
     children: [
       {
         path: 'course',
         name: 'Course',
-        component: () => import('@/views/academic/course/index/index'),
-        meta: { title: '课程管理', roles: ['store'] }
-      },
-      {
+        component: () => import('@/views/educational/course/index/index'),
+        meta: { title: '课程管理' }
+      }, {
         path: 'courseDetail',
         name: 'Course-detail',
         component: () =>
-        import('@/views/academic/course/course-detail/index'),
+        import('@/views/educational/course/course-detail/index'),
         hidden: true,
-        meta: { title: '课程详情', roles: ['store'] }
-      },
-      {
+        meta: { title: '课程详情' }
+      }, {
         path: 'courseEdit',
         name: 'Course-edit',
         component: () =>
-        import('@/views/academic/course/course-edit/index'),
+        import('@/views/educational/course/course-edit/index'),
         hidden: true,
-        meta: { title: '课程编辑', roles: ['store'] }
-      },
-      {
+        meta: { title: '课程编辑' }
+      }, {
         path: 'teacher',
         name: 'Teacher',
-        component: () => import('@/views/academic/teacher/index/index'),
-        meta: { title: '讲师管理', roles: ['store'] }
-      },
-      {
+        component: () => import('@/views/educational/teacher/index/index'),
+        meta: { title: '讲师管理' }
+      }, {
         path: 'teacherDetail',
         name: 'Teacher-detail',
         component: () =>
-        import('@/views/academic/teacher/teacher-detail/index'),
+        import('@/views/educational/teacher/teacher-detail/index'),
         hidden: true,
-        meta: { title: '讲师详情', roles: ['store'] }
-      },
-      {
+        meta: { title: '讲师详情' }
+      }, {
         path: 'teacherEdit',
         name: 'Teacher-edit',
         component: () =>
-        import('@/views/academic/teacher/teacher-edit/index'),
+        import('@/views/educational/teacher/teacher-edit/index'),
         hidden: true,
-        meta: { title: '讲师编辑', roles: ['store'] }
-      },
-      {
+        meta: { title: '讲师编辑' }
+      }, {
         path: 'student',
         name: 'Student',
-        component: () => import('@/views/academic/student/index/index'),
-        meta: { title: '学员管理', roles: ['store'] }
-      },
-      {
+        component: () => import('@/views/educational/student/index/index'),
+        meta: { title: '学员管理' }
+      }, {
         path: 'studentDetail',
         name: 'Student-detail',
         component: () =>
-          import('@/views/academic/student/student-detail/index'),
+          import('@/views/educational/student/student-detail/index'),
         hidden: true,
-        meta: { title: '学员详情', roles: ['store'] }
+        meta: { title: '学员详情' }
+      }, {
+        path: 'categoryList',
+        name: 'CategoryList',
+        component: () => import('@/views/educational/category/index'),
+        meta: { title: '类目管理' }
       }
     ]
   },
@@ -244,25 +173,60 @@ export const storeRoutes = [
     redirect: '/finance/course-order',
     alwaysShow: true,
     name: 'Finance',
-    meta: { title: '财务中心', icon: 'money', roles: ['store'] },
+    meta: { title: '财务中心', icon: 'money' },
     children: [
       {
         path: 'course-order',
         name: 'Course-order',
         component: () => import('@/views/finance/course-order/index'),
-        meta: { title: '订单管理', roles: ['store'] }
+        meta: { title: '订单管理' }
       },
       {
         path: 'scholarship',
         name: 'ScholaSrship',
         component: () => import('@/views/finance/scholarship/index'),
-        meta: { title: '奖学金币', roles: ['store'] }
+        meta: { title: '奖学金管理' }
       },
       {
         path: 'property',
         name: 'Property',
         component: () => import('@/views/finance/property/index'),
-        meta: { title: '资产管理', roles: ['store'] }
+        meta: { title: '资产管理' }
+      }
+    ]
+  },
+  {
+    path: '/store',
+    component: Layout,
+    redirect: '/store/comment',
+    alwaysShow: true,
+    name: 'Store',
+    meta: { title: '店铺管理', icon: 'component' },
+    children: [
+      {
+        path: 'comment',
+        name: 'Comment',
+        component: () => import('@/views/store/comment/index/index'),
+        meta: { title: '评价管理' }
+      },
+      {
+        path: 'comment-detail',
+        name: 'CommentDetail',
+        component: () => import('@/views/store/comment/detail/index'),
+        meta: { title: '评价管理' },
+        hidden: true
+      },
+      {
+        path: 'message',
+        name: 'Message',
+        component: () => import('@/views/store/message/index/index'),
+        meta: { title: '消息' }
+      },
+      {
+        path: 'authentication',
+        name: 'Authentication',
+        component: () => import('@/views/store/authentication/index/index'),
+        meta: { title: '店铺管理' }
       }
     ]
   },
@@ -276,20 +240,7 @@ const createRouter = () =>
     scrollBehavior: () => ({ y: 0 }),
     routes: constantRoutes
   })
-
 const router = createRouter()
-
-router.beforeEach((to, from, next) => {
-  const role = getLocal('temp_Roles')
-  if (!(whiteList.includes(to.path)) && role && role[0] !== 'store') {
-    const status = getLocal('examineStatus')
-    if (status && status !== 1) {
-      next({ path: '/business' })
-      return
-    }
-  }
-  next()
-})
 
 // Detail see: https://github.com/vuejs/vue-router/issues/1234#issuecomment-357941465
 export function resetRouter() {

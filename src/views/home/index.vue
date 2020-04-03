@@ -1,53 +1,126 @@
 <template>
   <section class="container">
-    <h1 class="title">机构中心</h1>
     <div class="content">
-      <h2 class="content-title">1.机构信息</h2>
-      <div class="content-detail">
-        <div class="cell"><span class="cell-hd">企业名称</span>{{ form.enterpriseName }}</div>
-        <div class="cell"><span class="cell-hd">银行开户名</span>{{ form.bankName }}</div>
-        <div class="cell"><span class="cell-hd">开户银行</span>{{ form.bankNo }}</div>
-        <div class="cell"><span class="cell-hd">联系人</span>{{ form.contacts }}</div>
-        <div class="cell"><span class="cell-hd">联系方式</span>{{ form.contactInformation }}</div>
-        <div class="cell"><span class="cell-hd">办学许可证</span><img class="thumbnail" :src="form.schoolLicense" alt="办学许可证" srcset=""></div>
-        <div class="cell"><span class="cell-hd">民办非企业单位登记证</span><img class="thumbnail" :src="form.registrationCertificateOfPrivateNonEnterpriseUnit" alt="非企业单位登记证"></div>
-        <div class="cell"><span class="cell-hd">上传工商执照</span><img class="thumbnail" :src="form.businessLicense" alt="上传工商执照"></div>
+      <div class="content-top">
+        <h4 class="content-top-title">今日待办</h4>
+        <div class="content-top-detail">
+          <div class="content-top-detail-warpper">
+            <img src="@/assets/logo.png" alt="">
+            <div class="content-top-detail-warpper-font">
+              <span>3,458</span>
+              <span>神秘学员</span>
+            </div>
+          </div>
+          <div class="content-top-detail-warpper">
+            <img src="@/assets/logo.png" alt="">
+            <div class="content-top-detail-warpper-font">
+              <span>3,458</span>
+              <span>神秘学员</span>
+            </div>
+          </div>
+          <div class="content-top-detail-warpper">
+            <img src="@/assets/logo.png" alt="">
+            <div class="content-top-detail-warpper-font">
+              <span>3,458</span>
+              <span>神秘学员</span>
+            </div>
+          </div>
+          <div class="content-top-detail-warpper">
+            <img src="@/assets/logo.png" alt="">
+            <div class="content-top-detail-warpper-font">
+              <span>3,458</span>
+              <span>神秘学员</span>
+            </div>
+          </div>
+          <div class="content-top-detail-warpper">
+            <img src="@/assets/logo.png" alt="">
+            <div class="content-top-detail-warpper-font">
+              <span>3,458</span>
+              <span>神秘学员</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
     <div class="content">
-      <h2 class="content-title">账号与密码</h2>
-      <div class="content-detail">
-        <el-button class="contact-btn">修改密码 请联系客服!</el-button>
-      </div>
-    </div>
+      <el-tabs @tab-click="changeTag">
+        <el-tab-pane>
+          <span slot="label">神秘学员</span>
+          <div class="tabel-box">
+            <el-table
+              class="table"
+              :data="list"
+            >
+              <el-table-column label="学员昵称" />
+              <el-table-column label="咨询时间" />
+              <el-table-column label="咨询课程" />
+              <el-table-column label="课程费用（元）" />
+              <el-table-column label="培训区域" />
+              <el-table-column label="解锁" />
+              <el-table-column label="状态" />
+              <el-table-column label="操作">
+                <template slot-scope="scope">
+                  <router-link :to="{name: 'Student-detail', query: {id: scope.row.studentId}}">
+                    <el-button size="mini">详情</el-button>
+                  </router-link>
+                </template>
+              </el-table-column>
+              <template slot="empty">
+                <div class="empty-content">
+                  <img class="empty-img" src="@/assets/no-student.png" alt>
+                  <p class="empty-text">暂无学员</p>
+                </div>
+              </template>
+            </el-table>
+          </div>
+        </el-tab-pane>
 
+        <el-tab-pane>
+          <span slot="label">我的行程</span>
+          <div class="tabel-box">
+            <el-table
+              class="table"
+              :data="list"
+            >
+              <el-table-column label="学员名称" />
+              <el-table-column label="咨询时间" />
+              <el-table-column label="咨询课程" />
+              <el-table-column label="课程费用（元）" />
+              <el-table-column label="培训区域" />
+              <el-table-column label="解锁" />
+              <el-table-column label="状态" />
+              <el-table-column label="操作">
+                <template slot-scope="scope">
+                  <router-link :to="{name: 'Student-detail', query: {id: scope.row.studentId}}">
+                    <el-button size="mini">详情</el-button>
+                  </router-link>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+        </el-tab-pane>
+        <el-tab-pane label="消息中心">消息中心</el-tab-pane>
+        <el-tab-pane label="角色管理">角色管理</el-tab-pane>
+        <el-tab-pane label="定时任务补偿">定时任务补偿</el-tab-pane>
+      </el-tabs>
+    </div>
   </section>
 </template>
 <script>
-import { getExamine } from '@/api/user.js'
-
 export default {
   name: 'Home',
   data() {
     return {
-      form: {}
+      list: []
     }
   },
   mounted() {
-    this.getBusiness()
   },
   methods: {
     // 获取商家信息列表
-    getBusiness() {
-      getExamine().then(res => {
-        if (res.code) {
-          return res.message && this.$warn(res.message)
-        }
-        this.form = res.data
-      }).catch(err => {
-        console.log(err)
-      })
+    changeTag(tab, event) {
+      console.log(tab, event)
     }
   }
 }
@@ -57,32 +130,118 @@ export default {
   padding: 30px;
   background: #FAFAFB;
 }
-.title{
-  font-size:24px;
-  font-family:PingFangSC-Semibold,PingFang SC;
-  font-weight:600;
-  color:rgba(23,23,37,1);
-  line-height:33px;
-  padding: 0 0 30px 0;
+.table-wraper {
+  width: 100%;
+  padding: 15px 20px 47px;
+  display: block;
 }
-
 .content{
   background:rgba(255,255,255,1);
   border-radius:10px;
-  margin-bottom: 20px;
-  &-title{
-    font-size:18px;
-    font-family:PingFangSC-Semibold,PingFang SC;
-    font-weight:600;
-    color:rgba(23,23,37,1);
-    line-height:25px;
-    padding: 22px 30px;
-    border-bottom: 1px solid rgba(226,226,234,1)
+  margin-bottom: 30px;
+  &-top{
+    width: 100%;
+    &-title {
+      width: 100%;
+      margin: 0;
+      padding: 22px 30px;
+      font-size:18px;
+      font-weight:600;
+      color:rgba(23,23,37,1);
+      line-height:25px;
+      border-bottom: 1px solid #E2E2EA;
+      box-sizing: border-box;
+    }
+    &-detail {
+      width: 100%;
+      display: flex;
+      &-warpper {
+        display: flex;
+        flex: 1;
+        height: 163px;
+        border-right: 1px solid #E2E2EA;
+        justify-content: center;
+        align-items: center;
+        & > img {
+          display: block;
+          width: 63px;
+          height: 63px;
+          margin-right: 20px;
+        }
+        &-font {
+          & > span {
+            display: block;
+            &:first-child {
+              font-size:24px;
+              font-weight:600;
+              color:rgba(23,23,37,1);
+              line-height:24px;
+            }
+            &:last-child {
+              font-size:14px;
+              font-weight:400;
+              color:rgba(105,105,116,1);
+              line-height:20px;
+              margin-top: 10px;
+            }
+          }
+        }
+        &:last-child {
+          border: 0;
+        }
+      }
+    }
+  }
+  /deep/ {
+    .el-tabs__nav-scroll {
+      width: 100%;
+      height: 70px;
+      line-height: 70px;
+      padding: 0 30px;
+      box-sizing: border-box;
+    }
+    .el-tabs__item {
+      font-size:16px;
+      font-weight:600;
+      color:rgba(23,23,37,1);
+      line-height:22px;
+      &.is-active {
+        color: #00D2A5;
+      }
+      &:hover {
+        color: #00D2A5;
+      }
+    }
+    .el-tabs__active-bar {
+      height: 4px;
+      background:rgba(0,210,165,1);
+    }
+    .el-tabs__header {
+      margin: 0;
+    }
+    .has-gutter {
+      & th {
+        height: 38px;
+        line-height: 38px;
+        background:rgba(250,250,251,1);
+        padding: 0;
+        & .cell {
+          color: #44444F;
+          font-size: 13px;
+        }
+      }
+    }
+    .el-table__row {
+      height: 68px;
+      line-height: 68px;
+    }
+  }
+}
 
-  }
-  &-detail{
-    padding: 20px;
-  }
+.tabel-box {
+  width: 100%;
+  padding: 15px 20px 47px;
+  box-sizing: border-box;
 }
 
 .thumbnail{

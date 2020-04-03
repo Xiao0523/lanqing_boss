@@ -1,37 +1,32 @@
 <template>
   <div class="upload-container">
-    <el-button :style="{background:color,borderColor:color}" icon="el-icon-upload" size="mini" type="primary" @click=" dialogVisible=true">
-      上传图片
+    <el-button :style="{background:color,borderColor:color}" icon="el-icon-upload" size="mini" type="primary" @click=" dialogVisible=true">上传图片
     </el-button>
     <el-dialog :visible.sync="dialogVisible">
       <el-upload
-        class="editor-slide-upload"
-        list-type="picture-card"
         :multiple="true"
         :file-list="fileList"
         :show-file-list="true"
         :on-remove="handleRemove"
         :on-success="handleSuccess"
         :before-upload="beforeUpload"
-        :action="uploadUrl"
+        :action="UploadUrl"
+        class="editor-slide-upload"
+        name="multipartFile"
+        list-type="picture-card"
       >
-        <el-button size="small" type="primary">
-          点击上传
-        </el-button>
+        <el-button size="small" type="primary">点击上传</el-button>
       </el-upload>
-      <el-button @click="dialogVisible = false">
-        取消
-      </el-button>
-      <el-button type="primary" @click="handleSubmit">
-        确定
-      </el-button>
+      <el-button @click="dialogVisible = false">取 消</el-button>
+      <el-button type="primary" @click="handleSubmit">确 定</el-button>
     </el-dialog>
   </div>
 </template>
 
 <script>
 // import { getToken } from 'api/qiniu'
-import svrUrl from '@/api/svrUrl'
+import { Upload_Pic } from '@/api/URL'
+
 export default {
   name: 'EditorSlideUpload',
   props: {
@@ -45,7 +40,7 @@ export default {
       dialogVisible: false,
       listObj: {},
       fileList: [],
-      uploadUrl: svrUrl.upload
+      UploadUrl: Upload_Pic
     }
   },
   methods: {
@@ -55,7 +50,7 @@ export default {
     handleSubmit() {
       const arr = Object.keys(this.listObj).map(v => this.listObj[v])
       if (!this.checkAllSuccess()) {
-        this.$message('Please wait for all images to be uploaded successfully. If there is a network problem, please refresh the page and upload again!')
+        this.$message('请等待所有图片上传成功 或 出现了网络问题，请刷新页面重新上传！')
         return
       }
       this.$emit('successCBK', arr)
@@ -64,15 +59,28 @@ export default {
       this.dialogVisible = false
     },
     handleSuccess(response, file) {
+      var url = response.data// 获得图片URL地址
+      // 保持原先框架代码
       const uid = file.uid
       const objKeyArr = Object.keys(this.listObj)
       for (let i = 0, len = objKeyArr.length; i < len; i++) {
         if (this.listObj[objKeyArr[i]].uid === uid) {
-          this.listObj[objKeyArr[i]].url = response.files.file
-          this.listObj[objKeyArr[i]].hasSuccess = true
+          this.listObj[objKeyArr[i]].url = url // 把地址放到这里 其实还简单的
+          this.listObj[objKeyArr[i]].hasSuccess = true// 每张图上传成功之后会返回true
           return
         }
       }
+
+      // 原先的代码
+      //      const uid = file.uid
+      //      const objKeyArr = Object.keys(this.listObj)
+      //      for (let i = 0, len = objKeyArr.length; i < len; i++) {
+      //        if (this.listObj[objKeyArr[i]].uid === uid) {
+      //          this.listObj[objKeyArr[i]].url = response.files.file
+      //          this.listObj[objKeyArr[i]].hasSuccess = true
+      //          return
+      //        }
+      //      }
     },
     handleRemove(file) {
       const uid = file.uid
@@ -102,11 +110,12 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style type="text/scss" lang="scss" scoped>
 .editor-slide-upload {
   margin-bottom: 20px;
   /deep/ .el-upload--picture-card {
-    width: 100%;
+    width: 100% !important;
+    height: 100px !important;
   }
 }
 </style>

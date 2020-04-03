@@ -1,6 +1,4 @@
-import { adminRoutes, storeRoutes, constantRoutes } from '@/router'
-import { deepClone } from '@/utils/deepClone'
-import { getLocal } from '@/utils/local'
+import { asyncRoutes, constantRoutes } from '@/router'
 
 /**
  * Use meta.role to determine if the current user has permission
@@ -14,31 +12,6 @@ function hasPermission(roles, route) {
     return true
   }
 }
-
-/**
- *
- * @param {arr} clientAsyncRoutes 前端保存动态路由
- * @param {arr} serverRouter 后端保存动态路由
- */
-// function makePermissionRouters(serverRouter, clientAsyncRoutes) {
-//   console.log(serverRouter)
-//   clientAsyncRoutes.map(ele => {
-//     if (!ele.name || (!ele.meta && !ele.meta.roles)) return
-//     let roles_obj
-//     for (let i = 0; i < serverRouter.length; i++) {
-//       const element = serverRouter[i]
-//       if (ele.name === element.name) {
-//         roles_obj = element
-//       }
-//     }
-//     ele.meta.roles = roles_obj.meta.roles
-
-//     if (ele.children) {
-//       makePermissionRouters(serverRouter, ele.children)
-//     }
-//   })
-//   return clientAsyncRoutes
-// }
 
 /**
  * Filter asynchronous routing tables by recursion
@@ -73,28 +46,14 @@ const mutations = {
   }
 }
 
-// function getRouter(newRouter, routers) {
-//   const PermissionRouters = makePermissionRouters(newRouter, routers)
-//   return PermissionRouters
-// }
-
 const actions = {
   generateRoutes({ commit }, roles) {
-    const role = getLocal('temp_Roles')[0]
-    let clientRoute
-    if (role === 'store') {
-      clientRoute = storeRoutes
-    } else {
-      clientRoute = adminRoutes
-    }
-    const PermissionRouters = deepClone(clientRoute)
-    // const PermissionRouters = getRouter(mockRouters, clientRoutes)
     return new Promise(resolve => {
       let accessedRoutes
       if (roles.includes('admin')) {
-        accessedRoutes = PermissionRouters || []
+        accessedRoutes = asyncRoutes || []
       } else {
-        accessedRoutes = filterAsyncRoutes(PermissionRouters, roles)
+        accessedRoutes = filterAsyncRoutes(asyncRoutes, roles)
       }
       commit('SET_ROUTES', accessedRoutes)
       resolve(accessedRoutes)

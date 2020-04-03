@@ -50,11 +50,11 @@
     <div v-else class="table-wraper">
       <div class="empty-table">
         <strong class="empty-table-head">时间</strong>
-        <strong class="empty-table-head">类型</strong>
+        <strong class="empty-table-head">状态</strong>
         <strong class="empty-table-head">提现金额</strong>
       </div>
       <div class="empty-content">
-        <img class="empty-img" src="@/assets/暂无提现记录.png" alt>
+        <img class="empty-img" src="@/assets/no-cash-out.png" alt>
         <p class="empty-text">暂无提现记录</p>
       </div>
     </div>
@@ -224,6 +224,10 @@ export default {
   position: absolute;
   bottom: 31px;
   right: 35px;
+  width:96px;
+  height:38px;
+  background:linear-gradient(90deg,rgba(0,214,211,1) 0%,rgba(0,206,124,1) 100%);
+  border-radius:4px;
 }
 
 .table-wraper {
