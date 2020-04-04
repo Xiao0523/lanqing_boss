@@ -1,7 +1,7 @@
 import request from '@/utils/request'
 
-function getstudentList(data) {
-  return request.post('boss/store/students', data)
+function getMysteryStudent(data) {
+  return request.post('/boss/v2/studentUnlock', data)
 }
 
 function getDetails({ id }) {
@@ -33,7 +33,7 @@ function submitCourse(data) {
 }
 
 export {
-  getstudentList,
+  getMysteryStudent,
   getDetails,
   getStudentClassList,
   getStudentClass,

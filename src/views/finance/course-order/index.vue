@@ -3,13 +3,26 @@
     <h2 class="title">订单管理</h2>
     <el-form :inline="true">
       <el-form-item class="search-item">
-        <el-input v-model.trim="keywords.name" placeholder="请输入订单号或课程" suffix-icon="el-icon-search" @blur="fetchList" />
+        <el-input v-model.trim="keywords.orderNoOrCurriculumName" placeholder="请输入订单号或课程" suffix-icon="el-icon-search" @blur="fetchList" />
       </el-form-item>
       <el-form-item class="search-item" label="下单时间">
-        <el-select v-model="keywords.category" placeholder="请选择下单日期" @change="fetchList" />
+        <el-date-picker
+          v-model="keywords.orderTime"
+          type="date"
+          placeholder="选择日期"
+          value-format="yyyy-MM-dd"
+          @change="fetchList"
+        />
       </el-form-item>
       <el-form-item label="订单状态">
-        <el-select v-model="keywords.status" @change="fetchList" />
+        <el-select v-model="keywords.orderStatus" @change="fetchList">
+          <el-option
+            v-for="(item, index) in statusList"
+            :key="item + index"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
       </el-form-item>
     </el-form>
 
@@ -69,13 +82,26 @@ export default {
       list: [],
       keywords: {
         orderNoOrCurriculumName: '',
-        orderStatus: 0, // 状态：0:已支付/1：退款中/2退款完毕
+        orderStatus: '', // 状态：0:已支付/1：退款中/2退款完毕
         orderTime: ''
       },
+      statusList: [{
+        value: '',
+        label: '全部'
+      }, {
+        value: 0,
+        label: '已支付'
+      }, {
+        value: 1,
+        label: '退款中'
+      }, {
+        value: 2,
+        label: '退款完毕'
+      }],
       activeName: 'first',
       listQuery: {
         pageNum: 1,
-        pageSize: 9
+        pageSize: 10
       },
       total: 0
     }

@@ -108,19 +108,30 @@
   </section>
 </template>
 <script>
+import { getMysteryStudent } from '@/api/student'
 export default {
   name: 'Home',
   data() {
     return {
-      list: []
+      list: [],
+      page: {
+        pageNum: 0,
+        pageSize: 0
+      }
     }
   },
   mounted() {
+    // this.getStudentList()
   },
   methods: {
     // 获取商家信息列表
     changeTag(tab, event) {
       console.log(tab, event)
+    },
+    getStudentList() {
+      getMysteryStudent(this.page).then(res => {
+        console.log(res)
+      })
     }
   }
 }
