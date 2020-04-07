@@ -5,6 +5,9 @@ import { setLocal } from '@/utils/local'
 import { Message } from 'element-ui'
 import { getExamine } from '@/api/business.js'
 
+var RongIMLib = window.RongIMLib // 由 window 赋值
+var RongIMClient = RongIMLib.RongIMClient
+
 const state = {
   token: getToken(),
   name: '',
@@ -12,7 +15,8 @@ const state = {
   roles: [], // admin 管理员  store 店长
   temp_Roles: [], // 登录时 临时 保存 角色
   examineStatus: null,
-  messageToken: ''
+  messageToken: '',
+  appKey: 'cpj2xarlchsmn'
 }
 
 const mutations = {
@@ -128,6 +132,8 @@ const actions = {
       commit('SET_STATUS', '')
       commit('SET_TEMP_ROLES', [])
       commit('SET_USERID', '')
+      RongIMClient.getInstance().disconnect()
+      RongIMClient.getInstance().logout()
       removeToken()
       resetRouter()
       resolve()

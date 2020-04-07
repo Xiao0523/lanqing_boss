@@ -70,6 +70,7 @@ import { init } from '@/utils/rongyun'
 import { getLocal } from '@/utils/local'
 import { getToken } from '@/api/rongyun'
 import UserInfo from '@/layout/components/Sidebar/mixin/UserInfo'
+var RongIMLib = window.RongIMLib
 export default {
   name: 'Message',
   mixins: [UserInfo],
@@ -77,15 +78,38 @@ export default {
     return {
       text: '好的，我知道了',
       initObj: {
-        appkey: this.$store.state.user.appkey,
-        token: ''
+        appkey: this.$store.state.user.appKey,
+        token: this.$store.state.user.messageToken || getLocal('messageToken') || ''
       },
-      userId: getLocal('storeId') || this.$store.state.storeId || '1111'
+      messageList: []
     }
   },
   mounted() {
-    if (this.userId) {
-      this.getTokens()
+    if (this.initObj.appkey && this.initObj.token) {
+      var _this = this
+      var callbacks = {
+        CONNECTED: function(instance) {
+          // 传入实例参数
+          var conversationType = RongIMLib.ConversationType.PRIVATE
+          var targetId = '53d6813b4afa48ada9c9b9c790f245cb'
+          var timestrap = 0 // 默认传 null, 若从头开始获取历史消息, 请赋值为 0
+          var count = 20
+          instance.getHistoryMessages(conversationType, targetId, timestrap, count, {
+            onSuccess: function(list, hasMsg) {
+              /*
+                list: 获取的历史消息列表
+                hasMsg: 是否还有历史消息可以获取
+              */
+              console.log('获取历史消息成功', list)
+            },
+            onError: function(error) {
+              // 请排查：单群聊消息云存储是否开通
+              console.log('获取历史消息失败', error)
+            }
+          })
+        }
+      }
+      init(this.initObj, callbacks)
     }
   },
   methods: {

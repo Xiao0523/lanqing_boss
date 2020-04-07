@@ -5,11 +5,11 @@
         <div class="card">
           <h6 class="card__hd">可使用奖学金币数</h6>
           <div class="card__bd">
-            <strong class="card-number">{{ content.surplusIcon }}</strong>
+            <strong class="card-number">{{ content.surplusIcon | surplusVal }}</strong>
           </div>
           <div class="card__ft">
             当前可使用奖学金币
-            <el-button class="pay-btn">充值</el-button>
+            <el-button class="pay-btn" @click="openMack">充值</el-button>
           </div>
         </div>
       </el-col>
@@ -17,7 +17,7 @@
         <div class="card">
           <h6 class="card__hd">累计使用奖学金币数</h6>
           <div class="card__bd">
-            <strong class="card-number">{{ content.usedIcon }}</strong>
+            <strong class="card-number">{{ content.usedIcon | surplusVal }}</strong>
           </div>
           <div class="card__ft">当前已使用奖学金币数</div>
         </div>
@@ -93,9 +93,37 @@
         :total="total"
         :page.sync="listQuery.pageNum"
         :limit.sync="listQuery.pageSize"
+        width="500px"
         @pagination="fetchList"
       />
     </div>
+    <el-dialog :visible="isRedrawShow" @close="isRedrawShow=false">
+      <h6 slot="title" class="dialog-title">充值蓝青币</h6>
+      <div class="dialog-radio-wraper">
+        <el-radio-group v-model="rechargeLimit" fill="#00D2A5" text-color="#00D2A5" size="medium">
+          <el-radio border size="medium" label="10">10</el-radio>
+          <el-radio border size="medium" label="20">20</el-radio>
+          <el-radio border size="medium" label="50">50</el-radio>
+          <el-radio border size="medium" label="100">100</el-radio>
+          <el-radio border size="medium" class="give" label="200">200<span>赠20</span></el-radio>
+          <el-radio border size="medium" class="give" label="500">500<span>赠40</span></el-radio>
+          <el-radio border size="medium" class="give" label="1000">1000<span>赠80</span></el-radio>
+        </el-radio-group>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <span>支付: <strong>{{ rechargeLimit }}</strong>元</span>
+        <el-popover
+          v-model="visible"
+          placement="bottom"
+          title="警告"
+          width="200"
+          trigger="hover"
+          content="功能待开发！！！！"
+        >
+          <el-button slot="reference" class="btnColor" @click="visible = !visible">立即充值</el-button>
+        </el-popover>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -109,10 +137,14 @@ export default {
   filters: {
     createTimeStr(val) {
       return val && formatTime(val)
+    },
+    surplusVal(val) {
+      return val || '0.00'
     }
   },
   data() {
     return {
+      visible: false,
       list: [],
       activeName0: 'learning', // tab 栏
       content: {},
@@ -121,14 +153,19 @@ export default {
         pageSize: 9
       },
       total: 0,
-      isRecharge: true
+      isRedrawShow: false,
+      isRecharge: true,
+      rechargeLimit: 0
     }
   },
   created() {
-    this.getHomeView()
-    this.fetchList()
+    // this.getHomeView()
+    // this.fetchList()
   },
   methods: {
+    openMack() {
+      this.isRedrawShow = true
+    },
     getHomeView() {
       getStoreHome().then(res => {
         if (res.code) {
@@ -322,4 +359,112 @@ export default {
   line-height:38px;
   float: right;
 }
+.dialog-title {
+  margin: 0;
+  padding: 0;
+  font-size:14px;
+  font-family:PingFangSC-Medium,PingFang SC;
+  font-weight:500;
+  color:rgba(23,23,37,1);
+  line-height:20px;
+}
+.dialog-footer {
+  display: flex;
+  justify-content: space-between;
+  span {
+    font-size:13px;
+    font-weight:400;
+    color:rgba(23,23,37,1);
+    line-height:38px;
+    strong {
+      font-size:23px;
+      font-weight:600;
+      color:rgba(23,23,37,1);
+      line-height:38px;
+    }
+  }
+}
+/deep/ {
+  .el-dialog {
+    width: 500px;
+  }
+  .el-dialog__body {
+    padding: 0;
+  }
+  .el-radio--medium.is-bordered {
+    padding: 0;
+  }
+  .el-radio.is-bordered + .el-radio.is-bordered {
+    margin-left: 0;
+  }
+  .el-radio-button__inner, .el-radio-group {
+    display: flex;
+    flex-wrap: wrap ;
+  }
+}
+.dialog-radio-wraper {
+  padding: 20px 15px;
+  width: 500px;
+  text-align: center;
+  box-sizing: border-box;
+  &.el-radio-group {
+    display: flex;
+    justify-content: flex-start;
+  }
+  .el-radio {
+    display: flex;
+    width: 105px;
+    height: 38px;
+    padding-left: 11px;
+    line-height: 38px;
+    margin: 0 15px 15px 0;
+    align-items: center;
+    box-sizing: border-box;
+    &:nth-child(4n + 0) {
+      margin-right: 0;
+    }
+    &.give {
+      position: relative;
+      span {
+        position: absolute;
+        right: -10px;
+        top: 9px;
+        display: block;
+        width:33px;
+        height:20px;
+        background:rgba(252,90,90,1);
+        border-radius:3px;
+        font-size:10px;
+        font-weight:500;
+        text-align: center;
+        color:rgba(255,255,255,1);
+        line-height:20px;
+      }
+    }
+    &.is-bordered.is-checked {
+      padding: 0;
+      padding-left: 11px;
+      border-color: rgba(0, 210, 165, 1);
+    }
+    /deep/ {
+      .el-radio__input.is-checked .el-radio__inner {
+        border-color: rgba(0, 210, 165, 1);
+        background: rgba(0, 210, 165, 1);
+      }
+    }
+  }
+}
+.btnColor {
+  width:96px;
+  height:38px;
+  padding: 0;
+  background:rgba(0,210,165,1);
+  border-radius:4px;
+  border:1px solid rgba(0,0,0,0.05);
+  font-size:14px;
+  font-weight:600;
+  color:rgba(255,255,255,1);
+  line-height:38px;
+}
+
 </style>

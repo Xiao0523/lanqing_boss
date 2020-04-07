@@ -1,39 +1,45 @@
 var RongIMLib = window.RongIMLib // 由 window 赋值
 var RongIMClient = RongIMLib.RongIMClient
-export function init(params, addPromptInfo) {
-  var appkey = params.appkey
-  var token = params.token
-  RongIMClient.init(appkey, null, params)
+export function init(params, callbacks) {
+  if (!params.appkey || !params.token) {
+    return false
+  }
+
+  // 公有云初始化
+  RongIMLib.RongIMClient.init(params.appkey)
+  var instance = RongIMClient.getInstance()
+
   RongIMClient.setConnectionStatusListener({
     onChanged: function(status) {
       switch (status) {
         case RongIMLib.ConnectionStatus['CONNECTED']:
         case 0:
-          addPromptInfo('连接成功')
+          console.log('连接成功')
+          callbacks.CONNECTED && callbacks.CONNECTED(instance)
           break
         case RongIMLib.ConnectionStatus['CONNECTING']:
         case 1:
-          addPromptInfo('连接中')
+          console.log('连接中')
           break
         case RongIMLib.ConnectionStatus['DISCONNECTED']:
         case 2:
-          addPromptInfo('当前用户主动断开链接')
+          console.log('当前用户主动断开链接')
           break
         case RongIMLib.ConnectionStatus['NETWORK_UNAVAILABLE']:
         case 3:
-          addPromptInfo('网络不可用')
+          console.log('网络不可用')
           break
         case RongIMLib.ConnectionStatus['CONNECTION_CLOSED']:
         case 4:
-          addPromptInfo('未知原因，连接关闭')
+          console.log('未知原因，连接关闭')
           break
         case RongIMLib.ConnectionStatus['KICKED_OFFLINE_BY_OTHER_CLIENT']:
         case 6:
-          addPromptInfo('用户账户在其他设备登录，本机会被踢掉线')
+          console.log('用户账户在其他设备登录，本机会被踢掉线')
           break
         case RongIMLib.ConnectionStatus['DOMAIN_INCORRECT']:
         case 12:
-          addPromptInfo('当前运行域名错误，请检查安全域名配置')
+          console.log('当前运行域名错误，请检查安全域名配置')
           break
       }
     }
@@ -70,7 +76,7 @@ export function init(params, addPromptInfo) {
       }
     }
   })
-  RongIMClient.connect(token, {
+  RongIMClient.connect(params.token, {
     onSuccess: function(userId) {
       console.log('连接成功, 用户 id 为', userId)
       // 连接已成功, 此时可通过 getConversationList 获取会话列表并展示

@@ -116,18 +116,18 @@ export default {
     }
   },
   created() {
-    this.getHomeView()
-    this.fetchList()
+    // this.getHomeView()
+    // this.fetchList()
   },
   methods: {
     getHomeView() {
-      getStoreHome().then(res => {
-        if (res.code) {
-          return res.message && this.$warn(res.message)
-        }
-        if (!res.data) return
-        this.content = res.data
-      })
+      // getStoreHome().then(res => {
+      //   if (res.code) {
+      //     return res.message && this.$warn(res.message)
+      //   }
+      //   if (!res.data) return
+      //   this.content = res.data
+      // })
     },
     // 验证只能输入正整数
     proving() {
@@ -135,19 +135,19 @@ export default {
       this.redrawForm.money = this.redrawForm.money.replace('.', '')
     },
     fetchList() {
-      const submitObj = {
-        ...this.listQuery
-      }
-      getWithdrawalList(submitObj).then(res => {
-        if (res.code) {
-          return res.message && this.$warn(res.message)
-        }
-        if (!res.data) return
-        const data = res.data
-        this.total = data.total
-        const records = data.records
-        this.list = records && records.length ? records : []
-      })
+      // const submitObj = {
+      //   ...this.listQuery
+      // }
+      // getWithdrawalList(submitObj).then(res => {
+      //   if (res.code) {
+      //     return res.message && this.$warn(res.message)
+      //   }
+      //   if (!res.data) return
+      //   const data = res.data
+      //   this.total = data.total
+      //   const records = data.records
+      //   this.list = records && records.length ? records : []
+      // })
     },
     // 打开提现
     openRedraw() {

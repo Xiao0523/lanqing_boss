@@ -107,24 +107,24 @@ export default {
     }
   },
   created() {
-    this.fetchList()
+    // this.fetchList()
   },
   methods: {
     fetchList() {
-      const submitObj = {
-        ...this.keywords,
-        ...this.listQuery
-      }
-      getOrdersList(submitObj).then(res => {
-        if (res.code) {
-          return res.message && this.$warn(res.message)
-        }
-        if (!res.data) return
-        const data = res.data
-        this.total = data.total
-        const records = data.records
-        this.list = records && records.length ? records : []
-      })
+      // const submitObj = {
+      //   ...this.keywords,
+      //   ...this.listQuery
+      // }
+      // getOrdersList(submitObj).then(res => {
+      //   if (res.code) {
+      //     return res.message && this.$warn(res.message)
+      //   }
+      //   if (!res.data) return
+      //   const data = res.data
+      //   this.total = data.total
+      //   const records = data.records
+      //   this.list = records && records.length ? records : []
+      // })
     }
   }
 }
