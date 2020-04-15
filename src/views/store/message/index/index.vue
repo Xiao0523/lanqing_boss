@@ -146,7 +146,7 @@ export default {
   mixins: [UserInfo, rongyunMixins],
   data() {
     return {
-      text: '好的，我知道了',
+      text: '',
       messageList: [],
       sessionList: [],
       firstId: null,
