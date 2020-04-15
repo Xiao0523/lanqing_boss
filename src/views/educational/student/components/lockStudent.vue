@@ -13,8 +13,7 @@
       <el-table-column label="操作">
         <template slot-scope="scope">
           <el-button v-show="isLock" size="mini" @click="editLock(scope.row.entrustId, scope.row.studentId, scope.row.scholarshipIcon)">解锁</el-button>
-          <el-button v-show="!isLock" size="mini" @click="goMessage('f234980e2c154865bca65ad1db33218b')">咨询</el-button>
-          <!-- scope.row.studentId -->
+          <el-button v-show="!isLock" size="mini" @click="goMessage(scope.row.studentId)">咨询</el-button>
         </template>
       </el-table-column>
       <template slot="empty">
@@ -58,7 +57,7 @@ export default {
   },
   data() {
     return {
-      list: [{}],
+      list: [],
       lockObj: {},
       scholarshipIcon: null,
       isRedrawShow: false,
@@ -67,11 +66,11 @@ export default {
   },
   watch: {
     'tabelList'() {
-      // this.list = this.tabelList
+      this.list = this.tabelList
     }
   },
   created() {
-    // this.list = this.tabelList
+    this.list = this.tabelList
     this.getScholar()
   },
   methods: {

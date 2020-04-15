@@ -334,7 +334,6 @@ export default {
       const _this = this
       RongIMLib.RongIMClient.getInstance().getHistoryMessages(conversationType, targetId, timestrap, count, {
         onSuccess: function(list, hasMsg) {
-          console.log(list)
           /*
             list: 获取的历史消息列表
             hasMsg: 是否还有历史消息可以获取
