@@ -1,7 +1,7 @@
 <template>
   <section class="container">
     <div class="page-head-wraper">
-      <page-head content="编辑讲师" @back="goBack" />
+      <page-head content="编辑讲师" @back="goBack" @click="clearLocal" />
     </div>
 
     <div class="wraper">
@@ -32,17 +32,17 @@
           <el-col :span="12">
             <el-form-item label="奖牌/荣誉">
               <el-upload
-                class="student-uploader"
+                :action="uploadUrl"
                 name="multipartFile"
                 list-type="picture-card"
-                :action="uploadUrl"
-                :on-preview="handlePictureCardPreview"
-                :on-success="handleSuccess"
+                :file-list="AchievementsImgList"
+                :limit="9"
+                :before-upload="beforeAvatarUpload"
                 :on-remove="handleRemove"
-                :file-list="fileList"
+                :on-success="handleSuccess"
               >
-                <i class="el-icon-picture" />
-                <div slot="tip" class="upload-tips">只能上传jpg/png文件，且最多上传9张，建议尺寸为750x750px。</div>
+                <i class="el-icon-plus" />
+                <div slot="tip" class="el-upload__tip upload-tips-color">只能上传jpg/png文件，且最多上传9张，建议尺寸为750x560px。</div>
               </el-upload>
             </el-form-item>
           </el-col>
@@ -55,48 +55,52 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="讲师简介">
-              <el-input v-model.trim="content.nickName" placeholder="请以简洁的语言突出讲师风采" />
+              <el-input v-model.trim="content.briefIntroduction" placeholder="请以简洁的语言突出讲师风采" />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="12">
             <el-form-item label="年龄">
-              <el-input v-model.trim="content.age" class="slogan-input" placeholder="请输入讲师年龄" maxlength="3" />
+              <el-input v-model.trim="content.age" placeholder="请输入讲师年龄" maxlength="3" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="教龄">
-              <el-input v-model.trim="content.teachAge" class="slogan-input" placeholder="请输入讲师教龄" maxlength="3" />
+              <el-input v-model.trim="content.teachAge" placeholder="请输入讲师教龄" maxlength="3" />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="12">
             <el-form-item label="联系电话">
-              <el-input v-model.trim="content.contactPhone" class="slogan-input" placeholder="请输入讲师联系电话" maxlength="40" />
+              <el-input v-model.trim="content.contactPhone" placeholder="请输入讲师联系电话" maxlength="40" />
             </el-form-item>
           </el-col>
-          <el-row>
-            <el-col :span="12">
-              <el-form-item label="累计课程数">
-                <el-input v-model.trim="content.curriculumAmount" class="slogan-input" placeholder="请输入累计课程区间，如100-150" maxlength="40" />
-              </el-form-item>
-            </el-col>
-          </el-row>
+          <el-col :span="12">
+            <el-form-item label="累计课程数">
+              <el-input v-model.trim="content.curriculumAmount" placeholder="请输入累计课程区间，如10-50" maxlength="40" />
+            </el-form-item>
+          </el-col>
         </el-row>
         <el-row>
           <el-col :span="12">
             <el-form-item label="课程类目">
-              <el-transfer
+              <el-select
                 v-model="content.categoryViews"
-                :data="categoriesValList"
-                :props="{
-                  key: 'categoryId',
-                  label: 'categoryName'
-                }"
-                :titles="['未选', '已选']"
-              />
+                multiple
+                collapse-tags
+                style="margin-left: 20px;"
+                placeholder="请选择类目"
+              >
+                <el-option
+                  v-for="item in categoriesValList"
+                  :key="item.categoryId"
+                  :label="item.categoryName"
+                  :value="item.categoryId"
+                />
+              </el-select>
+              <p class="upload-tips addCategories" @click="addCategories">保存当页，前往添加类目</p>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -108,7 +112,7 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="讲师标签">
-              <el-input v-model.trim="content.performance" placeholder="输入标签展示讲师优势" />
+              <el-input v-model.trim="content.tags" placeholder="输入标签展示讲师优势" />
               <div class="tags-msg">多个标识用半角逗号分隔</div>
             </el-form-item>
           </el-col>
@@ -116,14 +120,14 @@
         <el-row>
           <el-col :span="20">
             <el-form-item label="讲师介绍">
-              <Tinymce />
+              <Tinymce v-model="content.detailedDescription" />
             </el-form-item>
           </el-col>
         </el-row>
 
         <el-form-item>
-          <el-button type="primary" @click="save">保存</el-button>
-          <el-button @click="save">取消</el-button>
+          <el-button type="primary" @click="save">提交</el-button>
+          <el-button @click="goBack();clearLocal();">取消</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -134,32 +138,35 @@
   </section>
 </template>
 <script>
-import { getCategoryList, addTeacher, getDetail, editTeacher } from '@/api/teacher'
+import { addTeacher, getDetail, editTeacher } from '@/api/teacher'
+import { getCategoryList } from '@/api/categories'
 import PageHead from '@/components/PageHead'
+import { setLocal, getLocal } from '@/utils/local'
 import { Upload_Pic } from '@/api/URL.js'
 import Tinymce from '@/components/Tinymce/index'
+import { mixins } from '@/views/mixins'
 export default {
   name: 'CourseEdit',
   components: { PageHead, Tinymce },
+  mixins: [mixins],
   data() {
     return {
       content: {
+        achievements: [],
+        age: '',
+        briefIntroduction: '',
+        categoryViews: [],
+        contactPhone: '',
+        curriculumAmount: '',
+        detailedDescription: '',
         photo: '',
-        nickName: '',
         realName: '',
         studentAmount: '',
-        teachAge: '',
-        performance: '',
-        detailedDescription: '',
-        curriculumAmount: '',
-        contactPhone: '',
-        briefIntroduction: '',
-        age: '',
-        categoryViews: [],
-        achievements: []
+        tags: '',
+        teachAge: ''
       },
+      AchievementsImgList: [],
       categoriesValList: [],
-      isEdit: false,
       courseFormRules: {},
       teacherArr: [{}],
       imageUrl: '',
@@ -167,11 +174,26 @@ export default {
       dialogVisible: false,
       fileList: [],
       uploadUrl: Upload_Pic, // 图片上传地址
-      isAdd: true
+      isAdd: true,
+      otherFrom: false
     }
   },
   created() {
     this.getCategory()
+
+    const other = this.$route.query.otherFlag
+    if (String(other)) this.otherFrom = other
+    if (getLocal('teacherView') && String(getLocal('teacherAdd')) && !this.otherFrom) {
+      this.content = getLocal('teacherView')
+      this.isAdd = getLocal('teacherAdd')
+      this.content.achievements.forEach(item => {
+        this.AchievementsImgList.push({
+          url: item
+        })
+      })
+      this.clearLocal()
+      return
+    }
     const id = this.$route.query.id
     if (id) {
       this.isAdd = false
@@ -179,6 +201,15 @@ export default {
     }
   },
   methods: {
+    clearLocal() {
+      setLocal('teacherAdd', '')
+      setLocal('teacherView', '')
+    },
+    addCategories() {
+      setLocal('teacherAdd', this.isAdd)
+      setLocal('teacherView', this.content)
+      this.$router.push({ name: 'CategoryList', query: { otherFlag: true }})
+    },
     getView(id) {
       const getObj = {
         id: id
@@ -190,7 +221,7 @@ export default {
         if (!res.data) return
         this.content = res.data
         this.content.achievements.forEach(item => {
-          this.fileList.push({
+          this.AchievementsImgList.push({
             url: item
           })
         })
@@ -210,9 +241,6 @@ export default {
         this.categoriesValList = res.data
       })
     },
-    goBack() {
-      this.$router.go(-1)
-    },
     handleAvatarSuccess(res, file) {
       if (res.code) {
         return res.message & this.$warn(res.message)
@@ -221,11 +249,11 @@ export default {
       this.content.photo = res.data
     },
     beforeAvatarUpload(file) {
-      const isLt2M = file.size / 1024 / 1024 < 2
-      if (!isLt2M) {
-        this.$message.error('上传头像图片大小不能超过 2MB!')
+      const isImg = (file.type === 'image/jpeg' || file.type === 'image/png')
+      if (!isImg) {
+        this.$message.error('请上传JPG/PNG格式的图片')
       }
-      return isLt2M
+      return isImg
     },
     changeAge(str) {
       if (this.content[str] > 100) {
@@ -259,6 +287,10 @@ export default {
           return res.message && this.$warn(res.message)
         }
         this.$success(res.message)
+        this.clearLocal()
+        if (this.otherFrom) {
+          return this.$router.go(-1)
+        }
         this.$router.push({ name: 'Teacher' })
       })
     }
@@ -275,6 +307,21 @@ export default {
 .wraper {
   background: #fff;
   padding: 30px;
+}
+/deep/ {
+  .el-upload--picture-card {
+    width: 80px;
+    height: 80px;
+    line-height: 90px;
+  }
+  .el-upload-list--picture-card .el-upload-list__item {
+    width: 80px;
+    height: 80px;
+  }
+
+  .el-upload-list--picture-card .el-upload-list__item:nth-child(6+n) {
+    margin-bottom: 0px;
+  }
 }
 .uploader {
   width: 80px;
@@ -327,13 +374,12 @@ export default {
       position: relative;
       overflow: hidden;
       background: rgba(250, 250, 251, 1);
-      width: 148px;
-      height: 148px;
-      line-height: 146px;
+      width: 80px;
+      height: 80px;
+      line-height: 78px;
       &:hover {
         border-color: rgba(0,210,165,1);
       }
-
     }
     .el-icon-picture{
       color:rgba(222,226,233,1);
@@ -341,7 +387,7 @@ export default {
     }
   }
   .upload-tips{
-    margin-top: 15px;
+    margin-top: 20px;
   }
 }
 .upload-tips{
@@ -351,6 +397,10 @@ export default {
   color:rgba(157,157,167,1);
   line-height:11px;
   margin: 0;
+  margin-top: 6px;
+}
+.upload-tips-color {
+  color:rgba(157,157,167,1);
 }
 .outline-tip{
   margin-top: 14px;
@@ -427,5 +477,16 @@ export default {
   line-height: 11px;
   margin: 0;
 }
-
+/deep/ {
+  .el-select {
+    margin-left: 0 !important;
+    width: 240px;
+  }
+}
+.addCategories {
+  position: relative;
+  top: 8px;
+  text-decoration: underline;
+  cursor: pointer;
+}
 </style>

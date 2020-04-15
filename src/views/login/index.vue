@@ -80,9 +80,10 @@
 
 <script>
 import { getValidCode, getMessage } from '@/api/user.js'
-
+import { rongyunMixins } from '@/views/mixins/rongyun'
 export default {
   name: 'Login',
+  mixins: [rongyunMixins],
   data() {
     return {
       content: '获取验证码',
@@ -187,6 +188,8 @@ export default {
             return res.message && this.$warn(res.message)
           }
           this.$success(res.message)
+          this.initObj.token = res.data.token
+          this.initCloud()
           this.$router.replace({ path: '/home' })
         })
         .catch(() => {

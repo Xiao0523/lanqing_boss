@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import { getLocal } from '@/utils/local'
+import { getLocal, setLocal } from '@/utils/local'
 import { getExamine } from '@/api/business.js'
 export default {
   name: 'StatusDialog',
@@ -24,12 +24,13 @@ export default {
     return {
       centerDialogVisible: false,
       whiteList: ['/store/authentication', '/authentication'],
-      status: this.$store.state.user.examineStatus || getLocal('examineStatus')
+      status: this.$store.state.user.examineStatus || getLocal('examineStatus') || ''
     }
   },
   watch: {
     $route(to) {
-      if (!this.whiteList.includes(this.$route.path) && Number(this.status) !== 1) {
+      if (!this.whiteList.includes(this.$route.path) && this.status !== '' && Number(this.status) !== 1) {
+        console.log(3)
         this.centerDialogVisible = true
       }
     }
@@ -39,9 +40,13 @@ export default {
       await getExamine().then(res => {
         if (res.code) return this.$warn(res.message)
         this.status = res.data.status
+        setLocal('examineStatus', res.data.status)
+        this.centerDialogVisible = res.data.status !== 1
+        console.log(1)
       })
     }
-    if (!this.whiteList.includes(this.$route.path) && Number(this.status) !== 1) {
+    if (!this.whiteList.includes(this.$route.path) && this.status !== '' && Number(this.status) !== 1) {
+      console.log(2)
       this.centerDialogVisible = true
     }
   },

@@ -6,7 +6,7 @@
 
       <div class="panel__hd">
         <h3 class="panel-title">课程基本信息</h3>
-        <router-link :to="{ name: 'Course-edit', query: { id: viewId }}">
+        <router-link :to="{ name: 'CourseEdit', query: { id: viewId }}">
           <el-button>编辑课程</el-button>
         </router-link>
       </div>
@@ -44,13 +44,13 @@
         <div class="flex">
           <div class="flex__hd">课程类目</div>
           <div class="flex__bd">
-            <strong>{{ content.enrolment }}</strong>
+            <strong>{{ content.categoryName }}</strong>
           </div>
         </div>
         <div class="flex">
           <div class="flex__hd">适合年龄段</div>
           <div class="flex__bd">
-            <strong>{{ content.enrolment }}</strong>
+            <strong>{{ content.ageInterval | ageIntervalStr }}</strong>
           </div>
         </div>
         <div class="flex">
@@ -62,7 +62,7 @@
         <div class="flex">
           <div class="flex__hd">课程标签</div>
           <div class="flex__bd">
-            <el-tag v-for="item of tagList" :key="item" type="danger" class="tags" closable>{{ item }}</el-tag>
+            <el-tag v-for="item of tagList" :key="item" type="danger" class="tags">{{ item }}</el-tag>
           </div>
         </div>
         <div class="flex">
@@ -80,7 +80,7 @@
         <div class="flex">
           <div class="flex__hd">课程介绍</div>
           <div class="flex__bd">
-            <p class="course-intro">{{ content.detailWords }}</p>
+            <p class="course-intro" v-html="content.detailWords" />
           </div>
         </div>
         <div class="flex">
@@ -134,10 +134,14 @@
         />
       </div>
     </div>
-
-    <el-dialog title="更换讲师" width="30%" :visible="isChangeShow" @close="isChangeShow=false">
-      <el-form>
-        <el-form-item class="el-form-item" label="讲师">
+    <el-dialog :visible="isChangeShow" @close="isChangeShow=false">
+      <h6 slot="title" class="dialog-title">更换讲师</h6>
+      <el-form
+        ref="redrawFrom"
+        :inline-message="true"
+        label-width="7em"
+      >
+        <el-form-item label="讲师" class="redraw-item">
           <el-select v-model="teacherStr" placeholder="请选择讲师" @change="teacherChange">
             <el-option
               v-for="item of content.teachers"
@@ -148,17 +152,13 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="onChangeTeacher">确 定</el-button>
+        <el-button type="primary" class="dialog-btn" @click="onChangeTeacher">确定切换</el-button>
       </div>
-    </el-dialog>
-
-    <el-dialog :visible.sync="dialogVisible">
-      <img width="100%" :src="dialogImageUrl" alt>
     </el-dialog>
   </section>
 </template>
 <script>
-import { getDetail, getStudent, editTeacher } from '@/api/course'
+import { getDetail, getClassStudent, editStudentTeacher } from '@/api/course'
 import Pagination from '@/components/Pagination'
 import { formatTime } from '@/utils/date'
 export default {
@@ -167,6 +167,10 @@ export default {
   filters: {
     orderTimeStr(val) {
       return formatTime(val)
+    },
+    ageIntervalStr(val) {
+      const value = Number(val)
+      return value === 0 ? '0-3' : value === 1 ? '3-6' : value === 2 ? '6-9' : value === 3 ? '9-12' : value === 4 ? '12-15' : '15-18'
     }
   },
   data() {
@@ -182,6 +186,25 @@ export default {
         pageNum: 1,
         pageSize: 9
       },
+      ageList: [{
+        value: 0,
+        label: '0-3'
+      }, {
+        value: 1,
+        label: '3-6'
+      }, {
+        value: 2,
+        label: '6-9'
+      }, {
+        value: 3,
+        label: '9-12'
+      }, {
+        value: 4,
+        label: '12-15'
+      }, {
+        value: 5,
+        label: '15-18'
+      }],
       total: 0,
       isChangeShow: false,
       teacherStr: '',
@@ -207,7 +230,7 @@ export default {
         curriculumId: id,
         ...this.listQuery
       }
-      getStudent(getObj).then(res => {
+      getClassStudent(getObj).then(res => {
         if (res.code) {
           return res.message && this.$wran(res.message)
         }
@@ -288,7 +311,7 @@ export default {
         teacherId: this.teacherId,
         tscId: this.classId
       }
-      editTeacher(submitObj).then(res => {
+      editStudentTeacher(submitObj).then(res => {
         if (res.code) {
           return res.message && this.$warn(res.message)
         }
@@ -427,6 +450,27 @@ export default {
   }
 }
 
+/deep/ {
+  .el-dialog {
+    width: 500px;
+  }
+  .el-dialog__body {
+    padding: 0;
+    padding-bottom: 30px;
+    border-bottom: 1px solid rgba(241,241,245,1);
+  }
+  .el-radio--medium.is-bordered {
+    padding: 0;
+  }
+  .el-radio.is-bordered + .el-radio.is-bordered {
+    margin-left: 0;
+  }
+  .el-radio-button__inner, .el-radio-group {
+    display: flex;
+    flex-wrap: wrap ;
+  }
+}
+
 .list{
   list-style: none;
   display: flex;
@@ -499,27 +543,14 @@ export default {
 }
 
 .dialog-title {
-  font-size: 14px;
-  font-family: PingFangSC-Medium, PingFang SC;
-  font-weight: bold;
-  color: rgba(23, 23, 37, 1);
-  line-height: 20px;
   margin: 0;
-  border-bottom: 1px solid rgba(241, 241, 245, 1);
-}
-.dialog-text {
-  text-align: center;
-  font-size: 18px;
-  font-family: PingFangSC-Regular, PingFang SC;
-  font-weight: 400;
-  color: rgba(23, 23, 37, 1);
-  line-height: 25px;
-  font-weight: bold;
-  margin-bottom: 0;
-}
-.dialog-footer {
-  display: flex;
-  align-items: center;
+  font-size:14px;
+  font-family:PingFangSC-Medium,PingFang SC;
+  font-weight:500;
+  color:rgba(23,23,37,1);
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(241,241,245,1);
 }
 
 .el-alert--error {
@@ -528,5 +559,15 @@ export default {
 
 .tags {
   margin-right: 10px;
+}
+
+.dialog-btn {
+  width:96px;
+  height:38px;
+  padding: 0;
+  line-height: 38px;
+  background:rgba(0,210,165,1);
+  border-radius:4px;
+  border:1px solid rgba(0,0,0,0.05);
 }
 </style>

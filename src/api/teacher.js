@@ -1,39 +1,34 @@
 import request from '@/utils/request'
 
-function getCategoryList(data) {
-  return request.get('boss/store/category', data)
-}
-
 function getTeacherList(data) {
-  return request.post('boss/store/teacherList', data)
+  return request.post('/boss/v2/teacherList', data)
 }
 
 function addTeacher(data) {
-  return request.post('boss/store/teacher', data)
+  return request.post('/boss/v2/teacher', data)
 }
 
 function editTeacher(data) {
-  return request.patch('boss/store/teacher', data)
+  return request.patch('/boss/v2/teacher', data)
 }
 
 function getDetail({ id }) {
-  return request.get('boss/store/teacher/' + id)
+  return request.get('/boss/v2/teacher/' + id)
 }
 
-function getCateTeacher({ id }) {
-  return request.get('boss/store/teachers/' + id)
+function getStudentList(data) {
+  return request.post('/boss/v2/teacher/student', data)
 }
 
-function getStudent(data) {
-  return request.post('boss/store/student4teacher', data)
+function editTeacherStatus({ id, status }) {
+  return request.post('/boss/v2/teacher/' + id + '/' + status)
 }
 
 export {
-  getCategoryList,
   getTeacherList,
   addTeacher,
   getDetail,
   editTeacher,
-  getCateTeacher,
-  getStudent
+  getStudentList,
+  editTeacherStatus
 }

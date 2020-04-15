@@ -22,6 +22,12 @@
             </el-popconfirm>
           </template>
         </el-table-column>
+        <template slot="empty">
+          <div class="empty-content">
+            <img class="empty-img" src="@/assets/no-record.png" alt>
+            <p class="empty-text">暂无信息</p>
+          </div>
+        </template>
       </el-table>
       <div class="add" @click="addCategory"><i class="el-icon-circle-plus-outline" /><span class="add-text">新增类目</span></div>
     </div>
@@ -53,7 +59,7 @@
 </template>
 <script>
 import Pagination from '@/components/Pagination'
-import { getList, getLevelOneList, getLevelTwoList, addCategoriesList, delCategoriesList } from '@/api/categories'
+import { getCategoryList, getLevelOneList, getLevelTwoList, addCategoriesList, delCategoriesList } from '@/api/categories'
 export default {
   name: 'Course',
   components: { Pagination },
@@ -76,12 +82,15 @@ export default {
       levelOneList: [],
       levelTwoList: [],
       levelTwoId: '',
-      dialogFormVisible: false
+      dialogFormVisible: false,
+      otherFrom: false
     }
   },
   mounted() {
-    // this.getLists()
-    // this.getLevelOne()
+    this.fetchList()
+    this.getLevelOne()
+    const other = this.$route.query.otherFlag
+    if (String(other)) this.otherFrom = other
   },
   methods: {
     // 更改选中的子类id
@@ -113,8 +122,8 @@ export default {
       })
     },
     // 获取列表
-    getLists() {
-      getList().then(res => {
+    fetchList() {
+      getCategoryList().then(res => {
         if (res.code) {
           return res.message && this.$warn(res.message)
         }
@@ -142,7 +151,10 @@ export default {
           return res.message && this.$warn(res.message)
         }
         this.$success(res.message)
-        this.getLists()
+        if (this.otherFrom) {
+          return this.$router.go(-1)
+        }
+        this.fetchList()
         this.dialogFormVisible = false
         this.keywords = {
           categoryTitle: '',
@@ -160,7 +172,7 @@ export default {
           return res.message && this.$warn(res.message)
         }
         this.$success(res.message)
-        this.getLists()
+        this.fetchList()
       })
     },
     // 分页点击 事件

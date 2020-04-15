@@ -1,32 +1,27 @@
 import request from '@/utils/request'
 
-function getList() {
-  return request.get('boss/business/category')
+function getCategoryList() {
+  return request.get('/boss/v2/category')
 }
 
 function getLevelOneList() {
-  return request.get('boss/business/boss/levelOne')
+  return request.get('/boss/v2/category/one')
 }
 
 function getLevelTwoList({ id }) {
-  return request.get('boss/business/boss/levelTwo/' + id)
+  return request.get('/boss/v2/category/two/' + id)
 }
 
 function addCategoriesList({ id }) {
-  return request.post('boss/business/category/' + id)
+  return request.post('/boss/v2/category/' + id)
 }
 
 function delCategoriesList({ id }) {
-  return request.delete('boss/business/category/' + id)
-}
-
-function getCategoriesList() {
-  return request.get('boss/business/boss/category4Business')
+  return request.delete('/boss/v2/category/' + id)
 }
 
 export {
-  getList,
-  getCategoriesList,
+  getCategoryList,
   getLevelOneList,
   getLevelTwoList,
   addCategoriesList,

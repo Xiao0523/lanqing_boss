@@ -1,34 +1,44 @@
 import request from '@/utils/request'
 
-function getStoreList(data) {
-  return request.post('boss/store/curriculumList', data)
+function getCursorList(data) {
+  return request.post('/boss/v2/curriculumList', data)
 }
 
 function addCourse(data) {
-  return request.post('boss/store/curriculum', data)
+  return request.post('/boss/v2/curriculum', data)
 }
 
 function getDetail({ id }) {
-  return request.get('boss/store/curriculum/' + id)
+  return request.get('/boss/v2/curriculum/' + id)
 }
 
-function getStudent(data) {
-  return request.post('boss/store/curriculum4teacher/', data)
+function curosrOff({ id }) {
+  return request.get('/boss/v2/curriculum/off/' + id)
 }
 
-function editTeacher(data) {
-  return request.post('boss/store/distributionTeacher4Student', data)
+function curosrOn({ id }) {
+  return request.get('/boss/v2/curriculum/on/' + id)
 }
 
 function editCourse(data) {
-  return request.patch('boss/store/curriculum', data)
+  return request.patch('/boss/v2/curriculum', data)
+}
+
+function getClassStudent(data) {
+  return request.post('/boss/v2/curriculum4teacher', data)
+}
+
+function editStudentTeacher(data) {
+  return request.post('/boss/v2/curriculum/distributionTeacher4Student', data)
 }
 
 export {
-  getStoreList,
+  getCursorList,
   addCourse,
   getDetail,
-  getStudent,
-  editTeacher,
-  editCourse
+  editCourse,
+  curosrOn,
+  curosrOff,
+  getClassStudent,
+  editStudentTeacher
 }

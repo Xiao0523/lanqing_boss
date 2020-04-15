@@ -1,44 +1,49 @@
 import request from '@/utils/request'
 
-function getMysteryStudent(data) {
+function getStudentList(data) {
+  return request.post('/boss/v2/student', data)
+}
+
+function getStudentDetail({ id }) {
+  return request.get('/boss/v2/student/' + id)
+}
+
+function getStudentLocked(data) {
+  return request.post('/boss/v2/studentLocked', data)
+}
+
+function getStudentUnlock(data) {
   return request.post('/boss/v2/studentUnlock', data)
 }
 
-function getDetails({ id }) {
-  return request.get('boss/store/student/' + id)
-}
-
-function getStudentClassList({ id }) {
-  return request.get('boss/store/curriculum4SingleStudentView/' + id)
-}
-
-function getStudentClass({ id }) {
-  return request.get('boss/store/studentOrder/' + id)
-}
-
-function getStudentOrder({ id }) {
-  return request.get('boss/store/studentOrder/' + id)
+function editLock({ entrustId, studentId }) {
+  return request.post('/boss/v2/student/unlock/' + entrustId + '/' + studentId)
 }
 
 function getCommentList({ id }) {
-  return request.get('boss/store/comment4StudentView/' + id)
+  return request.get('/boss/v2/comment4StudentView/' + id)
 }
 
-function submitRefund(data) {
-  return request.post('boss/store/refund', data)
+function evaluation({ id, type }) {
+  return request.get('/boss/v2/evaluation/' + id + '/' + type)
 }
 
-function submitCourse(data) {
-  return request.post('boss/store/courseCompletion', data)
+function getStudentCursor({ studentId, type }) {
+  return request.get('/boss/v2/studentOrder/' + studentId + '/' + type)
+}
+
+function getMainInfo() {
+  return request.get('/boss/v2/student/mainInfo')
 }
 
 export {
-  getMysteryStudent,
-  getDetails,
-  getStudentClassList,
-  getStudentClass,
-  getStudentOrder,
+  getStudentList,
+  getStudentDetail,
+  getStudentLocked,
+  getStudentUnlock,
+  editLock,
   getCommentList,
-  submitRefund,
-  submitCourse
+  evaluation,
+  getStudentCursor,
+  getMainInfo
 }

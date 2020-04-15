@@ -3,49 +3,23 @@
 
     <h2 class="title">评价管理</h2>
     <el-form :inline="true" class="search-box">
-      <el-form-item class="search-item">
-        <el-input v-model.trim="keywords.name" placeholder="请输入订单号或课程名称" suffix-icon="el-icon-search" @blur="fetchList" />
+      <el-form-item class="search-item" label="订单号：">
+        <el-input v-model.trim="keywords.trainingStudentCurriculumId" placeholder="请输入订单号" suffix-icon="el-icon-search" @blur="fetchList" @keyup.enter="fetchList" />
+      </el-form-item>
+      <el-form-item class="search-item" label="用户昵称：">
+        <el-input v-model.trim="keywords.nickName" placeholder="请输入用户昵称" suffix-icon="el-icon-search" @blur="fetchList" @keyup.enter="fetchList" />
       </el-form-item>
     </el-form>
     <div class="table-wraper">
-      <el-table
-        class="table"
-        :data="list"
-      >
-        <el-table-column label="学员昵称">
-          <template slot-scope="scope">
-            <div class="img-box">
-              <img class="img-warpper" :src="scope.row.photo" alt="">
-              {{ scope.row.realName }}
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column label="手机号" prop="teachAge" />
-        <el-table-column label="订单号" prop="curriculumAmount" />
-        <el-table-column label="评价时间" prop="studentAmount" />
-        <el-table-column label="课程名称" prop="studentAmount" />
-        <el-table-column label="状态">
-          <template slot-scope="scope">
-            {{ scope.row.status | statusStr }}
-          </template>
-        </el-table-column>
-        <el-table-column label="操作">
-          <template slot-scope="scope">
-            <router-link :to="{name: 'Teacher-edit', query: { id: scope.row.id }}">
-              <el-button size="mini">回复</el-button>
-            </router-link>
-            <router-link :to="{name: 'Teacher-detail', query: { id: scope.row.id }}">
-              <el-button size="mini">详情</el-button>
-            </router-link>
-          </template>
-        </el-table-column>
-        <template slot="empty">
-          <div class="empty-content">
-            <img class="empty-img" src="@/assets/no-comment.png" alt>
-            <p class="empty-text">暂无评价</p>
-          </div>
-        </template>
-      </el-table>
+      <tabel-list :table-list="list" />
+      <pagination
+        v-show="total > 0"
+        :total="total"
+        :page.sync="listQuery.pageNum"
+        :limit.sync="listQuery.pageSize"
+        width="500px"
+        @pagination="fetchList"
+      />
     </div>
     <!-- <div class="pagination-wraper">
       <pagination v-show="total>0" :total="total" :page.sync="pageNum" :limit.sync="pageSize" @pagination="pageChange" />
@@ -53,76 +27,36 @@
   </div>
 </template>
 <script>
-import { getTeacherList, getCategoryList } from '@/api/teacher'
-// import Pagination from '@/components/Pagination'
-import Star from '@/components/Star'
+import { getCommonList } from '@/api/common'
+import Pagination from '@/components/Pagination'
+import tabelList from '../components/tabel'
 export default {
   name: 'Stuedent',
-  components: { Star },
-  filters: {
-    statusStr(val) {
-      return val === 0 ? '在职' : '离职'
-    }
-  },
+  components: { Pagination, tabelList },
   data() {
     return {
       list: [],
-      statusStr: '全部',
-      categoryStr: '全部',
-      statusList: [{
-        label: '全部',
-        value: ''
-      }, {
-        label: '5星',
-        value: 4
-      }, {
-        label: '4星',
-        value: 3
-      }, {
-        label: '3星',
-        value: 2
-      }, {
-        label: '2星',
-        value: 1
-      }, {
-        label: '1星',
-        value: 0
-      }],
       keywords: {
-        name: '',
-        categoryId: '',
-        status: ''
+        nickName: '',
+        trainingStudentCurriculumId: ''
       },
-      value1: true,
-      value2: true,
+      listQuery: {
+        pageNum: 1,
+        pageSize: 10
+      },
       total: 0, // 总记录数
       pageNum: 1, // 分页页面
       pageSize: 10 // 分页容量
     }
   },
-  created() {
-  },
   methods: {
-    onDel(item) {
-
-    },
-    // 分页点击 事件
-    pageChange(page) {
-
-    },
-    getCategory() {
-      getCategoryList().then(res => {
-        if (res.code) {
-          return res.message && this.$warn(res.message)
-        }
-        if (!res.data) return
-        this.categoryList = [...this.categoryList, ...res.data]
-      })
-    },
     // 获取教员列表
     fetchList() {
-      const getObj = this.keywords
-      getTeacherList(getObj).then(res => {
+      const getObj = {
+        ...this.keywords,
+        ...this.listQuery
+      }
+      getCommonList(getObj).then(res => {
         if (res.code) {
           return res.message && this.$(res.message)
         }

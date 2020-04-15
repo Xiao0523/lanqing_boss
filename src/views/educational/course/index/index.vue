@@ -1,7 +1,7 @@
 <template>
   <div class="container">
 
-    <router-link :to="{name: 'Course-edit'}">
+    <router-link :to="{name: 'CourseEdit'}">
       <el-button class="el-icon-plus add-btn" size="medium" type="primary">新建课程</el-button>
     </router-link>
 
@@ -9,30 +9,31 @@
 
     <el-form :inline="true" class="search-box">
       <el-form-item class="search-item">
-        <el-input v-model.trim="keywords.name" placeholder="搜索课程名称" suffix-icon="el-icon-search" />
+        <el-input v-model.trim="keywords.name" placeholder="搜索课程名称" suffix-icon="el-icon-search" @blur="fetchList" @keyup.enter="fetchList" />
       </el-form-item>
       <el-form-item class="search-item" label="课程类目">
-        <el-select v-model="categoryStr">
+        <el-select v-model="keywords.categoryId" @change="fetchList">
           <el-option
             v-for="item in categoryList"
             :key="item.categoryName + item.categoryId"
-            :value="item.categoryName"
+            :value="item.categoryId"
+            :label="item.categoryName"
           />
         </el-select>
       </el-form-item>
       <el-form-item label="课程状态">
-        <el-select v-model="statusStr">
+        <el-select v-model="keywords.status" @change="fetchList">
           <el-option
             v-for="item in statusList"
             :key="item.label + item.value"
-            :value="item.label"
+            :value="item.value"
+            :label="item.label"
           />
         </el-select>
       </el-form-item>
     </el-form>
 
     <div class="table-wraper">
-
       <el-table
         class="table"
         :data="list"
@@ -60,12 +61,10 @@
         </el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
-            <router-link :to="{name: 'Course-detail', query: { id: scope.row.id }}">
+            <router-link :to="{name: 'CourseDetail', query: { id: scope.row.id }}">
               <el-button size="mini">详情</el-button>
             </router-link>
-            <router-link :to="{name: 'Course-edit', query: { id: scope.row.id }}">
-              <el-button size="mini">上架</el-button>
-            </router-link>
+            <el-button size="mini" @click="changeStatus(scope.row.id, scope.row.status)">{{ scope.row.status | statusStr }}</el-button>
           </template>
         </el-table-column>
         <template slot="empty">
@@ -84,9 +83,11 @@
 </template>
 <script>
 import {
-  getStoreList
+  getCursorList,
+  curosrOn,
+  curosrOff
 } from '@/api/course'
-import { getCategoryList } from '@/api/teacher'
+import { getCategoryList } from '@/api/categories'
 // import Pagination from '@/components/Pagination'
 import Star from '@/components/Star'
 export default {
@@ -126,7 +127,39 @@ export default {
       pageSize: 10 // 分页容量
     }
   },
+  mounted() {
+    this.fetchList()
+    this.getCategory()
+  },
   methods: {
+    fetchList() {
+      const getObj = this.keywords
+      getCursorList(getObj).then(res => {
+        if (res.code) return res.message && this.$warn(res.message)
+        if (!res.data) return
+        this.list = res.data
+      })
+    },
+    getCategory() {
+      getCategoryList().then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        if (!res.data) return
+        this.categoryList = [...this.categoryList, ...res.data]
+      })
+    },
+    changeStatus(id, status) {
+      const fn = status === 0 ? curosrOff : curosrOn
+      const getObj = {
+        id
+      }
+      fn(getObj).then(res => {
+        if (res.code) return res.message && this.$warn(res.message)
+        this.$success('状态修改成功')
+        this.fetchList()
+      })
+    }
   }
 }
 </script>
@@ -199,8 +232,10 @@ export default {
   img {
     width: 40px;
     margin-right: 10px;
+    border-radius: 5px;
   }
 }
+
 .search-box {
   margin-top: 20px;
   /deep/ {

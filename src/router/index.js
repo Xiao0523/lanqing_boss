@@ -116,14 +116,14 @@ export const asyncRoutes = [
         meta: { title: '课程管理' }
       }, {
         path: 'courseDetail',
-        name: 'Course-detail',
+        name: 'CourseDetail',
         component: () =>
         import('@/views/educational/course/course-detail/index'),
         hidden: true,
         meta: { title: '课程详情' }
       }, {
         path: 'courseEdit',
-        name: 'Course-edit',
+        name: 'CourseEdit',
         component: () =>
         import('@/views/educational/course/course-edit/index'),
         hidden: true,
@@ -135,14 +135,14 @@ export const asyncRoutes = [
         meta: { title: '讲师管理' }
       }, {
         path: 'teacherDetail',
-        name: 'Teacher-detail',
+        name: 'TeacherDetail',
         component: () =>
         import('@/views/educational/teacher/teacher-detail/index'),
         hidden: true,
         meta: { title: '讲师详情' }
       }, {
         path: 'teacherEdit',
-        name: 'Teacher-edit',
+        name: 'TeacherEdit',
         component: () =>
         import('@/views/educational/teacher/teacher-edit/index'),
         hidden: true,
@@ -154,7 +154,7 @@ export const asyncRoutes = [
         meta: { title: '学员管理' }
       }, {
         path: 'studentDetail',
-        name: 'Student-detail',
+        name: 'StudentDetail',
         component: () =>
           import('@/views/educational/student/student-detail/index'),
         hidden: true,
@@ -177,7 +177,7 @@ export const asyncRoutes = [
     children: [
       {
         path: 'course-order',
-        name: 'Course-order',
+        name: 'CourseOrder',
         component: () => import('@/views/finance/course-order/index'),
         meta: { title: '订单管理' }
       },

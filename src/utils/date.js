@@ -63,7 +63,12 @@ export function formatTime(time = 0, format = 'YYYY-MM-DD hh:mm:ss') {
     minutes: date.getMinutes(),
     seconds: date.getSeconds()
   }
-
+  if (arg.day < 10) {
+    arg.day = '0' + arg.day
+  }
+  if (arg.minutes < 10) {
+    arg.minutes = '0' + arg.minutes
+  }
   /** 判断有没有指定的时间格式 */
   switch (format) {
     case 'YYYY-MM-DD hh:mm:ss':

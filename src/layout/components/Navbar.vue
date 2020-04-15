@@ -34,15 +34,24 @@ import { mapGetters } from 'vuex'
 import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
 import UserInfo from './Sidebar/mixin/UserInfo'
+// import { init } from '@/utils/rongyun'
+// import { getLocal } from '@/utils/local'
+import { rongyunMixins } from '@/views/mixins/rongyun'
 
+var RongIMLib = window.RongIMLib // 由 window 赋值
+var RongIMClient = RongIMLib.RongIMClient
 export default {
   components: {
     Breadcrumb,
     Hamburger
   },
-  mixins: [UserInfo],
+  mixins: [UserInfo, rongyunMixins],
   data() {
     return {
+      // initObj: {
+      //   appkey: this.$store.state.user.appKey,
+      //   token: this.$store.state.user.messageToken || getLocal('messageToken') || ''
+      // }
     }
   },
   computed: {
@@ -55,6 +64,8 @@ export default {
       this.$store.dispatch('app/toggleSideBar')
     },
     async logout() {
+      RongIMClient.getInstance().disconnect()
+      RongIMClient.getInstance().logout()
       await this.$store.dispatch('user/logout')
       this.$router.push(`/login?redirect=${this.$route.fullPath}`)
     }

@@ -7,7 +7,7 @@
     <div class="wraper">
       <div class="guest-box">
         <h3 class="title">
-          机构评价
+          店铺评价
         </h3>
         <div class="img-box">
           <img src="@/assets/no-comment.png" alt="">
@@ -72,16 +72,32 @@
 <script>
 import PageHead from '@/components/PageHead'
 import Star from '@/components/Star'
+import { mixins } from '@/views/mixins'
+import { getCommonDetail, getReply } from '@/api/common'
 export default {
   name: 'CommentDtatil',
   components: { PageHead, Star },
+  mixins: [mixins],
   data() {
     return {
+      conetnt: {}
+    }
+  },
+  created() {
+    const id = this.$router.query.id
+    if (id) {
+      this.getView(id)
     }
   },
   methods: {
-    goBack() {
-      this.$router.go(-1)
+    getView(id) {
+      const getObj = {
+        id
+      }
+      getCommonDetail(getObj).then(res => {
+        if (res.code) return res.message && this.$warn(res.message)
+        this.conetnt = res.data
+      })
     }
   }
 }

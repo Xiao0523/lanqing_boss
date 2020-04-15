@@ -3,7 +3,7 @@
     <h2 class="title">订单管理</h2>
     <el-form :inline="true">
       <el-form-item class="search-item">
-        <el-input v-model.trim="keywords.orderNoOrCurriculumName" placeholder="请输入订单号或课程" suffix-icon="el-icon-search" @blur="fetchList" />
+        <el-input v-model.trim="keywords.orderNoOrCurriculumName" placeholder="请输入订单号或课程" suffix-icon="el-icon-search" @blur="fetchList" @keyup.enter="fetchList" />
       </el-form-item>
       <el-form-item class="search-item" label="下单时间">
         <el-date-picker
@@ -32,23 +32,29 @@
         class="table"
         :data="list"
       >
-        <el-table-column width="135px" label="订单号" prop="orderNum" />
+        <el-table-column label="订单编号" prop="orderNum" />
         <el-table-column label="下单时间">
           <tamplate slot-scope="scope">
             {{ scope.row.orderTime | orderTimeStr }}
           </tamplate>
         </el-table-column>
         <el-table-column label="学员昵称" prop="curriculumName" />
-        <el-table-column label="手机号" prop="price" />
+        <el-table-column label="手机号" prop="payPrice" />
         <el-table-column label="订单状态" prop="statusDescription" />
         <el-table-column label="课程名称" prop="curriculumName" />
         <el-table-column label="课程价格" prop="price" />
         <el-table-column label="实付金额" prop="payPrice" />
         <el-table-column label="操作">
           <template slot-scope="scope">
-            <el-button size="mini">退款</el-button>
+            <el-button v-if="Number(scope.row.status) !== 1 && Number(scope.row.status) !== 3" size="mini" @click="backMoney(scope.row.id)">退款</el-button>
           </template>
         </el-table-column>
+        <template slot="empty">
+          <div class="empty-content">
+            <img class="empty-img" src="@/assets/no-record.png" alt>
+            <p class="empty-text">暂无记录</p>
+          </div>
+        </template>
       </el-table>
     </div>
 
@@ -62,21 +68,24 @@
         @pagination="fetchList"
       />
     </div>
-
+    <back-money :flag="backFlag" :obj="backObj" @closeFlag="closeDialog" />
   </div>
 </template>
 <script>
 import Pagination from '@/components/Pagination'
 import { getOrdersList } from '@/api/orders'
 import { formatTime } from '@/utils/date'
+import backMoney from './components/backMoney'
+import { orderMixins } from '@/views/mixins/order'
 export default {
   name: 'CourseOrder',
-  components: { Pagination },
+  components: { Pagination, backMoney },
   filters: {
     orderTimeStr(val) {
       return val && formatTime(val)
     }
   },
+  mixins: [orderMixins],
   data() {
     return {
       list: [],
@@ -107,24 +116,24 @@ export default {
     }
   },
   created() {
-    // this.fetchList()
+    this.fetchList()
   },
   methods: {
     fetchList() {
-      // const submitObj = {
-      //   ...this.keywords,
-      //   ...this.listQuery
-      // }
-      // getOrdersList(submitObj).then(res => {
-      //   if (res.code) {
-      //     return res.message && this.$warn(res.message)
-      //   }
-      //   if (!res.data) return
-      //   const data = res.data
-      //   this.total = data.total
-      //   const records = data.records
-      //   this.list = records && records.length ? records : []
-      // })
+      const submitObj = {
+        ...this.keywords,
+        ...this.listQuery
+      }
+      getOrdersList(submitObj).then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        if (!res.data) return
+        const data = res.data
+        this.total = data.total
+        const records = data.records
+        this.list = records && records.length ? records : []
+      })
     }
   }
 }
@@ -182,4 +191,5 @@ export default {
   color:rgba(0,210,165,1);
   line-height:24px;
 }
+
 </style>

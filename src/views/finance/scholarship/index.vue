@@ -3,23 +3,23 @@
     <el-row :gutter="20">
       <el-col :span="12">
         <div class="card">
-          <h6 class="card__hd">可使用奖学金币数</h6>
+          <h6 class="card__hd">可使用蓝青币数</h6>
           <div class="card__bd">
-            <strong class="card-number">{{ content.surplusIcon | surplusVal }}</strong>
+            <strong class="card-number">{{ content.balance | surplusVal }}</strong>
           </div>
           <div class="card__ft">
-            当前可使用奖学金币
+            当前可使用蓝青币数
             <el-button class="pay-btn" @click="openMack">充值</el-button>
           </div>
         </div>
       </el-col>
       <el-col :span="12">
         <div class="card">
-          <h6 class="card__hd">累计使用奖学金币数</h6>
+          <h6 class="card__hd">累计使用蓝青币数</h6>
           <div class="card__bd">
-            <strong class="card-number">{{ content.usedIcon | surplusVal }}</strong>
+            <strong class="card-number">{{ content.used | surplusVal }}</strong>
           </div>
-          <div class="card__ft">当前已使用奖学金币数</div>
+          <div class="card__ft">当前已使用蓝青币数</div>
         </div>
       </el-col>
     </el-row>
@@ -127,8 +127,7 @@
   </div>
 </template>
 <script>
-import { getStoreHome } from '@/api/store'
-import { getRechargeList, getConsumeList } from '@/api/recharge'
+import { getHomeDate, getRechargeList, getConsumeList } from '@/api/recharge'
 import Pagination from '@/components/Pagination'
 import { formatTime } from '@/utils/date'
 export default {
@@ -150,7 +149,7 @@ export default {
       content: {},
       listQuery: {
         pageNum: 1,
-        pageSize: 9
+        pageSize: 10
       },
       total: 0,
       isRedrawShow: false,
@@ -159,15 +158,15 @@ export default {
     }
   },
   created() {
-    // this.getHomeView()
-    // this.fetchList()
+    this.getHomeView()
+    this.fetchList()
   },
   methods: {
     openMack() {
       this.isRedrawShow = true
     },
     getHomeView() {
-      getStoreHome().then(res => {
+      getHomeDate().then(res => {
         if (res.code) {
           return res.message && this.$warn(res.message)
         }

@@ -1,10 +1,10 @@
 var RongIMLib = window.RongIMLib // 由 window 赋值
 var RongIMClient = RongIMLib.RongIMClient
-export function init(params, callbacks) {
+
+export function init(params, callbacks, _this, addPromptInfo) {
   if (!params.appkey || !params.token) {
     return false
   }
-
   // 公有云初始化
   RongIMLib.RongIMClient.init(params.appkey)
   var instance = RongIMClient.getInstance()
@@ -15,7 +15,8 @@ export function init(params, callbacks) {
         case RongIMLib.ConnectionStatus['CONNECTED']:
         case 0:
           console.log('连接成功')
-          callbacks.CONNECTED && callbacks.CONNECTED(instance)
+          _this && _this.$store.commit('user/SET_messageInit')
+          callbacks && callbacks.CONNECTED && callbacks.CONNECTED(instance)
           break
         case RongIMLib.ConnectionStatus['CONNECTING']:
         case 1:
@@ -47,33 +48,7 @@ export function init(params, callbacks) {
   RongIMClient.setOnReceiveMessageListener({
     // 接收到的消息
     onReceived: function(message) {
-      var messageContent = message.content
-      // 判断消息类型
-      switch (message.messageType) {
-        case RongIMClient.MessageType.TextMessage: // 文字消息
-          console.log('文字内容', messageContent.content)
-          break
-        case RongIMClient.MessageType.ImageMessage: // 图片消息
-          console.log('图片缩略图 base64', messageContent.content)
-          console.log('原图 url', messageContent.imageUri)
-          break
-        case RongIMClient.MessageType.HQVoiceMessage: // 音频消息
-          console.log('音频 type ', messageContent.type) // 编解码类型，默认为 aac 音频
-          console.log('音频 url', messageContent.remoteUrl) // 播放：<audio src={remoteUrl} />
-          console.log('音频 时长', messageContent.duration)
-          break
-        case RongIMClient.MessageType.RichContentMessage: // 富文本(图文)消息
-          console.log('文本内容', messageContent.content)
-          console.log('图片 base64', messageContent.imageUri)
-          console.log('原图 url', messageContent.url)
-          break
-        case RongIMClient.MessageType.UnknownMessage: // 未知消息
-          console.log('未知消息, 请检查消息自定义格式是否正确', message)
-          break
-        default:
-          console.log('收到消息', message)
-          break
-      }
+      addPromptInfo && addPromptInfo(message)
     }
   })
   RongIMClient.connect(params.token, {

@@ -5,7 +5,7 @@
         <div class="card">
           <h6 class="card__hd">正式学员</h6>
           <div class="card__bd">
-            <strong class="card-number">{{ content.studentFormalNum }}</strong>
+            <strong class="card-number">{{ content.formalStudentNum }}</strong>
           </div>
           <div class="card__ft">当前正式学员数量</div>
         </div>
@@ -14,7 +14,7 @@
         <div class="card">
           <h6 class="card__hd">意向学员</h6>
           <div class="card__bd">
-            <strong class="card-number">{{ content.studentIntentionNum }}</strong>
+            <strong class="card-number">{{ content.intentionStudentNum }}</strong>
           </div>
           <div class="card__ft">当前意向学员数量</div>
         </div>
@@ -23,7 +23,7 @@
         <div class="card">
           <h6 class="card__hd">潜在学员</h6>
           <div class="card__bd">
-            <strong class="card-number">{{ content.studentPotentialNum }}</strong>
+            <strong class="card-number">{{ content.latentStudentNum }}</strong>
           </div>
           <div class="card__ft">当前潜在学员数量</div>
         </div>
@@ -36,12 +36,12 @@
 
     <el-form :inline="true">
       <el-form-item class="search-item">
-        <el-input v-model.trim="keywords.studentName" placeholder="输入学员名称" suffix-icon="el-icon-search" @blur="fetchList" />
+        <el-input v-model.trim="keywords.nickName" placeholder="输入学员昵称" suffix-icon="el-icon-search" @blur="fetchList" @keyup.enter="fetchList" />
       </el-form-item>
     </el-form>
 
     <div class="table-wraper">
-      <el-tabs @tab-click="changeTag">
+      <el-tabs v-model="labelName" @tab-click="fetchList">
         <el-tab-pane>
           <span slot="label">正式学员</span>
           <div class="tabel-box">
@@ -49,8 +49,15 @@
               class="table"
               :data="list"
             >
-              <el-table-column label="学员昵称" />
-              <el-table-column label="手机号" />
+              <el-table-column label="学员昵称">
+                <template slot-scope="scope">
+                  <div class="img-box">
+                    <img class="img-warpper" :src="scope.row.icon" alt="">
+                    {{ scope.row.studentName }}
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="手机号" prop="phone" />
               <el-table-column width="320px" label="课程情况">
                 <template slot-scope="scope">
                   <div class="course-info">
@@ -69,10 +76,10 @@
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="消费总额（元）" />
+              <el-table-column label="消费总额（元）" prop="money" />
               <el-table-column label="操作">
                 <template slot-scope="scope">
-                  <router-link :to="{name: 'Student-detail', query: {id: scope.row.studentId}}">
+                  <router-link :to="{name: 'StudentDetail', query: {id: scope.row.studentId}}">
                     <el-button size="mini">详情</el-button>
                   </router-link>
                 </template>
@@ -89,27 +96,12 @@
 
         <el-tab-pane>
           <span slot="label">神秘学员</span>
-          <div class="tabel-box">
-            <el-table
-              class="table"
-              :data="list"
-            >
-              <el-table-column label="学员昵称" />
-              <el-table-column label="咨询时间" />
-              <el-table-column label="咨询课程" />
-              <el-table-column label="课程费用（元）" />
-              <el-table-column label="培训区域" />
-              <el-table-column label="解锁" />
-              <el-table-column label="状态" />
-              <el-table-column label="操作">
-                <template slot-scope="scope">
-                  <router-link :to="{name: 'Student-detail', query: {id: scope.row.studentId}}">
-                    <el-button size="mini">详情</el-button>
-                  </router-link>
-                </template>
-              </el-table-column>
-              <tabel-empty text="暂无学员" img-key="student" />
-            </el-table>
+          <el-radio-group v-model="isLock" class="evaluate-radio" size="medium" @change="fetchList">
+            <el-radio-button :label="false">已解锁</el-radio-button>
+            <el-radio-button :label="true">未解锁</el-radio-button>
+          </el-radio-group>
+          <div class="tabel-box box-p">
+            <lock-student :tabel-list="list" :is-lock="isLock" @goLocks="editLocks" />
           </div>
         </el-tab-pane>
       </el-tabs>
@@ -127,17 +119,19 @@
   </div>
 </template>
 <script>
-import { getStoreHome } from '@/api/store'
-import { getstudentList } from '@/api/student'
+import { getStudentList, getStudentLocked, getStudentUnlock, getMainInfo } from '@/api/student'
+import lockStudent from '../components/lockStudent'
 import Pagination from '@/components/Pagination'
+import { studetnMixins } from '@/views/mixins/student'
 export default {
   name: 'Stuedent',
-  components: { Pagination },
+  components: { Pagination, lockStudent },
+  mixins: [studetnMixins],
   data() {
     return {
       list: [],
       keywords: {
-        studentName: ''
+        nickName: ''
       },
       content: {},
       activeName: 'second',
@@ -145,7 +139,9 @@ export default {
         pageNum: 1,
         pageSize: 9
       },
-      total: 0
+      total: 0,
+      labelName: '',
+      isLock: false
     }
   },
   created() {
@@ -154,7 +150,7 @@ export default {
   },
   methods: {
     getHomeView() {
-      getStoreHome().then(res => {
+      getMainInfo().then(res => {
         if (res.code) {
           return res.message && this.$warn(res.message)
         }
@@ -163,11 +159,12 @@ export default {
       })
     },
     fetchList() {
+      const fn = !Number(this.labelName) ? getStudentList : !this.isLock ? getStudentLocked : getStudentUnlock
       const submitObj = {
         ...this.listQuery,
         ...this.keywords
       }
-      getstudentList(submitObj).then(res => {
+      fn(submitObj).then(res => {
         if (res.code) {
           return res.message && this.$warn(res.message)
         }
@@ -177,19 +174,6 @@ export default {
         const records = data.records
         this.list = records && records.length ? records : []
       })
-    },
-    onDel(item) {
-    },
-    // 分页点击 事件
-    pageChange(page) {
-    },
-    // 搜索
-    onSearch() {},
-
-    handleSelectionChange(val) {
-    },
-    onCancle() {},
-    onBatch() {
     }
   }
 }
@@ -323,5 +307,77 @@ export default {
 }
 .tabel-box {
   padding: 20px 15px 30px;
+  &.box-p {
+    padding-top: 0;
+  }
+}
+
+.img-box {
+  display: flex;
+  height: 40px;
+  line-height: 40px;
+  img {
+    width: 40px;
+    margin-right: 10px;
+    border-radius: 5px;
+  }
+}
+
+.evaluate-radio {
+  margin: 20px 20px;
+  & /deep/ {
+    .el-radio-button__inner:hover {
+      color: #00D2A5;
+    }
+    .el-radio-button__inner {
+      font-weight: bold;
+    }
+    .is-active .el-radio-button__inner {
+      background: rgba(0, 210, 165, 1);
+      border-color: rgba(0, 210, 165, 1);
+    }
+  }
+}
+
+/deep/ {
+  .el-dialog__header {
+    padding-bottom: 25px;
+    margin: 0;
+  }
+  .el-dialog__footer {
+    display: flex;
+    padding-top: 0;
+    justify-content: center;
+  }
+
+  .el-dialog__body {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .el-dialog {
+    width: 322px;
+  }
+
+  .el-radio-button:focus:not(.is-focus):not(:active):not(.is-disabled) {
+    box-shadow: none
+  }
+  .evaluate-radio .is-active .el-radio-button__inner:hover {
+    color: #fff;
+  }
+  .el-radio-button__orig-radio:checked+.el-radio-button__inner {
+    box-shadow: none
+  }
+}
+.dialog-title {
+  margin: 0;
+  padding: 0;
+}
+.dialog-box {
+  margin: 20px 0;
+  span {
+    display: block;
+    line-height: 24px;
+  }
 }
 </style>

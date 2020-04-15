@@ -56,7 +56,7 @@
               <p class="result-text">审核失败</p>
               <p class="result-text">失败原因是：{{ logInfo }}</p>
               <el-button v-show="storeStatus == 3" class="result-btn" type="primary" @click="resetStorePost">重新提交上架</el-button>
-              <el-button v-show="storeStatus == 5" class="result-btn" type="primary" @click="resetPost">重新提交下架</el-button>
+              <el-button v-show="storeStatus == 5" class="result-btn" type="primary" @click="resetGo">重新提交下架</el-button>
             </div>
           </div>
         </el-tab-pane>
@@ -66,7 +66,7 @@
   </section>
 </template>
 <script>
-import { getExamine, getStore, postStore } from '@/api/business'
+import { getExamine, getStore, storeOff, storeSure } from '@/api/business'
 import AuthInput from '../components/AuthInput'
 import AuthDetail from '../components/AuthDetail'
 import StoreInput from '../components/StoreInput'
@@ -139,10 +139,16 @@ export default {
       this.storeStatus = 0
     },
     storeBtns() {
-      const getObj = this.storeList
-      postStore(getObj).then(res => {
-        if (res.code) return this.$warn(res.message)
+      storeOff().then(res => {
+        if (res.code) return res.message && this.$warn(res.message)
         this.$success('申请成功')
+        this.getStores()
+      })
+    },
+    resetGo() {
+      storeSure().then(res => {
+        if (res.code) return res.message && this.$warn(res.message)
+        this.getStores()
       })
     }
   }

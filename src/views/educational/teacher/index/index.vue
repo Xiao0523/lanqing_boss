@@ -1,13 +1,13 @@
 <template>
   <div class="container">
-    <router-link :to="{name: 'Teacher-edit'}">
+    <router-link :to="{name: 'TeacherEdit'}">
       <el-button class="el-icon-plus add-btn" size="medium" type="primary">新增讲师</el-button>
     </router-link>
 
     <h2 class="title">讲师管理</h2>
     <el-form :inline="true" class="search-box">
       <el-form-item class="search-item">
-        <el-input v-model.trim="keywords.name" placeholder="搜索老师名称" suffix-icon="el-icon-search" @blur="fetchList" />
+        <el-input v-model.trim="keywords.name" placeholder="搜索老师名称" suffix-icon="el-icon-search" @blur="fetchList" @keyup.enter="fetchList" />
       </el-form-item>
       <el-form-item class="search-item" label="课程类目">
         <el-select v-model="categoryStr" @change="categoryChange">
@@ -46,7 +46,7 @@
         <el-table-column label="学生数" prop="studentAmount" />
         <el-table-column label="评分">
           <template slot-scope="scope">
-            <star :score="scope.row.score" />
+            <star :score="Number(scope.row.score)" />
           </template>
         </el-table-column>
         <el-table-column label="状态">
@@ -56,14 +56,18 @@
         </el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
-            <router-link :to="{name: 'Teacher-detail', query: { id: scope.row.id }}">
+            <router-link :to="{name: 'TeacherDetail', query: { id: scope.row.id }}">
               <el-button size="mini">详情</el-button>
             </router-link>
-            <router-link :to="{name: 'Teacher-edit', query: { id: scope.row.id }}">
-              <el-button size="mini">在职</el-button>
-            </router-link>
+            <el-button size="mini" @click="editStatus(scope.row.id, scope.row.status)">{{ scope.row.status | statusStr }}</el-button>
           </template>
         </el-table-column>
+        <template slot="empty">
+          <div class="empty-content">
+            <img class="empty-img" src="@/assets/no-record.png" alt>
+            <p class="empty-text">暂无记录</p>
+          </div>
+        </template>
       </el-table>
     </div>
     <!-- <div class="pagination-wraper">
@@ -72,7 +76,8 @@
   </div>
 </template>
 <script>
-import { getTeacherList, getCategoryList } from '@/api/teacher'
+import { getTeacherList, editTeacherStatus } from '@/api/teacher'
+import { getCategoryList } from '@/api/categories'
 // import Pagination from '@/components/Pagination'
 import Star from '@/components/Star'
 export default {
@@ -119,13 +124,6 @@ export default {
     this.getCategory()
   },
   methods: {
-    onDel(item) {
-
-    },
-    // 分页点击 事件
-    pageChange(page) {
-
-    },
     getCategory() {
       getCategoryList().then(res => {
         if (res.code) {
@@ -165,6 +163,18 @@ export default {
         }
       }
       this.fetchList()
+    },
+    editStatus(id, status) {
+      const getObj = {
+        id
+      }
+      getObj.status = status === 0 ? 1 : 0
+      editTeacherStatus(getObj).then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        this.fetchList()
+      })
     }
   }
 }
@@ -238,6 +248,7 @@ export default {
   img {
     width: 40px;
     margin-right: 10px;
+    border-radius: 5px;
   }
 }
 

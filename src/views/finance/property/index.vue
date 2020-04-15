@@ -5,7 +5,7 @@
         <div class="card">
           <h6 class="card__hd">累计收入</h6>
           <div class="card__bd">
-            <strong class="card-number">{{ content.accumulatedIncome }}</strong>
+            <strong class="card-number">{{ content.accumulatedIncome | valStr }}</strong>
           </div>
           <div class="card__ft">当前累计收入总计</div>
         </div>
@@ -14,7 +14,7 @@
         <div class="card">
           <h6 class="card__hd">待结算金额（元）</h6>
           <div class="card__bd">
-            <strong class="card-number">{{ content.bossUnApplyIncome }}</strong>
+            <strong class="card-number">{{ content.bossUnApplyIncome | valStr }}</strong>
           </div>
           <div class="card__ft">当前未结业付款课程</div>
         </div>
@@ -23,7 +23,7 @@
         <div class="card">
           <h6 class="card__hd">可用余额（元）</h6>
           <div class="card__bd">
-            <strong class="card-number">{{ content.withdrawalIncome }}</strong>
+            <strong class="card-number">{{ content.storeIncome | valStr }}</strong>
           </div>
           <div class="card__ft">
             <span class="redraw-text">当前可提现余额</span>
@@ -86,8 +86,7 @@
   </div>
 </template>
 <script>
-import { getStoreHome } from '@/api/store'
-import { getWithdrawalList, getMoney } from '@/api/withdrawal'
+import { getWithdrawalList, getMoney, getHomeDate } from '@/api/withdrawal'
 import Pagination from '@/components/Pagination'
 import { formatTime } from '@/utils/date'
 export default {
@@ -96,6 +95,9 @@ export default {
   filters: {
     createTimeStr(val) {
       return val && formatTime(val)
+    },
+    valStr(val) {
+      return val || '0.00'
     }
   },
   data() {
@@ -116,18 +118,18 @@ export default {
     }
   },
   created() {
-    // this.getHomeView()
-    // this.fetchList()
+    this.getHomeView()
+    this.fetchList()
   },
   methods: {
     getHomeView() {
-      // getStoreHome().then(res => {
-      //   if (res.code) {
-      //     return res.message && this.$warn(res.message)
-      //   }
-      //   if (!res.data) return
-      //   this.content = res.data
-      // })
+      getHomeDate().then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        if (!res.data) return
+        this.content = res.data
+      })
     },
     // 验证只能输入正整数
     proving() {
@@ -135,19 +137,19 @@ export default {
       this.redrawForm.money = this.redrawForm.money.replace('.', '')
     },
     fetchList() {
-      // const submitObj = {
-      //   ...this.listQuery
-      // }
-      // getWithdrawalList(submitObj).then(res => {
-      //   if (res.code) {
-      //     return res.message && this.$warn(res.message)
-      //   }
-      //   if (!res.data) return
-      //   const data = res.data
-      //   this.total = data.total
-      //   const records = data.records
-      //   this.list = records && records.length ? records : []
-      // })
+      const submitObj = {
+        ...this.listQuery
+      }
+      getWithdrawalList(submitObj).then(res => {
+        if (res.code) {
+          return res.message && this.$warn(res.message)
+        }
+        if (!res.data) return
+        const data = res.data
+        this.total = data.total
+        const records = data.records
+        this.list = records && records.length ? records : []
+      })
     },
     // 打开提现
     openRedraw() {
@@ -335,6 +337,51 @@ export default {
     font-weight: 400;
     color: rgba(105, 105, 116, 1);
     line-height: 15px;
+  }
+}
+
+.dialog-title {
+  font-size: 14px;
+  font-family: PingFangSC-Medium, PingFang SC;
+  font-weight: bold;
+  color: rgba(23, 23, 37, 1);
+  line-height: 20px;
+  margin: 0;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(241, 241, 245, 1);
+}
+.dialog-text {
+  text-align: center;
+  font-size: 18px;
+  font-family: PingFangSC-Regular, PingFang SC;
+  font-weight: 400;
+  color: rgba(23, 23, 37, 1);
+  line-height: 25px;
+  font-weight: bold;
+  margin-bottom: 0;
+}
+.dialog-footer {
+  padding-top: 20px;
+  display: flex;
+  align-items: flex-end;
+  flex-direction: column;
+  border-top: 1px solid rgba(241, 241, 245, 1);
+}
+/deep/ {
+  .el-dialog__header {
+    padding-bottom: 25px;
+  }
+  .el-dialog__footer {
+    padding-top: 0;
+  }
+
+  .el-dialog__body {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .el-dialog {
+    width: 500px;
   }
 }
 </style>

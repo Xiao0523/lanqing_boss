@@ -33,12 +33,13 @@
     </div>
 
     <div class="panel tabs-wraper">
-      <el-tabs v-model="activeName0">
-        <el-tab-pane :label="'正在学习中(' + classList.studying.length + ')'" name="learning">
-          <div v-if="classList.studying.length" class="table-wraper">
-            <el-table class="table" :data="classList.studying">
+      <el-tabs v-model="activeName0" @tab-click="getClassList">
+        <el-tab-pane label="正在学习中">
+          <div class="table-wraper">
+            <el-table class="table" :data="classList">
+              <el-table-column label="订单号" prop="orderNum" />
               <el-table-column label="课程名称" prop="curriculumName" />
-              <el-table-column label="课时" prop="curriculumHours" />
+              <el-table-column label="课时" prop="hours" />
               <el-table-column label="课程价格（元）" prop="curriculumPrice" />
               <el-table-column label="当前讲师">
                 <template slot-scope="scope">
@@ -56,68 +57,54 @@
                   <el-button type="primary" size="mini" @click="openGraduate(scope.row.curriculumId)">结业</el-button>
                 </template>
               </el-table-column>
+              <template slot="empty">
+                <div class="empty-content">
+                  <img class="empty-img" src="@/assets/no-cursor.png" alt>
+                  <p class="empty-text">暂无课程</p>
+                </div>
+              </template>
             </el-table>
           </div>
-
-          <div v-else class="table-wraper">
-            <div class="empty-table">
-              <strong class="empty-table-head">课程名称</strong>
-              <strong class="empty-table-head">课时</strong>
-              <strong class="empty-table-head">课程价格（元）</strong>
-              <strong class="empty-table-head">当前讲师</strong>
-              <strong class="empty-table-head">状态</strong>
-              <strong class="empty-table-head">操作</strong>
-            </div>
-            <div class="empty-content">
-              <img class="empty-img" src="@/assets/no-cursor.png" alt>
-              <p class="empty-text">暂无课程</p>
-            </div>
-          </div>
         </el-tab-pane>
-        <el-tab-pane :label="'退款课程(' + classList.refund.length + ')'" name="refund">
-          <div v-if="classList.refund.length" class="table-wraper">
-            <el-table class="table" :data="classList.refund">
+        <el-tab-pane label="退款课程">
+          <div class="table-wraper">
+            <el-table class="table" :data="classList">
+              <el-table-column label="订单号" prop="orderNum" />
               <el-table-column label="课程名称" prop="curriculumName" />
-              <el-table-column label="课时" prop="curriculumHours" />
+              <el-table-column label="课时" prop="hours" />
               <el-table-column label="课程价格（元）" prop="curriculumPrice" />
+              <el-table-column label="当前讲师" prop="curriculumCurrentTeacherName" />
               <el-table-column label="状态">
                 <template slot-scope="scope">
-                  {{ scope.row.refundStatus | refundStatusStr }}
+                  {{ scope.row.status | refundStatusStr }}
                 </template>
               </el-table-column>
               <el-table-column label="退款金额（元）" prop="applyPrice" />
               <el-table-column label="操作">
                 <template slot-scope="scope">
-                  <el-button type="danger" :disabled="!(scope.row.refundStatus === 0 || scope.row.refundStatus === 2)" size="mini" @click="openRefund(scope.row.refundId)">退款</el-button>
+                  <el-button type="danger" :disabled="!(scope.row.status === 0 || scope.row.status === 2)" size="mini" @click="openRefund(scope.row.refundId)">退款</el-button>
                 </template>
               </el-table-column>
+              <template slot="empty">
+                <div class="empty-content">
+                  <img class="empty-img" src="@/assets/no-cursor.png" alt>
+                  <p class="empty-text">暂无课程</p>
+                </div>
+              </template>
             </el-table>
           </div>
-
-          <div v-else class="table-wraper">
-            <div class="empty-table">
-              <strong class="empty-table-head">课程名称</strong>
-              <strong class="empty-table-head">课时</strong>
-              <strong class="empty-table-head">课程价格（元）</strong>
-              <strong class="empty-table-head">状态</strong>
-              <strong class="empty-table-head">退款金额（元）</strong>
-              <strong class="empty-table-head">操作</strong>
-            </div>
-            <div class="empty-content">
-              <img class="empty-img" src="@/assets/no-cursor.png" alt>
-              <p class="empty-text">暂无课程</p>
-            </div>
-          </div>
         </el-tab-pane>
-        <el-tab-pane :label="'结束课程(' + classList.complete.length + ')'" name="finish">
-          <div v-if="classList.complete.length" class="table-wraper">
-            <el-table class="table" :data="classList.complete">
+        <el-tab-pane label="结束课程">
+          <div class="table-wraper">
+            <el-table class="table" :data="classList">
+              <el-table-column label="订单号" prop="orderNum" />
               <el-table-column label="课程名称" prop="curriculumName" />
-              <el-table-column label="课时" prop="curriculumHours" />
+              <el-table-column label="课时" prop="hours" />
               <el-table-column label="课程价格（元）" prop="curriculumPrice" />
+              <el-table-column label="当前讲师" prop="curriculumCurrentTeacherName" />
               <el-table-column label="状态">
-                <template slot-scope="scope">
-                  {{ scope.row.status | statusStr }}
+                <template>
+                  已结束
                 </template>
               </el-table-column>
               <el-table-column label="评价">
@@ -125,20 +112,13 @@
                   {{ scope.row.storeEvaluate | storeEvaluateStr }}
                 </template>
               </el-table-column>
+              <template slot="empty">
+                <div class="empty-content">
+                  <img class="empty-img" src="@/assets/no-cursor.png" alt>
+                  <p class="empty-text">暂无课程</p>
+                </div>
+              </template>
             </el-table>
-          </div>
-          <div v-else class="table-wraper">
-            <div class="empty-table">
-              <strong class="empty-table-head">课程名称</strong>
-              <strong class="empty-table-head">课时</strong>
-              <strong class="empty-table-head">课程价格（元）</strong>
-              <strong class="empty-table-head">状态</strong>
-              <strong class="empty-table-head">评价</strong>
-            </div>
-            <div class="empty-content">
-              <img class="empty-img" src="@/assets/no-cursor.png" alt>
-              <p class="empty-text">暂无课程</p>
-            </div>
           </div>
         </el-tab-pane>
       </el-tabs>
@@ -146,20 +126,6 @@
 
     <div class="panel tabs-wraper">
       <el-tabs v-model="activeName1">
-        <el-tab-pane label="消费记录" name="consumer">
-          <div class="table-wraper">
-            <el-table class="table" :data="classOrder">
-              <el-table-column label="订单号码" prop="orderNum" />
-              <el-table-column label="课程名称" prop="curriculumName" />
-              <el-table-column label="课程价格（元）" prop="curriculumPrice" />
-              <el-table-column label="实付金额（元）" prop="curriculumPrice" />
-              <el-table-column label="下单时间">
-                <template slot-scope="scope">{{ scope.row.orderTime | orderTimeStr }}</template>
-              </el-table-column>
-              <el-table-column label="订单状态" prop="description" />
-            </el-table>
-          </div>
-        </el-tab-pane>
         <el-tab-pane label="学员评价" name="evaluate">
           <el-radio-group v-model="evaluateTarget" class="evaluate-radio" size="medium">
             <el-radio-button label="shop">店铺</el-radio-button>
@@ -168,7 +134,7 @@
           </el-radio-group>
 
           <div v-show="evaluateTarget === 'shop'">
-            <div v-if="commentList.comment4StudentStoreViews.length" class="table-wraper">
+            <div class="table-wraper box-p">
               <el-table class="table" :data="commentList.comment4StudentStoreViews">
                 <el-table-column label="发布时间">
                   <template slot-scope="scope">{{ scope.row.commentTime | commentTimeStr }}</template>
@@ -179,25 +145,18 @@
                   </template>
                 </el-table-column>
                 <el-table-column label="评论内容" prop="commentWords" />
+                <template slot="empty">
+                  <div class="empty-content">
+                    <img class="empty-img" src="@/assets/no-comment.png" alt>
+                    <p class="empty-text">暂无评价</p>
+                  </div>
+                </template>
               </el-table>
-            </div>
-
-            <div v-else class="table-wraper">
-              <div class="empty-table">
-                <strong class="empty-table-head">店铺名称</strong>
-                <strong class="empty-table-head">发布时间</strong>
-                <strong class="empty-table-head">评价星级</strong>
-                <strong class="empty-table-head">评论内容</strong>
-              </div>
-              <div class="empty-content">
-                <img class="empty-img" src="@/assets/no-comment.png" alt>
-                <p class="empty-text">暂无评价</p>
-              </div>
             </div>
           </div>
 
           <div v-show="evaluateTarget === 'course'">
-            <div v-if="commentList.comment4StudentCurriculumViews.length" class="table-wraper">
+            <div class="table-wraper box-p">
               <el-table class="table" :data="commentList.comment4StudentCurriculumViews">
                 <el-table-column label="课程名称" prop="curriculumName" />
                 <el-table-column label="发布时间">
@@ -209,24 +168,17 @@
                   </template>
                 </el-table-column>
                 <el-table-column label="评论内容" prop="commentWords" />
+                <template slot="empty">
+                  <div class="empty-content">
+                    <img class="empty-img" src="@/assets/no-comment.png" alt>
+                    <p class="empty-text">暂无评价</p>
+                  </div>
+                </template>
               </el-table>
-            </div>
-
-            <div v-else class="table-wraper">
-              <div class="empty-table">
-                <strong class="empty-table-head">课程名称</strong>
-                <strong class="empty-table-head">发布时间</strong>
-                <strong class="empty-table-head">评价星级</strong>
-                <strong class="empty-table-head">评论内容</strong>
-              </div>
-              <div class="empty-content">
-                <img class="empty-img" src="@/assets/no-comment.png" alt>
-                <p class="empty-text">暂无评价</p>
-              </div>
             </div>
           </div>
           <div v-show="evaluateTarget === 'teacher'">
-            <div v-if="commentList.comment4StudentTeacherViews.length" class="table-wraper">
+            <div class="table-wraper box-p">
               <el-table class="table" :data="commentList.comment4StudentTeacherViews">
                 <el-table-column label="讲师名称" prop="realName" />
                 <el-table-column label="发布时间">
@@ -238,20 +190,14 @@
                   </template>
                 </el-table-column>
                 <el-table-column label="评论内容" prop="commentWords" />
-              </el-table>
-            </div>
 
-            <div v-else class="table-wraper">
-              <div class="empty-table">
-                <strong class="empty-table-head">讲师名称</strong>
-                <strong class="empty-table-head">发布时间</strong>
-                <strong class="empty-table-head">评价星级</strong>
-                <strong class="empty-table-head">评论内容</strong>
-              </div>
-              <div class="empty-content">
-                <img class="empty-img" src="@/assets/no-comment.png" alt>
-                <p class="empty-text">暂无评价</p>
-              </div>
+                <template slot="empty">
+                  <div class="empty-content">
+                    <img class="empty-img" src="@/assets/no-comment.png" alt>
+                    <p class="empty-text">暂无评价</p>
+                  </div>
+                </template>
+              </el-table>
             </div>
           </div>
         </el-tab-pane>
@@ -318,8 +264,9 @@
   </div>
 </template>
 <script>
-import { getDetails, getStudentClassList, getStudentOrder, getCommentList, submitRefund, submitCourse } from '@/api/student'
-import { getDetail, editTeacher } from '@/api/course'
+import { getStudentDetail, getStudentCursor, evaluation, getCommentList } from '@/api/student'
+import { getDetail, editStudentTeacher } from '@/api/course'
+import { postRefund } from '@/api/orders'
 import Star from '@/components/Star'
 import { formatTime } from '@/utils/date'
 export default {
@@ -344,9 +291,9 @@ export default {
   },
   data() {
     return {
-      list: [{}],
-      activeName0: 'learning', // tab 栏
-      activeName1: 'consumer', //
+      list: [],
+      activeName0: 0, // tab 栏
+      activeName1: 'evaluate', //
       evaluateTarget: 'shop', // 评价栏
       isGraduateShow: false,
       isCommentShow: false,
@@ -363,11 +310,7 @@ export default {
       teacherFormRules: {},
       studentContent: {},
       viewId: '',
-      classList: {
-        studying: [],
-        refund: [],
-        complete: []
-      },
+      classList: [{}],
       classOrder: [],
       commentList: {
         comment4StudentCurriculumViews: [],
@@ -396,7 +339,7 @@ export default {
       const submitObj = {
         id
       }
-      getDetails(submitObj).then(res => {
+      getStudentDetail(submitObj).then(res => {
         if (res.code) {
           return res.message && this.$warn(res.message)
         }
@@ -420,15 +363,15 @@ export default {
         }
       })
     },
-    // select教师切换
-    teacherChange() {
-      for (const item of this.teacherList) {
-        if (item.realName === this.teacherStr) {
-          this.teacherId = item.id
-          return
-        }
-      }
-    },
+    // // select教师切换
+    // teacherChange() {
+    //   for (const item of this.teacherList) {
+    //     if (item.realName === this.teacherStr) {
+    //       this.teacherId = item.id
+    //       return
+    //     }
+    //   }
+    // },
     // 验证只能输入正整数
     proving() {
       this.refundForm.applyPrice = this.refundForm.applyPrice.replace(/[^\.\d]/g, '')
@@ -448,24 +391,25 @@ export default {
       })
     },
     // 获取学员消费记录
-    getClassOrder(id) {
-      const submitObj = {
-        id
-      }
-      getStudentOrder(submitObj).then(res => {
-        if (res.code) {
-          return res.message && this.$warn(res.message)
-        }
-        if (!res.data) return
-        this.classOrder = res.data
-      })
-    },
+    // getClassOrder(id) {
+    //   const submitObj = {
+    //     id
+    //   }
+    //   getStudentOrder(submitObj).then(res => {
+    //     if (res.code) {
+    //       return res.message && this.$warn(res.message)
+    //     }
+    //     if (!res.data) return
+    //     this.classOrder = res.data
+    //   })
+    // },
     // 获取课程列表
-    getClassList(id) {
+    getClassList() {
       const submitObj = {
-        id
+        id: this.viewId,
+        type: this.activeName0
       }
-      getStudentClassList(submitObj).then(res => {
+      getStudentCursor(submitObj).then(res => {
         if (res.code) {
           return res.message && this.$warn(res.message)
         }
@@ -487,7 +431,7 @@ export default {
         }],
         storeEvaluate: this.studentEvaluate
       }
-      submitCourse(submitObj).then(res => {
+      evaluation(submitObj).then(res => {
         if (res.code) {
           return res.message && this.$warn(res.message)
         }
@@ -509,7 +453,7 @@ export default {
         refundId: this.refundId,
         ...this.refundForm
       }
-      submitRefund(submitObj).then(res => {
+      postRefund(submitObj).then(res => {
         if (res.code) {
           return res.message && this.$warn(res.message)
         }
@@ -532,7 +476,7 @@ export default {
         teacherId: this.teacherId,
         tscId: this.editId
       }
-      editTeacher(submitObj).then(res => {
+      editStudentTeacher(submitObj).then(res => {
         if (res.code) {
           return res.message && this.$warn(res.message)
         }
@@ -652,6 +596,9 @@ export default {
   padding: 20px 15px 30px;
   background: #fff;
   border-radius: 2px;
+  &.box-p {
+    padding-top: 0;
+  }
 }
 
 .table {
@@ -752,7 +699,11 @@ export default {
     }
   }
 }
-
+/deep/ {
+  .el-tabs__nav-scroll {
+    padding-left: 0;
+  }
+}
 .empty {
   &-table {
     background: rgba(250, 250, 251, 1);

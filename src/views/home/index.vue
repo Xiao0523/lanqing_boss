@@ -5,38 +5,40 @@
         <h4 class="content-top-title">今日待办</h4>
         <div class="content-top-detail">
           <div class="content-top-detail-warpper">
-            <img src="@/assets/logo.png" alt="">
+            <img src="@/assets/peopleIcon.png" alt="">
             <div class="content-top-detail-warpper-font">
-              <span>3,458</span>
+              <span>{{ content.mysteryStudentNumber | str }}</span>
               <span>神秘学员</span>
             </div>
           </div>
+
           <div class="content-top-detail-warpper">
-            <img src="@/assets/logo.png" alt="">
+            <img src="@/assets/messageIcon.png" alt="">
             <div class="content-top-detail-warpper-font">
-              <span>3,458</span>
-              <span>神秘学员</span>
+              <span>{{ content.messageNumber | str }}</span>
+              <span>消息</span>
             </div>
           </div>
           <div class="content-top-detail-warpper">
-            <img src="@/assets/logo.png" alt="">
+            <img src="@/assets/commentIcon.png" alt="">
             <div class="content-top-detail-warpper-font">
-              <span>3,458</span>
-              <span>神秘学员</span>
+              <span>{{ content.evaluateNumber | str }}</span>
+              <span>评价</span>
+            </div>
+          </div>
+
+          <div class="content-top-detail-warpper">
+            <img src="@/assets/menoyIcon.png" alt="">
+            <div class="content-top-detail-warpper-font">
+              <span>{{ content.refundNumber | str }}</span>
+              <span>退款订单</span>
             </div>
           </div>
           <div class="content-top-detail-warpper">
-            <img src="@/assets/logo.png" alt="">
+            <img src="@/assets/listIcon.png" alt="">
             <div class="content-top-detail-warpper-font">
-              <span>3,458</span>
-              <span>神秘学员</span>
-            </div>
-          </div>
-          <div class="content-top-detail-warpper">
-            <img src="@/assets/logo.png" alt="">
-            <div class="content-top-detail-warpper-font">
-              <span>3,458</span>
-              <span>神秘学员</span>
+              <span>{{ content.newOrderNumber | str }}</span>
+              <span>新增订单</span>
             </div>
           </div>
         </div>
@@ -44,93 +46,148 @@
     </div>
 
     <div class="content">
-      <el-tabs @tab-click="changeTag">
-        <el-tab-pane>
+      <el-tabs v-model="listKey" @tab-click="fetchList">
+        <el-tab-pane name="getStudentList">
           <span slot="label">神秘学员</span>
+          <div class="tabel-box">
+            <lock-student :tabel-list="list" :is-lock="true" @goLocks="editLocks" />
+          </div>
+        </el-tab-pane>
+
+        <el-tab-pane name="getCommonDetail">
+          <span slot="label">评价</span>
+          <div class="tabel-box">
+            <tabel-list :table-list="list" />
+          </div>
+        </el-tab-pane>
+
+        <el-tab-pane name="getRefund">
+          <span slot="label">退款申请</span>
           <div class="tabel-box">
             <el-table
               class="table"
               :data="list"
             >
-              <el-table-column label="学员昵称" />
-              <el-table-column label="咨询时间" />
-              <el-table-column label="咨询课程" />
-              <el-table-column label="课程费用（元）" />
-              <el-table-column label="培训区域" />
-              <el-table-column label="解锁" />
-              <el-table-column label="状态" />
+              <el-table-column label="学员昵称">
+                <template slot-scope="scope">
+                  <div class="img-box">
+                    {{ scope.row.studentName }}
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="手机号" prop="phone" />
+              <el-table-column label="订单号" prop="orderNum" />
+              <el-table-column label="退款时间" prop="createTime" />
+              <el-table-column label="课程名称" prop="curriculumName" />
+              <el-table-column label="申请退款金额（元）" prop="applyPrice" />
+              <el-table-column label="课程支付金额（元）" prop="curriculumPayPrice" />
+              <el-table-column label="订单状态" prop="statusDescription" />
               <el-table-column label="操作">
                 <template slot-scope="scope">
-                  <router-link :to="{name: 'Student-detail', query: {id: scope.row.studentId}}">
-                    <el-button size="mini">详情</el-button>
+                  <router-link :to="{name: 'CommentDetail', query: { id: scope.row.id }}">
+                    <el-button size="mini">沟通</el-button>
                   </router-link>
+                  <el-button v-if="Number(scope.row.status) !== 1 && Number(scope.row.status) !== 3" size="mini" @click="backMoney(scope.row.id)">退款</el-button>
                 </template>
               </el-table-column>
               <template slot="empty">
                 <div class="empty-content">
-                  <img class="empty-img" src="@/assets/no-student.png" alt>
-                  <p class="empty-text">暂无学员</p>
+                  <img class="empty-img" src="@/assets/no-comment.png" alt>
+                  <p class="empty-text">暂无评价</p>
                 </div>
               </template>
             </el-table>
           </div>
         </el-tab-pane>
 
-        <el-tab-pane>
-          <span slot="label">我的行程</span>
+        <el-tab-pane name="getOrderList">
+          <span slot="label">新增订单</span>
           <div class="tabel-box">
             <el-table
               class="table"
               :data="list"
             >
-              <el-table-column label="学员名称" />
-              <el-table-column label="咨询时间" />
-              <el-table-column label="咨询课程" />
-              <el-table-column label="课程费用（元）" />
-              <el-table-column label="培训区域" />
-              <el-table-column label="解锁" />
-              <el-table-column label="状态" />
+              <el-table-column label="学员昵称">
+                <template slot-scope="scope">
+                  <div class="img-box">
+                    {{ scope.row.nickName }}
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="手机号" prop="phone" />
+              <el-table-column label="订单号" prop="orderNum" />
+              <el-table-column label="下单时间" prop="orderTime" />
+              <el-table-column label="课程名称" prop="curriculumName" />
+              <el-table-column label="课程价格（元）" prop="price" />
+              <el-table-column label="实际支付价格（元）" prop="payPrice" />
+              <el-table-column label="订单状态" prop="statusDescription" />
               <el-table-column label="操作">
                 <template slot-scope="scope">
-                  <router-link :to="{name: 'Student-detail', query: {id: scope.row.studentId}}">
-                    <el-button size="mini">详情</el-button>
+                  <router-link :to="{name: 'CommentDetail', query: { id: scope.row.id }}">
+                    <el-button size="mini">沟通</el-button>
                   </router-link>
                 </template>
               </el-table-column>
+              <template slot="empty">
+                <div class="empty-content">
+                  <img class="empty-img" src="@/assets/no-comment.png" alt>
+                  <p class="empty-text">暂无评价</p>
+                </div>
+              </template>
             </el-table>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="消息中心">消息中心</el-tab-pane>
-        <el-tab-pane label="角色管理">角色管理</el-tab-pane>
-        <el-tab-pane label="定时任务补偿">定时任务补偿</el-tab-pane>
+
       </el-tabs>
     </div>
+    <back-money :flag="backFlag" :obj="backObj" @closeFlag="closeDialog" />
   </section>
 </template>
 <script>
-import { getMysteryStudent } from '@/api/student'
+import { getHomeData, getStudentList, getCommonDetail, getOrderList, getRefund } from '@/api/home'
+import { toThousands } from '@/utils/toThousands'
+import { studetnMixins } from '@/views/mixins/student'
+import lockStudent from '@/views/educational/student/components/lockStudent'
+import tabelList from '@/views/store/comment/components/tabel'
+import backMoney from '@/views/finance/course-order/components/backMoney'
+import { orderMixins } from '@/views/mixins/order'
 export default {
   name: 'Home',
+  filters: {
+    str(val) {
+      return toThousands(val) || toThousands(0)
+    }
+  },
+  components: { lockStudent, tabelList, backMoney },
+  mixins: [studetnMixins, orderMixins],
   data() {
     return {
-      list: [],
-      page: {
-        pageNum: 0,
-        pageSize: 0
+      list: [{}],
+      content: {},
+      listKey: 'getStudentList',
+      fnObj: {
+        getStudentList,
+        getCommonDetail,
+        getOrderList,
+        getRefund
       }
     }
   },
-  mounted() {
-    // this.getStudentList()
+  created() {
+    this.getData()
+    this.fetchList()
   },
   methods: {
-    // 获取商家信息列表
-    changeTag(tab, event) {
-      console.log(tab, event)
+    getData() {
+      getHomeData().then(res => {
+        if (res.code) return res.message && this.$warn(res.message)
+        this.content = res.data
+      })
     },
-    getStudentList() {
-      getMysteryStudent(this.page).then(res => {
-        console.log(res)
+    fetchList() {
+      this.fnObj[this.listKey]().then(res => {
+        if (res.code) return res.message && this.$warn(res.message)
+        this.list = res.data
       })
     }
   }

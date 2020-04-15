@@ -16,10 +16,19 @@ function postStore(data) {
   return request.patch('/boss/v2/store', data)
 }
 
+function storeOff() {
+  return request.put('/boss/v2/store')
+}
+
+function storeSure() {
+  return request.get('/boss/v2/store/off')
+}
+
 export {
   getExamine,
   postExamine,
   getStore,
-  postStore
-  // logout
+  postStore,
+  storeOff,
+  storeSure
 }

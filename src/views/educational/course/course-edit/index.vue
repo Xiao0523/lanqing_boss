@@ -41,6 +41,7 @@
                 :on-success="handleStudentSuccess"
                 :on-remove="handleStudentRemove"
                 :file-list="studentList"
+                :before-upload="beforeAvatarUpload"
               >
                 <i class="el-icon-picture" />
                 <div slot="tip" class="upload-tips">只能上传jpg/png文件，且最多上传9张，建议尺寸宽为750，高不宜超过1200px。</div>
@@ -68,18 +69,19 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="班型">
-              <el-input v-model.number="content.price" placeholder="请输入班级人数" />
+              <el-input v-model.number="content.enrolment" placeholder="请输入班级人数" />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="12">
             <el-form-item label="适合年龄段">
-              <el-select v-model="ageStr" placeholder="请选择年龄段" @change="ageChange">
+              <el-select v-model="content.ageInterval" placeholder="请选择年龄段">
                 <el-option
                   v-for="item in ageList"
                   :key="item.value + item.label"
-                  :value="item.label"
+                  :value="item.value"
+                  :label="item.label"
                 />
               </el-select>
             </el-form-item>
@@ -93,11 +95,12 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="课程类目">
-              <el-select v-model="categoryStr" placeholder="请选择课程类目" @change="cateChange">
+              <el-select v-model="content.categoryId" placeholder="请选择课程类目" @change="cateChange">
                 <el-option
                   v-for="item in categoryValList"
                   :key="item.categoryName + item.categoryId"
-                  :value="item.categoryName"
+                  :value="item.categoryId"
+                  :label="item.categoryName"
                 />
               </el-select>
             </el-form-item>
@@ -113,14 +116,21 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="推荐讲师">
-              <el-select v-model="teacherStr" placeholder="可选择多个讲师" @change="teacherChange">
+              <el-select
+                v-model="content.teachers"
+                multiple
+                collapse-tags
+                style="margin-left: 20px;"
+                placeholder="请选择讲师"
+              >
                 <el-option
                   v-for="item in teacherList"
                   :key="item.id"
-                  :value="item.realName"
+                  :label="item.realName"
+                  :value="item.id"
                 />
               </el-select>
-              <el-botton class="add-teacher-btn">新增讲师</el-botton>
+              <el-button class="add-teacher-btn" @click="addTeacher">新增讲师</el-button>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -142,14 +152,14 @@
         <el-row>
           <el-col :span="20">
             <el-form-item label="课程介绍">
-              <Tinymce />
+              <Tinymce v-model="content.detailWords" />
             </el-form-item>
           </el-col>
         </el-row>
 
         <el-form-item>
           <el-button type="primary" @click="save('content')">保存</el-button>
-          <el-button @click="save('content')">取消</el-button>
+          <el-button @click="goBack()">取消</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -159,15 +169,19 @@
   </section>
 </template>
 <script>
-import { getCategoryList, getCateTeacher } from '@/api/teacher'
+import { getTeacherList } from '@/api/teacher'
+import { getCategoryList } from '@/api/categories'
 import { addCourse, editCourse, getDetail } from '@/api/course'
 import PageHead from '@/components/PageHead'
 import { Upload_Pic, Upload_File } from '@/api/URL.js'
 import { formatTime } from '@/utils/date'
 import Tinymce from '@/components/Tinymce/index'
+import { mixins } from '@/views/mixins'
+import { setLocal, getLocal } from '@/utils/local'
 export default {
   name: 'CourseEdit',
   components: { PageHead, Tinymce },
+  mixins: [mixins],
   data() {
     return {
       categoryStr: '',
@@ -176,15 +190,12 @@ export default {
         beginDate: '',
         categoryId: '',
         cover: '',
-        detailPic: '',
         detailWords: '',
         enrolment: '',
         hours: '',
-        introduce: [],
         name: '',
         outline: '',
         price: '',
-        slogans: '',
         studentStyle: [],
         tags: '',
         teachers: []
@@ -204,7 +215,6 @@ export default {
       isLeaveShow: false,
       categoryValList: [],
       teacherList: [],
-      introduceList: [],
       studentList: [],
       ageList: [{
         value: 0,
@@ -225,11 +235,39 @@ export default {
         value: 5,
         label: '15-18'
       }],
-      ageStr: '',
       isAdd: true
     }
   },
+  created() {
+    this.getgetCategory()
+    if (getLocal('cursorView') && String(getLocal('cursorAdd'))) {
+      this.content = getLocal('cursorView')
+      this.isAdd = getLocal('cursorAdd')
+      this.content.studentStyle.forEach(item => {
+        this.studentList.push({
+          url: item
+        })
+      })
+      this.getTeacher()
+      this.clearLocal()
+      return
+    }
+    const id = this.$route.query.id
+    if (id) {
+      this.isAdd = false
+      this.getView(id)
+    }
+  },
   methods: {
+    clearLocal() {
+      setLocal('cursorAdd', '')
+      setLocal('cursorView', '')
+    },
+    addTeacher() {
+      setLocal('cursorAdd', this.isAdd)
+      setLocal('cursorView', this.content)
+      this.$router.push({ name: 'TeacherEdit', query: { otherFlag: true }})
+    },
     // 获取详细
     getView(id) {
       const getObj = {
@@ -240,27 +278,18 @@ export default {
           return res.message && this.$warn(res.message)
         }
         if (!res.data) return
-        this.content = res.data
+        this.content = JSON.parse(JSON.stringify(res.data))
         this.content.studentStyle.forEach(item => {
           this.studentList.push({
             url: item
           })
         })
-        this.content.introduce.forEach(item => {
-          this.introduceList.push({
-            url: item
-          })
-        })
         this.content.price = Number(res.data.price)
         this.content.hours = Number(res.data.hours)
-        this.teacherArr = this.content.teachers
-        this.categoryStr = this.content.categoryName
-        for (const item of this.ageList) {
-          if (Number(this.content.ageInterval) === Number(item.value)) {
-            this.ageStr = item.label
-            break
-          }
-        }
+        this.content.teachers = []
+        res.data.teachers.forEach(v => {
+          this.content.teachers.push(v.id)
+        })
         this.getTeacher()
       })
     },
@@ -274,8 +303,9 @@ export default {
         this.categoryValList = res.data
       })
     },
-    goBack() {
-      this.$router.go(-1)
+    cateChange() {
+      this.content.teachers = []
+      this.getTeacher()
     },
     handleAvatarSuccess(res, file) {
       if (res.code) {
@@ -291,13 +321,6 @@ export default {
       if (!res.data) return
       this.content.detailPic = res.data
     },
-    handleIntroduceSuccess(res, file) {
-      if (res.code) {
-        return res.message && this.$warn(res.message)
-      }
-      if (!res.data) return
-      this.content.introduce.push(res.data)
-    },
     handleStudentSuccess(res, file) {
       if (res.code) {
         return res.message && this.$warn(res.message)
@@ -306,11 +329,11 @@ export default {
       this.content.studentStyle.push(res.data)
     },
     beforeAvatarUpload(file) {
-      const isLt2M = file.size / 1024 / 1024 < 2
-      if (!isLt2M) {
-        this.$message.error('上传头像图片大小不能超过 2MB!')
+      const isImg = (file.type === 'image/jpeg' || file.type === 'image/png')
+      if (!isImg) {
+        this.$message.error('请上传JPG/PNG格式的图片')
       }
-      return isLt2M
+      return isImg
     },
     handlePdfSuccess(res, file) {
       if (res.code) {
@@ -342,14 +365,6 @@ export default {
       const index = this.content.studentStyle.indexOf(file.url)
       this.content.studentStyle.splice(index, 1)
     },
-    handleIntroduceRemove(file, fileList) {
-      if (file.status !== 'success') {
-        return this.$warn('删除失败')
-      }
-      if (!file.url) return
-      const index = this.content.introduce.indexOf(file.url)
-      this.content.introduce.splice(index, 1)
-    },
     handlePictureCardPreview(file) {
       this.dialogImageUrl = file.url
       this.dialogVisible = true
@@ -367,18 +382,17 @@ export default {
     save(form) {
       this.$refs[form].validate(isValid => {
         if (!isValid) return
-        const saveObj = this.content
+        const saveObj = JSON.parse(JSON.stringify(this.content))
         const callFn = this.isAdd ? addCourse : editCourse
         if (typeof this.content.beginDate === 'object') {
           saveObj.beginDate = formatTime(this.content.beginDate.getTime(), 'YYYY-MM-DD')
         }
-        saveObj.teachers = []
-        this.teacherArr.forEach(item => {
-          saveObj.teachers.push(item.id)
-        })
-        if (!this.isAdd) {
-          saveObj.status = this.content.status
-        }
+        // if (!this.isAdd) {
+        //   saveObj.teachers = []
+        //   this.content.teachers.forEach(v => {
+        //     saveObj.teachers.push(v.id)
+        //   })
+        // }
         callFn(saveObj).then(res => {
           if (res.code) {
             return res.message && this.$warn(res.message)
@@ -388,49 +402,12 @@ export default {
         })
       })
     },
-    // 类目选择改变
-    cateChange() {
-      this.teacherArr = []
-      for (const item of this.categoryValList) {
-        if (item.categoryName === this.categoryStr) {
-          this.content.categoryId = item.categoryId
-          break
-        }
-      }
-      this.getTeacher()
-    },
-    // 课程适合年龄段
-    ageChange() {
-      for (const item of this.ageList) {
-        if (item.label === this.ageStr) {
-          this.content.ageInterval = item.value
-          break
-        }
-      }
-    },
-    // 教师更改
-    teacherChange() {
-      for (const item of this.teacherArr) {
-        if (item.realName === this.teacherStr) {
-          this.$warn('请不要重复添加')
-          this.teacherStr = ''
-          return
-        }
-      }
-      for (const item of this.teacherList) {
-        if (item.realName === this.teacherStr) {
-          this.teacherArr.push(item)
-          this.teacherStr = ''
-          break
-        }
-      }
-    },
     // 获取类目教师
     getTeacher() {
       const submitObj = {
-        id: this.content.categoryId
+        categoryId: this.content.categoryId
       }
-      getCateTeacher(submitObj).then(res => {
+      getTeacherList(submitObj).then(res => {
         if (res.code) {
           return res.message && this.$warn(res.message)
         }
@@ -501,6 +478,10 @@ export default {
 }
 .student-uploader{
   & /deep/ {
+    .el-upload-list--picture-card .el-upload-list__item {
+      width: 80px;
+      height: 80px;
+    }
     .el-upload--picture-card{
       border: 1px solid #DCDFE6;
       border-radius: 2px;
@@ -654,9 +635,14 @@ export default {
   line-height: 11px;
   margin: 0;
 }
-
+/deep/ {
+  .el-select {
+    margin-left: 0 !important;
+  }
+}
 .add-teacher-btn {
   display: block;
+  padding: 0;
   width:74px;
   height:34px;
   background:rgba(0,210,165,1);

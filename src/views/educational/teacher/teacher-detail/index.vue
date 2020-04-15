@@ -5,7 +5,7 @@
     <div class="panel">
       <div class="panel__hd">
         <h3 class="panel-title">讲师基本信息</h3>
-        <router-link :to="{ name: 'Teacher-edit', query: { id: viewId }}">
+        <router-link :to="{ name: 'TeacherEdit', query: { id: viewId }}">
           <el-button>编辑讲师</el-button>
         </router-link>
       </div>
@@ -14,12 +14,12 @@
           <img class="teacher-avatar" :src="content.photo" alt="头像">
           <div class="teacher-info">
             <div class="teacher-name">{{ content.realName }}</div>
-            <div class="teacher-slogan">{{ content.performance }}</div>
+            <div class="teacher-slogan">{{ content.briefIntroduction }}</div>
             <span class="teacher-age">{{ content.age }}</span>
           </div>
           <div class="teacher-score">
             <div class="teacher-score-number">{{ content.score }}</div>
-            <star :score="content.score" />
+            <star :score="Number(content.score)" />
           </div>
         </div>
         <el-row :gutter="50">
@@ -46,14 +46,14 @@
         <div class="category-box">
           <el-tag v-for="item in content.categoryViews" :key="item.categoryName + item.categoryId" class="category-item" type="success">{{ item.categoryName }}</el-tag>
         </div>
-        <p class="teacher-intro-text">{{ content.detailedDescription }}</p>
+        <p class="teacher-intro-text" v-html="content.detailedDescription" />
       </div>
     </div>
 
     <div class="panel tabs-wraper">
       <el-tabs v-model="activeName0">
         <el-tab-pane label="正在授课" name="learning">
-          <div v-if="studentList.length" class="table-wraper">
+          <div class="table-wraper">
             <el-table class="table" :data="studentList">
               <el-table-column label="学员名称" prop="studentName" />
               <el-table-column label="手机号" prop="phone" />
@@ -63,11 +63,13 @@
                   {{ scope.row.orderTime | orderTimeStr }}
                 </template>
               </el-table-column>
+              <template slot="empty">
+                <div class="empty-content">
+                  <img v-if="!listMsg" class="empty-img" src="@/assets/no-student.png" alt>
+                  <p class="empty-text">{{ listMsg || '暂无授课学员' }}</p>
+                </div>
+              </template>
             </el-table>
-          </div>
-          <div v-else class="empty-content">
-            <img class="empty-img" src="@/assets/no-student.png" alt>
-            <p class="empty-text">暂无授课学员</p>
           </div>
         </el-tab-pane>
       </el-tabs>
@@ -85,7 +87,7 @@
   </section>
 </template>
 <script>
-import { getDetail, getStudent } from '@/api/teacher'
+import { getDetail, getStudentList } from '@/api/teacher'
 import Pagination from '@/components/Pagination'
 import Star from '@/components/Star'
 import { formatTime } from '@/utils/date'
@@ -112,7 +114,8 @@ export default {
       },
       total: 0,
       studentList: [],
-      viewId: ''
+      viewId: '',
+      listMsg: ''
     }
   },
   created() {
@@ -129,10 +132,11 @@ export default {
         teacherId: id,
         ...this.listQuery
       }
-      getStudent(getObj).then(res => {
-        if (res.code) {
-          return res.message && this.$wran(res.message)
+      getStudentList(getObj).then(res => {
+        if (res.code && res.code !== -1) {
+          return res.message && this.$warn(res.message)
         }
+        if (res.code === -1) this.listMsg = '当前教员不在当前店铺的教员之列'
         if (!res.data) return
         const data = res.data
         this.total = data.total
