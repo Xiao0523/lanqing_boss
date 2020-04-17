@@ -5,28 +5,49 @@
 <script>
 import { getConfigList } from '@/api/pay'
 import wx from 'weixin-jsapi'
+// const url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx09969c14f231f140&redirect_uri=https%3A%2F%2Flanqingback.my51share.com%2Ftest.html&response_type=code&scope=snsapi_base&state=STATE#wechat_redirect'
 export default {
   name: 'WxPay',
   data() {
     return {}
   },
-  created() {
+  mounted() {
     this.getConfig()
+    // this.getUrl()
   },
   methods: {
+    // getUrl() {
+    //   return location.href.split('#')[0] + location.href.split('#')[1]
+    // },
     getConfig() {
       const getObj = {
         target: window.location.href
       }
       getConfigList(getObj).then(res => {
+        const href = window.location.href
+        if (href.indexOf('code') <= 0) {
+          console.log(111)
+          const url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' + res.appId + '&redirect_uri=' + href + '&response_type=code&scope=snsapi_base&state=STATE#wechat_redirect'
+          window.location.href = url
+          console.log(url)
+          return
+        }
         wx.config({
-          debug: true, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+          debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
           appId: res.appId, // 必填，公众号的唯一标识
           timestamp: res.timestamp, // 必填，生成签名的时间戳
           nonceStr: res.nonceStr, // 必填，生成签名的随机串
           signature: res.signature, // 必填，签名
           jsApiList: ['chooseWXPay'] // 必填，需要使用的JS接口列表
         })
+        wx.ready(function() {
+          console.log('config')
+        })
+        wx.error(function(res) {
+          // console.log(res)
+          // config信息验证失败会执行error函数，如签名过期导致验证失败，具体错误信息可以打开config的debug模式查看，也可以在返回的res参数中查看，对于SPA可以在这里更新签名。
+        })
+        // alert(location.href.split('#')[0])
       })
     }
   }
