@@ -25,7 +25,8 @@
     "tinymce": "^5.2.1",
     "vue": "2.6.10",
     "vue-router": "3.0.6",
-    "vuex": "3.1.0"
+    "vuex": "3.1.0",
+    "weixin-jsapi": "^1.1.0"
   },
   "devDependencies": {
     "@babel/core": "7.0.0",

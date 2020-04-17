@@ -4,7 +4,7 @@
 
 <script>
 import { getConfigList } from '@/api/pay'
-const wx = window.wx
+import wx from 'weixin-jsapi'
 export default {
   name: 'WxPay',
   data() {
