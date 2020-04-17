@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import { getConfigList } from '@/api/recharge'
+import { getConfigList } from '@/api/pay'
 export default {
   name: 'WxPay',
   data() {

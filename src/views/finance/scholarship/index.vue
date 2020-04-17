@@ -122,7 +122,8 @@
   </div>
 </template>
 <script>
-import { getHomeDate, getRechargeList, getConsumeList, getPayCode } from '@/api/recharge'
+import { getHomeDate, getRechargeList, getConsumeList } from '@/api/recharge'
+import { getPayCode } from '@/api/pay'
 import Pagination from '@/components/Pagination'
 import { formatTime } from '@/utils/date'
 export default {
