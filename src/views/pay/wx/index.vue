@@ -10,6 +10,7 @@ export default {
     return {}
   },
   created() {
+    this.getConfig()
   },
   methods: {
     getConfig() {
