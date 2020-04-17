@@ -3,10 +3,27 @@
 </template>
 
 <script>
+import { getConfigList } from '@/api/recharge'
 export default {
-  name: 'WxPay'
+  name: 'WxPay',
+  data() {
+    return {}
+  },
+  created() {
+  },
+  methods: {
+    getConfig() {
+      const getObj = {
+        target: window.location.href
+      }
+      getConfigList(getObj).then(res => {
+        console.log(res)
+      })
+    }
+  }
 }
 </script>
 
 <style lang="scss" scoped>
+
 </style>

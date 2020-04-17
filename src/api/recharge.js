@@ -16,9 +16,14 @@ function getPayCode({ amount }) {
   return request.get('/boss/v2/property/wx/pay/' + amount)
 }
 
+function getConfigList(data) {
+  return request.get('/boss/v2/property/pay/sign', data)
+}
+
 export {
   getRechargeList,
   getConsumeList,
   getHomeDate,
-  getPayCode
+  getPayCode,
+  getConfigList
 }
