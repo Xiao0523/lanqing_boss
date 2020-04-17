@@ -41,7 +41,11 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="课程类目" prop="teachAge" />
+        <el-table-column label="课程类目">
+          <template slot-scope="scope">
+            <!-- {{ scope.row. }} -->
+          </template>
+        </el-table-column>
         <el-table-column label="课程数" prop="curriculumAmount" />
         <el-table-column label="学生数" prop="studentAmount" />
         <el-table-column label="评分">

@@ -63,7 +63,7 @@
             <img v-if="form.videoInfo && form.videoInfo.videoCoverUrl" :src="form.videoInfo.videoCoverUrl" class="logo">
             <i v-else class="el-icon-picture uploader-icon" />
           </el-upload>
-          <p class="upload-tips">视频只能上传一个，建议视频大小为750px560px。</p>
+          <p class="upload-tips">视频只能上传一个。</p>
           <input type="hidden">
         </el-form-item>
       </el-col>

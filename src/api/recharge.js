@@ -12,8 +12,13 @@ function getHomeDate() {
   return request.get('/boss/v2/scholarship/mainInfo')
 }
 
+function getPayCode({ amount }) {
+  return request.get('/boss/v2/property/wx/pay/' + amount)
+}
+
 export {
   getRechargeList,
   getConsumeList,
-  getHomeDate
+  getHomeDate,
+  getPayCode
 }

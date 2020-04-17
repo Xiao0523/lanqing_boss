@@ -127,6 +127,7 @@
                   v-for="item in teacherList"
                   :key="item.id"
                   :label="item.realName"
+                  +
                   :value="item.id"
                 />
               </el-select>
@@ -168,6 +169,7 @@
     </el-dialog>
   </section>
 </template>
+
 <script>
 import { getTeacherList } from '@/api/teacher'
 import { getCategoryList } from '@/api/categories'

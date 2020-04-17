@@ -6,8 +6,8 @@
       <el-form-item class="search-item" label="订单号：">
         <el-input v-model.trim="keywords.trainingStudentCurriculumId" placeholder="请输入订单号" suffix-icon="el-icon-search" @blur="fetchList" @keyup.enter="fetchList" />
       </el-form-item>
-      <el-form-item class="search-item" label="用户昵称：">
-        <el-input v-model.trim="keywords.nickName" placeholder="请输入用户昵称" suffix-icon="el-icon-search" @blur="fetchList" @keyup.enter="fetchList" />
+      <el-form-item class="search-item" label="学员昵称">
+        <el-input v-model.trim="keywords.nickName" placeholder="请输入学员昵称" suffix-icon="el-icon-search" @blur="fetchList" @keyup.enter="fetchList" />
       </el-form-item>
     </el-form>
     <div class="table-wraper">

@@ -112,22 +112,17 @@
       </div>
       <span slot="footer" class="dialog-footer">
         <span>支付: <strong>{{ rechargeLimit }}</strong>元</span>
-        <el-popover
-          v-model="visible"
-          placement="bottom"
-          title="警告"
-          width="200"
-          trigger="hover"
-          content="功能待开发！！！！"
-        >
-          <el-button slot="reference" class="btnColor" @click="visible = !visible">立即充值</el-button>
-        </el-popover>
+        <el-button class="btnColor" @click="openCode">立即充值</el-button>
       </span>
     </el-dialog>
+    <div v-if="showModal" class="mask" @click="closeCode">
+      <img class="loading-image" :src="codeUrl" alt="正在处理，请等待。。。">
+      <!-- <span class="mask-text">处理中，请等待...</span> -->
+    </div>
   </div>
 </template>
 <script>
-import { getHomeDate, getRechargeList, getConsumeList } from '@/api/recharge'
+import { getHomeDate, getRechargeList, getConsumeList, getPayCode } from '@/api/recharge'
 import Pagination from '@/components/Pagination'
 import { formatTime } from '@/utils/date'
 export default {
@@ -154,7 +149,9 @@ export default {
       total: 0,
       isRedrawShow: false,
       isRecharge: true,
-      rechargeLimit: 0
+      rechargeLimit: 0,
+      codeUrl: null,
+      showModal: false
     }
   },
   created() {
@@ -195,6 +192,21 @@ export default {
       this.listQuery.pageNum = 1
       this.listQuery.pageSize = 9
       this.fetchList()
+    },
+    openCode() {
+      // this.isRedrawShow = false
+      const getObj = {
+        amount: this.rechargeLimit
+      }
+      getPayCode(getObj).then(res => {
+        if (res.code) return res.message && this.$warn(res.message)
+        this.codeUrl = res.data
+        this.showModal = true
+      })
+    },
+    closeCode() {
+      this.codeUrl = null
+      this.showModal = false
     }
   }
 }
@@ -465,5 +477,19 @@ export default {
   color:rgba(255,255,255,1);
   line-height:38px;
 }
-
+.mask {
+  background-color: rgba(0, 0, 0, 0.3);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9998;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  img {
+    max-width: 200px;
+  }
+}
 </style>

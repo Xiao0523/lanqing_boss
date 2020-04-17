@@ -42,11 +42,9 @@ export default {
         this.status = res.data.status
         setLocal('examineStatus', res.data.status)
         this.centerDialogVisible = res.data.status !== 1
-        console.log(1)
       })
     }
     if (!this.whiteList.includes(this.$route.path) && this.status !== '' && Number(this.status) !== 1) {
-      console.log(2)
       this.centerDialogVisible = true
     }
   },
