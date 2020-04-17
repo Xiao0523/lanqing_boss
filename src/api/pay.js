@@ -5,7 +5,7 @@ function getPayCode({ amount }) {
 }
 
 function getConfigList(data) {
-  return request.get('/pay/sign', data)
+  return request.get('/wx/pay/sign', data)
 }
 
 export {
