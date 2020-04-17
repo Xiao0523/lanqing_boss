@@ -46,7 +46,7 @@ export const constantRoutes = [
   {
     path: '/wx/pay',
     name: 'WxPay',
-    component: () => import('@/views/finance/scholarship/pay'),
+    component: () => import('@/views/pay/wx/index'),
     hidden: true
   }
   /*  {
