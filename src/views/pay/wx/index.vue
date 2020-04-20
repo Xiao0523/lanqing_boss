@@ -22,7 +22,8 @@ export default {
       const _this = this
       getConfigList(getObj).then(res => {
         const href = window.location.href
-        alert(href)
+        wx.setStorageSync('storeId', this.$route.query.storeId)
+        wx.setStorageSync('amount', this.$route.query.amount)
         if (href.indexOf('code') <= 0) {
           const url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' + res.appId + '&redirect_uri=' + href + '&response_type=code&scope=snsapi_base&state=STATE#wechat_redirect'
           location.href = url
@@ -46,9 +47,10 @@ export default {
               getOpenId(codeObj).then(res => {
                 const payObj = {
                   openId: res.openid,
-                  amount: _this.$route.query.amount,
-                  storeId: _this.$route.query.storeId
+                  amount: wx.getStorageSync('amount'),
+                  storeId: wx.getStorageSync('storeId')
                 }
+                console.log(payObj)
                 wxPay(payObj).then(res => {
                 })
               })
