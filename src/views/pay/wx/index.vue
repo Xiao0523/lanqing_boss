@@ -19,6 +19,7 @@ export default {
       const getObj = {
         target: window.location.href
       }
+      const _this = this
       getConfigList(getObj).then(res => {
         const href = window.location.href
         if (href.indexOf('code') <= 0) {
@@ -38,7 +39,7 @@ export default {
           wx.checkJsApi({
             jsApiList: ['chooseWXPay'], // 需要检测的JS接口列表，所有JS接口列表见附录2,
             success: function(res) {
-              console.log(this, this.$route)
+              console.log(_this, _this.$route)
               // getOpenId().then(res => {
 
               // })
