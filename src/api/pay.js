@@ -8,7 +8,12 @@ function getConfigList(data) {
   return request.get('/wx/pay/sign', data)
 }
 
+function getOpenId({ code }) {
+  return request.get('/wx/pay/userInfo/' + code)
+}
+
 export {
   getPayCode,
-  getConfigList
+  getConfigList,
+  getOpenId
 }
