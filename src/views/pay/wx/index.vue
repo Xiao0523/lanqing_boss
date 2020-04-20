@@ -23,6 +23,7 @@ export default {
       const _this = this
       getConfigList(getObj).then(res => {
         const href = window.location.href
+        console.log(wx.setStorage)
         setLocal('storeId', this.$route.query.storeId)
         setLocal('amount', this.$route.query.amount)
         if (href.indexOf('code') <= 0) {
