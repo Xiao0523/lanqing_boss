@@ -22,6 +22,7 @@ export default {
       const _this = this
       getConfigList(getObj).then(res => {
         const href = window.location.href
+        alert(href)
         if (href.indexOf('code') <= 0) {
           const url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' + res.appId + '&redirect_uri=' + href + '&response_type=code&scope=snsapi_base&state=STATE#wechat_redirect'
           location.href = url
