@@ -5,6 +5,7 @@
 <script>
 import { getConfigList, getOpenId, wxPay } from '@/api/pay'
 import wx from 'weixin-jsapi'
+import { getLocal, setLocal } from '@/utils/local'
 // const url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx09969c14f231f140&redirect_uri=https%3A%2F%2Flanqingback.my51share.com%2Ftest.html&response_type=code&scope=snsapi_base&state=STATE#wechat_redirect'
 export default {
   name: 'WxPay',
@@ -22,8 +23,8 @@ export default {
       const _this = this
       getConfigList(getObj).then(res => {
         const href = window.location.href
-        wx.setStorageSync('storeId', this.$route.query.storeId)
-        wx.setStorageSync('amount', this.$route.query.amount)
+        setLocal('storeId', this.$route.query.storeId)
+        setLocal('amount', this.$route.query.amount)
         if (href.indexOf('code') <= 0) {
           const url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' + res.appId + '&redirect_uri=' + href + '&response_type=code&scope=snsapi_base&state=STATE#wechat_redirect'
           location.href = url
@@ -47,8 +48,8 @@ export default {
               getOpenId(codeObj).then(res => {
                 const payObj = {
                   openId: res.openid,
-                  amount: wx.getStorageSync('amount'),
-                  storeId: wx.getStorageSync('storeId')
+                  amount: getLocal('amount'),
+                  storeId: getLocal('storeId')
                 }
                 console.log(payObj)
                 wxPay(payObj).then(res => {
