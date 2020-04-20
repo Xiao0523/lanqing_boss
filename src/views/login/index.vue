@@ -189,7 +189,8 @@ export default {
           }
           this.$success(res.message)
           this.initObj.token = res.data.token
-          this.initCloud()
+          this.$store.commit('user/SET_USERID', res.data.token)
+          this.initCloud(null)
           this.$router.replace({ path: '/home' })
         })
         .catch(() => {

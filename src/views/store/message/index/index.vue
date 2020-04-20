@@ -22,6 +22,7 @@
               </div>
               <span v-if="item.objectName === 'RC:ImgMsg'" class="message-content">收到一条图片消息</span>
               <span v-else-if="item.objectName === 'RC:FileMsg'" class="message-content">收到一条附件消息</span>
+              <span v-else-if="item.objectName === 'RC:VcMsg'" class="message-content">收到一条语音消息</span>
               <span v-else class="message-content">{{ item.latestMessage.content.content }}</span>
             </div>
           </div>
@@ -31,7 +32,7 @@
     <section class="right">
       <div ref="chat" class="chat-box">
         <div class="chat-box-top">
-          <div class="title">{{ firstUser && firstUser.name }}</div>
+          <div class="title">{{ firstUser && firstUser.user.name }}</div>
           <div ref="chatContent" class="chat-main" @scroll.passive="getScroll">
             <span v-show="hasMsg" class="scroll-more">上拉加载更多</span>
             <div
@@ -46,6 +47,7 @@
                 <el-link v-if="item.content.messageName === 'ImageMessage'" target="_blank" :href="item.content.imageUri" class="img-boxs">
                   <img :src="item.content.imageUri" alt="" width="100">
                 </el-link>
+                <span v-if="item.content.messageName === 'VoiceMessage'">该消息是语音消息,PC端无法显示</span>
                 <span v-if="item.content.messageName === 'TextMessage'">{{ item.content.content }}</span>
                 <el-link v-if="item.content.messageName === 'FileMessage'" target="_blank" :href="item.content.fileUrl">
                   <div class="file-box">
@@ -214,6 +216,7 @@ export default {
       getInfoList(getObj).then(res => {
         if (res.code) return res.message && this.$warn(res.message)
         this.users = res.data
+        this.firstUser = this.sessionList[0]
         this.sessionList.forEach((val) => {
           this.$set(val, 'user', res.data[val.targetId])
         })
