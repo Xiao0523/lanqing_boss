@@ -106,7 +106,7 @@
       </el-col>
       <el-col :span="12">
         <el-form-item label="累计学员">
-          <el-input v-model.number="form.studentAmount" placeholder="请输入累计学员区间，如200-300" />
+          <el-input v-model="form.studentAmount" placeholder="请输入累计学员区间，如200-300" />
         </el-form-item>
       </el-col>
     </el-row>
