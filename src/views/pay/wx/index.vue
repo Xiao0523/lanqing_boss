@@ -51,7 +51,7 @@ export default {
                   amount: _this.$route.query.amount
                 }
                 wxPay(payObj).then(res => {
-                  console.log(_this.$store.state.user.storeId, getLocal('storeId'))
+                  alert(_this.$store.state.user.storeId, getLocal('storeId'))
                 })
               })
               // wx.chooseWXPay({
