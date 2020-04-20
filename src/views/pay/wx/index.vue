@@ -3,8 +3,9 @@
 </template>
 
 <script>
-import { getConfigList, getOpenId } from '@/api/pay'
+import { getConfigList, getOpenId, wxPay } from '@/api/pay'
 import wx from 'weixin-jsapi'
+import { setLocal, getLocal } from '@/utils/local'
 // const url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx09969c14f231f140&redirect_uri=https%3A%2F%2Flanqingback.my51share.com%2Ftest.html&response_type=code&scope=snsapi_base&state=STATE#wechat_redirect'
 export default {
   name: 'WxPay',
@@ -44,7 +45,15 @@ export default {
                 code: _this.$route.query.code
               }
               getOpenId(codeObj).then(res => {
-                console.log('res:', res)
+                setLocal('wxOpenId', res.openid)
+                console.log(getLocal('wxOpenId'))
+                const payObj = {
+                  openId: res.openid,
+                  amount: _this.$route.query.amount
+                }
+                wxPay(payObj).then(res => {
+                  console.log(res)
+                })
               })
               // wx.chooseWXPay({
               //   timestamp: 0, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符

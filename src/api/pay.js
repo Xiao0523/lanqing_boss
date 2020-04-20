@@ -12,8 +12,13 @@ function getOpenId({ code }) {
   return request.get('/wx/pay/userInfo/' + code)
 }
 
+function wxPay(data) {
+  return request.post('/wx/pay', data)
+}
+
 export {
   getPayCode,
   getConfigList,
-  getOpenId
+  getOpenId,
+  wxPay
 }
