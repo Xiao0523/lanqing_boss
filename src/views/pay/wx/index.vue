@@ -46,13 +46,12 @@ export default {
               }
               getOpenId(codeObj).then(res => {
                 setLocal('wxOpenId', res.openid)
-                console.log(getLocal('wxOpenId'))
                 const payObj = {
                   openId: res.openid,
                   amount: _this.$route.query.amount
                 }
                 wxPay(payObj).then(res => {
-                  console.log(res)
+                  console.log(_this.$store.state.user.storeId, getLocal('storeId'))
                 })
               })
               // wx.chooseWXPay({
@@ -69,7 +68,7 @@ export default {
           })
         })
         wx.error(function(res) {
-          // console.log(res)
+          console.log(res)
           // config信息验证失败会执行error函数，如签名过期导致验证失败，具体错误信息可以打开config的debug模式查看，也可以在返回的res参数中查看，对于SPA可以在这里更新签名。
         })
         // alert(location.href.split('#')[0])

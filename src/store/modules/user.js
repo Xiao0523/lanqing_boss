@@ -14,7 +14,8 @@ const state = {
   examineStatus: null,
   messageToken: '',
   appKey: 'cpj2xarlchsmn',
-  messageInit: false
+  messageInit: false,
+  storeId: ''
 }
 
 const mutations = {
@@ -49,6 +50,10 @@ const mutations = {
   },
   SET_messageInit: (state, flag = true) => {
     state.messageInit = flag
+  },
+  SET_STOREID: (state, storeId) => {
+    state.storeId = storeId
+    setLocal('storeId', storeId)
   }
 }
 
@@ -69,7 +74,7 @@ const actions = {
         commit('SET_TOKEN', data.nickName)
         commit('SET_AVATAR', data.logo)
         commit('SET_USERID', data.token)
-
+        commit('SET_STOREID', data.storeId)
         // 临时保存
         // 规避router 问题
         // const routers = JSON.parse(data.json)
