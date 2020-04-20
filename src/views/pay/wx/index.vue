@@ -23,9 +23,12 @@ export default {
       const _this = this
       getConfigList(getObj).then(res => {
         const href = window.location.href
-        console.log(window.localStorage)
-        setLocal('storeId', this.$route.query.storeId)
-        setLocal('amount', this.$route.query.amount)
+        if (this.$route.query.storeId) {
+          setLocal('storeId', this.$route.query.storeId)
+        }
+        if (this.$route.query.amount) {
+          setLocal('amount', this.$route.query.amount)
+        }
         if (href.indexOf('code') <= 0) {
           const url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' + res.appId + '&redirect_uri=' + href + '&response_type=code&scope=snsapi_base&state=STATE#wechat_redirect'
           location.href = url
