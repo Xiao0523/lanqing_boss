@@ -13,12 +13,8 @@ export default {
   },
   mounted() {
     this.getConfig()
-    // this.getUrl()
   },
   methods: {
-    // getUrl() {
-    //   return location.href.split('#')[0] + location.href.split('#')[1]
-    // },
     getConfig() {
       const getObj = {
         target: window.location.href
@@ -26,10 +22,8 @@ export default {
       getConfigList(getObj).then(res => {
         const href = window.location.href
         if (href.indexOf('code') <= 0) {
-          console.log(111)
           const url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' + res.appId + '&redirect_uri=' + href + '&response_type=code&scope=snsapi_base&state=STATE#wechat_redirect'
           window.location.href = url
-          console.log(url)
           return
         }
         wx.config({
@@ -41,7 +35,12 @@ export default {
           jsApiList: ['chooseWXPay'] // 必填，需要使用的JS接口列表
         })
         wx.ready(function() {
-          console.log('config')
+          wx.checkJsApi({
+            jsApiList: ['chooseWXPay'], // 需要检测的JS接口列表，所有JS接口列表见附录2,
+            success: function(res) {
+              console.log(res)
+            }
+          })
         })
         wx.error(function(res) {
           // console.log(res)
