@@ -13,36 +13,36 @@
     <el-row>
       <el-col :span="12">
         <el-form-item label="店铺名称">
-          <el-input v-model.number="authList.name" placeholder="请输入店铺名称" />
+          <el-input v-model="authList.name" placeholder="请输入店铺名称" />
         </el-form-item>
       </el-col>
       <el-col :span="12">
         <el-form-item label="统一信用代码">
-          <el-input v-model.number="authList.unifiedCreditCode" placeholder="请输入统一信用代码" />
+          <el-input v-model="authList.unifiedCreditCode" placeholder="请输入统一信用代码" />
         </el-form-item>
       </el-col>
     </el-row>
     <el-row>
       <el-col :span="12">
         <el-form-item label="法人姓名">
-          <el-input v-model.number="authList.legalPersonName" placeholder="请输入法人姓名" />
+          <el-input v-model="authList.legalPersonName" placeholder="请输入法人姓名" />
         </el-form-item>
       </el-col>
       <el-col :span="12">
         <el-form-item label="法人身份证号">
-          <el-input v-model.number="authList.legalPersonCardId" placeholder="请输入法人身份证号" />
+          <el-input v-model="authList.legalPersonCardId" placeholder="请输入法人身份证号" />
         </el-form-item>
       </el-col>
     </el-row>
     <el-row>
       <el-col :span="12">
         <el-form-item label="银行卡号">
-          <el-input v-model.number="authList.bankNo" placeholder="请输入银行卡号" />
+          <el-input v-model="authList.bankNo" placeholder="请输入银行卡号" />
         </el-form-item>
       </el-col>
       <el-col :span="12">
         <el-form-item label="银行名称">
-          <el-input v-model.number="authList.bankName" placeholder="请输入银行名称" />
+          <el-input v-model="authList.bankName" placeholder="请输入银行名称" />
         </el-form-item>
       </el-col>
     </el-row>
