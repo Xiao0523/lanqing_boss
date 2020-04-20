@@ -107,7 +107,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="课程标签">
-              <el-input v-model.trim="content.tags" placeholder="请输入标签展示课程优势" />
+              <el-input v-model="content.tags" placeholder="请输入标签展示课程优势" />
               <div class="tags-msg">多个标识用半角逗号分隔</div>
             </el-form-item>
           </el-col>
@@ -127,7 +127,6 @@
                   v-for="item in teacherList"
                   :key="item.id"
                   :label="item.realName"
-                  +
                   :value="item.id"
                 />
               </el-select>
@@ -245,6 +244,7 @@ export default {
     if (getLocal('cursorView') && String(getLocal('cursorAdd'))) {
       this.content = getLocal('cursorView')
       this.isAdd = getLocal('cursorAdd')
+      console.log(this.content)
       this.content.studentStyle.forEach(item => {
         this.studentList.push({
           url: item
@@ -306,6 +306,7 @@ export default {
       })
     },
     cateChange() {
+      console.log(this.content.categoryId)
       this.content.teachers = []
       this.getTeacher()
     },
@@ -414,6 +415,7 @@ export default {
           return res.message && this.$warn(res.message)
         }
         if (!res.data) return
+        console.log(res.data)
         this.teacherList = res.data
       })
     },
