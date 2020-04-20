@@ -23,16 +23,19 @@ export default {
       getConfigList(getObj).then(res => {
         const href = window.location.href
         if (href.indexOf('code') <= 0) {
+          console.log(href.indexOf('code'), 1)
           const url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' + res.appId + '&redirect_uri=' + href + '&response_type=code&scope=snsapi_base&state=STATE#wechat_redirect'
           location.href = url
           return false
+        } else {
+          console.log(href.indexOf('code'), 2)
+          const codeObj = {
+            code: _this.$route.query.code
+          }
+          getOpenId(codeObj).then(res => {
+            console.log('res:', res)
+          })
         }
-        const codeObj = {
-          code: _this.$route.query.code
-        }
-        getOpenId(codeObj).then(res => {
-          console.log('res:', res)
-        })
         // wx.config({
         //   debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
         //   appId: res.appId, // 必填，公众号的唯一标识
