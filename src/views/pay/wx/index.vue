@@ -50,12 +50,12 @@ export default {
                 code: _this.$route.query.code
               }
               getOpenId(codeObj).then(res => {
+                console.log(getLocal('amount'), getLocal('storeId'))
                 const payObj = {
                   openId: res.openid,
                   amount: getLocal('amount'),
                   storeId: getLocal('storeId')
                 }
-                console.log(payObj)
                 wxPay(payObj).then(res => {
                 })
               })
