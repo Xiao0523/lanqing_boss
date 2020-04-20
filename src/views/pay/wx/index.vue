@@ -43,7 +43,7 @@ export default {
                 code: _this.$route.query.code
               }
               getOpenId(codeObj).then(res => {
-                console.log(res)
+                console.log('res:', res)
               })
               // wx.chooseWXPay({
               //   timestamp: 0, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
