@@ -3,7 +3,7 @@ import { getToken, setToken, removeToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
 import { setLocal } from '@/utils/local'
 import { Message } from 'element-ui'
-import { getExamine } from '@/api/business.js'
+import { getExamine, getStore } from '@/api/business.js'
 
 const state = {
   token: getToken(),
@@ -14,7 +14,8 @@ const state = {
   examineStatus: null,
   messageToken: '',
   appKey: 'cpj2xarlchsmn',
-  messageInit: false
+  messageInit: false,
+  storeStatus: null
 }
 
 const mutations = {
@@ -41,6 +42,10 @@ const mutations = {
   SET_STATUS: (state, examineStatus) => {
     state.examineStatus = examineStatus
     setLocal('examineStatus', examineStatus)
+  },
+  SET_STORESTATUS: (state, storeStatus) => {
+    state.storeStatus = storeStatus
+    setLocal('storeStatus', storeStatus)
   },
   // 临时保存角色
   SET_TEMP_ROLES: (state, roles) => {
@@ -79,6 +84,10 @@ const actions = {
         getExamine().then(res => {
           if (res.code) this.$warn(res.message)
           commit('SET_STATUS', res.data.status || 0)
+        })
+        getStore().then(res => {
+          if (res.code) this.$warn(res.message)
+          commit('SET_STORESTATUS', res.data.status || 0)
         })
         resolve(response)
       }).catch(error => {

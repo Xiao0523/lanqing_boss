@@ -81,6 +81,9 @@
 <script>
 import { getValidCode, getMessage } from '@/api/user.js'
 import { rongyunMixins } from '@/views/mixins/rongyun'
+import { getExamine, getStore } from '@/api/business.js'
+import { setLocal } from '@/utils/local'
+
 export default {
   name: 'Login',
   mixins: [rongyunMixins],
@@ -191,7 +194,20 @@ export default {
           this.initObj.token = res.data.token
           this.$store.commit('user/SET_USERID', res.data.token)
           this.initCloud(null)
-          this.$router.replace({ path: '/home' })
+
+          getExamine().then(res => {
+            if (res.code) return this.$warn(res.message)
+            setLocal('examineStatus', res.data.status)
+            if (Number(res.data.status) === 1) {
+              getStore().then(res => {
+                if (res.code) return this.$warn(res.message)
+                setLocal('storeStatus', res.data.status)
+                this.$router.replace({ path: '/home' })
+              })
+            } else {
+              this.$router.replace({ path: '/home' })
+            }
+          })
         })
         .catch(() => {
           this.loading = false

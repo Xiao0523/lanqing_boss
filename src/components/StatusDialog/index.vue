@@ -6,7 +6,7 @@
       width="400px"
       center
     >
-      <span>您暂未认证或认证未通过，请先认证</span>
+      <span>您暂未认证或店铺暂未上架，请先前往操作</span>
       <span slot="footer" class="dialog-footer">
         <el-button class="false-btn" @click="centerDialogVisible = false">取 消</el-button>
         <el-button type="primary" class="sure-btn" @click="goBusiness">立即前往</el-button>
@@ -16,35 +16,32 @@
 </template>
 
 <script>
-import { getLocal, setLocal } from '@/utils/local'
-import { getExamine } from '@/api/business.js'
+import { getLocal } from '@/utils/local'
 export default {
   name: 'StatusDialog',
   data() {
     return {
       centerDialogVisible: false,
-      whiteList: ['/store/authentication', '/authentication'],
-      status: this.$store.state.user.examineStatus || getLocal('examineStatus') || ''
+      whiteList: ['/store/authentication', '/authentication']
+    }
+  },
+  computed: {
+    status() {
+      return this.$store.state.user.examineStatus || getLocal('examineStatus') || ''
+    },
+    storeStatus() {
+      return this.$store.state.user.storeStatus || getLocal('storeStatus') || ''
     }
   },
   watch: {
     $route(to) {
-      if (!this.whiteList.includes(this.$route.path) && this.status !== '' && Number(this.status) !== 1) {
-        console.log(3)
+      if (!this.whiteList.includes(this.$route.path) && this.status !== '' && Number(this.status) !== 1 && this.storeStatus && Number(this.storeStatus) !== 1) {
         this.centerDialogVisible = true
       }
     }
   },
-  async mounted() {
-    if (this.status === '') {
-      await getExamine().then(res => {
-        if (res.code) return this.$warn(res.message)
-        this.status = res.data.status
-        setLocal('examineStatus', res.data.status)
-        this.centerDialogVisible = res.data.status !== 1
-      })
-    }
-    if (!this.whiteList.includes(this.$route.path) && this.status !== '' && Number(this.status) !== 1) {
+  mounted() {
+    if (!this.whiteList.includes(this.$route.path) && this.status !== '' && Number(this.status) !== 1 && this.storeStatus && Number(this.storeStatus) !== 1) {
       this.centerDialogVisible = true
     }
   },

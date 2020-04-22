@@ -3,7 +3,11 @@ import { Message } from 'element-ui'
 import router from '@/router'
 import store from '@/store'
 import { Api_url, Web_Api_url } from '@/api/URL'
+import { getLocal } from '@/utils/local'
 // import { getToken } from '@/utils/auth'
+
+const whiteAuthApi = ['/boss/v2/examine']
+const whiteStoreApi = ['/boss/v2/store']
 
 // create an axios instance
 const service = axios.create({
@@ -14,14 +18,20 @@ const service = axios.create({
   // baseURL: '', // process.env.VUE_APP_BASE_API, // url = base url + request url
   withCredentials: true, // send cookies when cross-domain requests
   timeout: 5000 // request timeout\
-
 })
 
 // service.defaults.withCredentials = true
-
+// let cancel
 // request interceptor
 service.interceptors.request.use(
   config => {
+    // const urlKey = config.url.split('/')[1]
+    // const urlConst = config.url.split('.com/')[0]
+    // if (urlKey === 'boss') {
+    //   if (!whiteAuthApi.includes(urlConst) && Number(getLocal('examineStatus')) !== 1) {
+    //     return Promise.reject(new Error(''))
+    //   }
+    // }
     const strUrl = config.url.split('/').includes('ChinaCity')
     if (strUrl) {
       config.baseURL = Web_Api_url
@@ -81,7 +91,6 @@ service.interceptors.response.use(
     return res
   },
   error => {
-    console.log('error::::', error.response)
     if (error.response && error.response.data) {
       let msg
       switch (error.response.data.code) {

@@ -151,6 +151,7 @@ import lockStudent from '@/views/educational/student/components/lockStudent'
 import tabelList from '@/views/store/comment/components/tabel'
 import backMoney from '@/views/finance/course-order/components/backMoney'
 import { orderMixins } from '@/views/mixins/order'
+import { getLocal } from '@/utils/local'
 export default {
   name: 'Home',
   filters: {
@@ -170,7 +171,8 @@ export default {
         getCommonDetail,
         getOrderList,
         getRefund
-      }
+      },
+      status: this.$store.state.user.examineStatus || getLocal('examineStatus') || ''
     }
   },
   created() {

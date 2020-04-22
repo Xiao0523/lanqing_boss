@@ -17,7 +17,7 @@ function postStore(data) {
 }
 
 function storeOff() {
-  return request.put('/boss/v2/store')
+  return request.put('/boss/v2/store/close')
 }
 
 function storeSure() {

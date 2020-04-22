@@ -31,17 +31,17 @@
 
         <el-tab-pane>
           <span slot="label">店铺上架</span>
-          <div v-show="storeStatus == 0 || storeStatus == 1 || storeStatus == 6" class="auth">
+          <div v-if="storeStatus == 0 || storeStatus == 1 || storeStatus == 6 || storeStatus == ''" class="auth">
             <div class="tabels">
-              <h3 class="title">上架状态<span :class="{red: storeStatus == 0 || storeStatus == 6}">{{ storeStatus | storeStr }}</span></h3>
-              <div v-show="storeStatus == 1" class="storeBtn" @click="storeBtns">申请下架</div>
-              <div v-show="storeStatus == 6" class="storeBtn" @click="resetStorePost">申请上架</div>
+              <h3 class="title">上架状态<span :class="{red: storeStatus == 0 || storeStatus == 6 || storeStatus == ''}">{{ storeStatus | storeStr }}</span></h3>
+              <div v-if="storeStatus == 1" class="storeBtn" @click="storeBtns">申请下架</div>
+              <div v-if="storeStatus == 6" class="storeBtn" @click="resetStorePost">申请上架</div>
             </div>
-            <store-input v-show="storeStatus == 0" :list="storeList" @listOk="resetStore" />
-            <store-detail v-show="storeStatus == 1 || storeStatus == 6" :list="storeList" />
+            <store-input v-if="storeStatus == 0 || storeStatus == ''" :list="storeList" @listOk="resetStore" />
+            <store-detail v-if="storeStatus == 1 || storeStatus == 6" :list="storeList" />
           </div>
-          <div v-show="storeStatus == 2 || storeStatus == 3 || storeStatus == 4 || storeStatus == 5" class="result">
-            <div v-show="storeStatus == 2 || storeStatus == 4">
+          <div v-if="storeStatus == 2 || storeStatus == 3 || storeStatus == 4 || storeStatus == 5" class="result">
+            <div v-if="storeStatus == 2 || storeStatus == 4">
               <h4 class="title">{{ storeStatus | storeStrs }}</h4>
               <div class="result-img-wraper">
                 <img class="result-img" src="@/assets/wite.png" alt="">
@@ -49,7 +49,7 @@
               <p class="result-text">工作人员会在48小时内完成审核</p>
               <p class="result-text">请耐心等待</p>
             </div>
-            <div v-show="storeStatus == 3 || storeStatus == 5">
+            <div v-if="storeStatus == 3 || storeStatus == 5">
               <div class="result-img-wraper" style="margin-top: 50px">
                 <img class="result-img" src="@/assets/warn.png" alt="">
               </div>

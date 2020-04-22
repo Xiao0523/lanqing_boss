@@ -103,7 +103,6 @@
 </template>
 
 <script>
-import { postStore } from '@/api/business'
 export default {
   name: 'StoreDetail',
   props: {
