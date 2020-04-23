@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <h2 class="title">订单管理</h2>
-    <el-form :inline="true">
+    <!-- <el-form :inline="true">
       <el-form-item class="search-item">
         <el-input v-model.trim="keywords.orderNoOrCurriculumName" placeholder="请输入订单号或课程" suffix-icon="el-icon-search" @blur="fetchList" @keyup.enter="fetchList" />
       </el-form-item>
@@ -24,19 +24,107 @@
           />
         </el-select>
       </el-form-item>
-    </el-form>
-
+    </el-form> -->
     <div class="table-wraper">
+      <el-tabs v-model="tabsVal" @tab-click="fetchList">
+        <el-tab-pane name="complete">
+          <span slot="label">已支付</span>
+          <el-table
+            class="table"
+            :data="list"
+          >
+            <el-table-column label="订单编号" prop="orderNum" />
+            <el-table-column label="下单时间">
+              <template slot-scope="scope">
+                {{ scope.row.orderTime | orderTimeStr }}
+              </template>
+            </el-table-column>
+            <el-table-column label="学员昵称" prop="curriculumName" />
+            <el-table-column label="手机号" prop="payPrice" />
+            <el-table-column label="订单状态" prop="statusDescription" />
+            <el-table-column label="课程名称" prop="curriculumName" />
+            <el-table-column label="课程价格" prop="price" />
+            <el-table-column label="实付金额" prop="payPrice" />
+            <template slot="empty">
+              <div class="empty-content">
+                <img class="empty-img" src="@/assets/no-record.png" alt>
+                <p class="empty-text">暂无记录</p>
+              </div>
+            </template>
+          </el-table>
+        </el-tab-pane>
 
-      <el-table
+        <el-tab-pane name="refunding">
+          <span slot="label">退款中</span>
+          <el-table
+            class="table"
+            :data="list"
+          >
+            <el-table-column label="学员昵称" prop="studentName" />
+            <el-table-column label="下单时间">
+              <template slot-scope="scope">
+                {{ scope.row.createTime | orderTimeStr }}
+              </template>
+            </el-table-column>
+            <el-table-column label="机构名称" prop="storeName" />
+            <el-table-column label="课程名称" prop="curriculumName" />
+            <el-table-column label="课程价格" prop="curriculumPayPrice" />
+            <el-table-column label="实付金额" prop="applyPrice" />
+            <el-table-column label="退款状态">
+              <template slot-scope="scope">
+                {{ scope.row.status | statusStr }}
+              </template>
+            </el-table-column>
+            <el-table-column label="操作">
+              <template slot-scope="scope">
+                <el-button v-if="Number(scope.row.status) !== 1 && Number(scope.row.status) !== 3" size="mini" @click="backMoneys(scope.row)">退款</el-button>
+              </template>
+            </el-table-column>
+            <template slot="empty">
+              <div class="empty-content">
+                <img class="empty-img" src="@/assets/no-record.png" alt>
+                <p class="empty-text">暂无记录</p>
+              </div>
+            </template>
+          </el-table>
+        </el-tab-pane>
+
+        <el-tab-pane name="refund">
+          <span slot="label">退款完毕</span>
+          <el-table
+            class="table"
+            :data="list"
+          >
+            <el-table-column label="订单编号" prop="orderNum" />
+            <el-table-column label="下单时间">
+              <template slot-scope="scope">
+                {{ scope.row.orderTime | orderTimeStr }}
+              </template>
+            </el-table-column>
+            <el-table-column label="学员昵称" prop="curriculumName" />
+            <el-table-column label="手机号" prop="payPrice" />
+            <el-table-column label="订单状态" prop="statusDescription" />
+            <el-table-column label="课程名称" prop="curriculumName" />
+            <el-table-column label="课程价格" prop="price" />
+            <el-table-column label="实付金额" prop="payPrice" />
+            <template slot="empty">
+              <div class="empty-content">
+                <img class="empty-img" src="@/assets/no-record.png" alt>
+                <p class="empty-text">暂无记录</p>
+              </div>
+            </template>
+          </el-table>
+        </el-tab-pane>
+      </el-tabs>
+      <!-- <el-table
         class="table"
         :data="list"
       >
         <el-table-column label="订单编号" prop="orderNum" />
         <el-table-column label="下单时间">
-          <tamplate slot-scope="scope">
+          <template slot-scope="scope">
             {{ scope.row.orderTime | orderTimeStr }}
-          </tamplate>
+          </template>
         </el-table-column>
         <el-table-column label="学员昵称" prop="curriculumName" />
         <el-table-column label="手机号" prop="payPrice" />
@@ -46,7 +134,7 @@
         <el-table-column label="实付金额" prop="payPrice" />
         <el-table-column label="操作">
           <template slot-scope="scope">
-            <el-button v-if="Number(scope.row.status) !== 1 && Number(scope.row.status) !== 3" size="mini" @click="backMoney(scope.row.id)">退款</el-button>
+            <el-button v-if="Number(scope.row.status) !== 1 && Number(scope.row.status) !== 3" size="mini" @click="backMoneys(scope.row)">退款</el-button>
           </template>
         </el-table-column>
         <template slot="empty">
@@ -55,9 +143,8 @@
             <p class="empty-text">暂无记录</p>
           </div>
         </template>
-      </el-table>
+      </el-table> -->
     </div>
-
     <!--分页-->
     <div>
       <pagination
@@ -73,7 +160,7 @@
 </template>
 <script>
 import Pagination from '@/components/Pagination'
-import { getOrdersList } from '@/api/orders'
+import { getOrdersList, getRefundList } from '@/api/orders'
 import { formatTime } from '@/utils/date'
 import backMoney from './components/backMoney'
 import { orderMixins } from '@/views/mixins/order'
@@ -83,6 +170,9 @@ export default {
   filters: {
     orderTimeStr(val) {
       return val && formatTime(val)
+    },
+    statusStr(val) {
+      return Number(val) === 2 ? '平台审核驳回，待店长再次待审核' : '用户发起申请，待店长审核'
     }
   },
   mixins: [orderMixins],
@@ -107,12 +197,15 @@ export default {
         value: 2,
         label: '退款完毕'
       }],
+      backObj: {},
       activeName: 'first',
       listQuery: {
         pageNum: 1,
         pageSize: 10
       },
-      total: 0
+      total: 0,
+      backFlag: false,
+      tabsVal: 'complete'
     }
   },
   created() {
@@ -120,11 +213,15 @@ export default {
   },
   methods: {
     fetchList() {
+      const fn = this.tabsVal === 'refunding' ? getRefundList : getOrdersList
       const submitObj = {
         ...this.keywords,
         ...this.listQuery
       }
-      getOrdersList(submitObj).then(res => {
+      if (this.tabsVal !== 'refunding') {
+        submitObj.orderStatus = this.tabsVal === 'complete' ? 0 : 2
+      }
+      fn(submitObj).then(res => {
         if (res.code) {
           return res.message && this.$warn(res.message)
         }
@@ -134,6 +231,13 @@ export default {
         const records = data.records
         this.list = records && records.length ? records : []
       })
+    },
+    backMoneys(obj) {
+      this.backObj = obj
+      this.backFlag = true
+    },
+    closeDialog() {
+      this.backFlag = false
     }
   }
 }
@@ -166,6 +270,7 @@ export default {
   border-radius: 2px;
 }
 .table {
+  margin-top: 20px;
   & /deep/ {
     thead > tr {
       border-radius: 2px;

@@ -13,7 +13,7 @@ const state = {
   temp_Roles: [], // 登录时 临时 保存 角色
   examineStatus: null,
   messageToken: '',
-  appKey: 'cpj2xarlchsmn',
+  appKey: 'pgyu6atqpmn2u',
   messageInit: false,
   storeStatus: null
 }

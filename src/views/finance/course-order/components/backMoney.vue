@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-dialog :visible="backFlag" @close="closeFlag">
+    <el-dialog v-show="backFlag" :visible="backFlag" @close="closeFlag">
       <h6 slot="title" class="dialog-title">退款</h6>
       <el-form
         ref="redrawFrom"
@@ -8,7 +8,7 @@
         label-width="7em"
       >
         <el-form-item label="退款金额" class="redraw-item">
-          <el-input v-model="backObj.applyPrice" placeholder="请输入退款金额" @keyup.native="proving" />
+          <el-input v-model="getObjs.applyPrice" placeholder="请输入退款金额" />
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -39,24 +39,31 @@ export default {
   data() {
     return {
       backObj: {},
-      backFlag: false
+      backFlag: false,
+      getObjs: {
+        applyPrice: ''
+      }
     }
   },
   watch: {
     'obj'() {
       this.backObj = this.obj
+      console.log(this.backObj)
     },
     flag() {
-      this.backObj = this.flag
+      this.backFlag = this.flag
     }
   },
   created() {
     this.backObj = this.obj
-    this.flag = this.flag
+    this.backFlag = this.flag
   },
   methods: {
     onRedraw() {
-      const getObj = this.backObj
+      const getObj = {
+        refundId: this.backObj.id,
+        ...this.getObjs
+      }
       postRefund(getObj).then(res => {
         if (res.code) return res.message && this.$warn(res.message)
         this.$success('操作成功，请等待!')

@@ -8,7 +8,12 @@ function postRefund(data) {
   return request.post('/boss/v2/refund', data)
 }
 
+function getRefundList({ pageNum, pageSize }) {
+  return request.get('/boss/v2/refund/' + pageNum + '/' + pageSize)
+}
+
 export {
   getOrdersList,
-  postRefund
+  postRefund,
+  getRefundList
 }

@@ -62,7 +62,6 @@
         </el-tab-pane>
       </el-tabs>
     </div>
-
   </section>
 </template>
 <script>
