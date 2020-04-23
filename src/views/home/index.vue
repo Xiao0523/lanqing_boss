@@ -84,10 +84,8 @@
               <el-table-column label="订单状态" prop="statusDescription" />
               <el-table-column label="操作">
                 <template slot-scope="scope">
-                  <router-link :to="{name: 'CommentDetail', query: { id: scope.row.id }}">
-                    <el-button size="mini">沟通</el-button>
-                  </router-link>
-                  <el-button v-if="Number(scope.row.status) !== 1 && Number(scope.row.status) !== 3" size="mini" @click="backMoney(scope.row.id)">退款</el-button>
+                  <el-button size="mini" @click="goMessage(scope.row.studentId)">咨询</el-button>
+                  <el-button v-if="Number(scope.row.status) !== 1 && Number(scope.row.status) !== 3" size="mini" @click="backMoneys(scope.row)">退款</el-button>
                 </template>
               </el-table-column>
               <template slot="empty">
@@ -123,9 +121,7 @@
               <el-table-column label="订单状态" prop="statusDescription" />
               <el-table-column label="操作">
                 <template slot-scope="scope">
-                  <router-link :to="{name: 'CommentDetail', query: { id: scope.row.id }}">
-                    <el-button size="mini">沟通</el-button>
-                  </router-link>
+                  <el-button size="mini" @click="goMessage(scope.row.studentId)">咨询</el-button>
                 </template>
               </el-table-column>
               <template slot="empty">
@@ -172,6 +168,8 @@ export default {
         getOrderList,
         getRefund
       },
+      backObj: {},
+      backFlag: false,
       status: this.$store.state.user.examineStatus || getLocal('examineStatus') || ''
     }
   },
@@ -191,6 +189,17 @@ export default {
         if (res.code) return res.message && this.$warn(res.message)
         this.list = res.data
       })
+    },
+    goMessage(id) {
+      this.$router.push({ name: 'Message', query: { id: id }})
+    },
+    backMoneys(obj) {
+      this.backObj = obj
+      this.backFlag = true
+    },
+    closeDialog() {
+      this.backFlag = false
+      this.fetchList()
     }
   }
 }

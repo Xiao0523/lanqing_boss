@@ -5,9 +5,13 @@
       :data="list"
     >
       <el-table-column label="学员昵称" prop="nickName" />
-      <el-table-column label="咨询时间" prop="createTime" />
+      <el-table-column label="咨询时间">
+        <template slot-scope="scope">
+          {{ scope.row.createTime | createTimeStr }}
+        </template>
+      </el-table-column>
       <el-table-column label="咨询类目" prop="categoryName" />
-      <el-table-column label="课程费用（元）" prop="prices" />
+      <!-- <el-table-column label="课程费用（元）" prop="prices" /> -->
       <el-table-column label="培训区域" prop="areaName" />
       <el-table-column label="解锁" prop="scholarshipIcon" />
       <el-table-column label="操作">
@@ -39,8 +43,14 @@
 
 <script>
 import { getHomeDate } from '@/api/recharge'
+import { formatTime } from '@/utils/date'
 export default {
   name: 'StudentLock',
+  filters: {
+    createTimeStr(val) {
+      return val && formatTime(val)
+    }
+  },
   props: {
     tabelList: {
       type: Array,

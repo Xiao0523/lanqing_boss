@@ -138,6 +138,7 @@ export default {
     onCode() {
       // 简易校验 表单提示
       if (!this.loginForm.phone) return this.$warn('请输入用户名')
+      if (this.loginForm.phone.length !== 11) return this.$warn('手机号码有误')
       this.isShowDialog = true
       this.getValidCodeImg()
     },

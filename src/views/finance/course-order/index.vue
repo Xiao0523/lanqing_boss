@@ -238,6 +238,7 @@ export default {
     },
     closeDialog() {
       this.backFlag = false
+      this.fetchList()
     }
   }
 }
