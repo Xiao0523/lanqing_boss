@@ -81,11 +81,11 @@
                 </template>
               </el-table-column>
               <el-table-column label="退款金额（元）" prop="payPrice" />
-              <el-table-column label="操作">
+              <!-- <el-table-column label="操作">
                 <template slot-scope="scope">
                   <el-button type="danger" :disabled="!(scope.row.status === 5)" size="mini" @click="backMoneys(scope.row)">退款</el-button>
                 </template>
-              </el-table-column>
+              </el-table-column> -->
               <template slot="empty">
                 <div class="empty-content">
                   <img class="empty-img" src="@/assets/no-cursor.png" alt>
@@ -240,7 +240,7 @@
       </span>
     </el-dialog> -->
 
-    <back-money :flag="backFlag" :obj="backObj" @closeFlag="closeDialog" />
+    <!-- <back-money :flag="backFlag" :obj="backObj" @closeFlag="closeDialog" /> -->
     <el-dialog :visible="isChangeShow" @close="isChangeShow=false">
       <h6 slot="title" class="dialog-title">切换讲师</h6>
       <el-form
@@ -271,10 +271,9 @@ import { getDetail, editStudentTeacher } from '@/api/course'
 import { postRefund } from '@/api/orders'
 import Star from '@/components/Star'
 import { formatTime } from '@/utils/date'
-import backMoney from '@/views/finance/course-order/components/backMoney'
 export default {
   name: 'StudentDetail',
-  components: { Star, backMoney },
+  components: { Star },
   filters: {
     storeEvaluateStr(val) {
       return val === 0 ? '成绩超群' : val === 1 ? '成绩优异' : val === 2 ? '成绩良好' : val === 3 ? '成绩一般' : val === 4 ? '不及格' : ''
@@ -443,14 +442,14 @@ export default {
     },
 
     // 打开退款
-    backMoneys(obj) {
-      this.backObj = obj
-      this.backFlag = true
-    },
-    closeDialog() {
-      this.backFlag = false
-      this.fetchList()
-    },
+    // backMoneys(obj) {
+    //   this.backObj = obj
+    //   this.backFlag = true
+    // },
+    // closeDialog() {
+    //   this.backFlag = false
+    //   this.fetchList()
+    // },
 
     // 退款
     onRefund() {

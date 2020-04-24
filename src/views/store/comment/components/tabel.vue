@@ -4,18 +4,15 @@
       class="table"
       :data="list"
     >
-      <el-table-column label="学员昵称">
+      <el-table-column label="学员昵称" prop="nickName" />
+      <el-table-column label="手机号" prop="phone" />
+      <el-table-column label="订单号" prop="trainingStudentCurriculumId" />
+      <el-table-column label="评价时间">
         <template slot-scope="scope">
-          <div class="img-box">
-            <img class="img-warpper" :src="scope.row.photo" alt="">
-            {{ scope.row.realName }}
-          </div>
+          {{ scope.row.commentTime | commentTimeStr }}
         </template>
       </el-table-column>
-      <el-table-column label="手机号" prop="teachAge" />
-      <el-table-column label="订单号" prop="curriculumAmount" />
-      <el-table-column label="评价时间" prop="studentAmount" />
-      <el-table-column label="课程名称" prop="studentAmount" />
+      <el-table-column label="课程名称" prop="curriculumName" />
       <el-table-column label="状态">
         <template slot-scope="scope">
           {{ scope.row.status | statusStr }}
@@ -23,7 +20,7 @@
       </el-table-column>
       <el-table-column label="操作">
         <template slot-scope="scope">
-          <router-link :to="{name: 'CommentDetail', query: { id: scope.row.id }}">
+          <router-link :to="{name: 'CommentDetail', query: { id: scope.row.trainingStudentCurriculumId }}">
             <el-button size="mini">{{ scope.row.status | statusBtn }}</el-button>
           </router-link>
         </template>
@@ -39,6 +36,7 @@
 </template>
 
 <script>
+import { formatTime } from '@/utils/date'
 export default {
   name: 'TabelList',
   filters: {
@@ -47,6 +45,9 @@ export default {
     },
     statusBtn(val) {
       return val === 0 ? '回复' : '详情'
+    },
+    commentTimeStr(val) {
+      return val && formatTime(val)
     }
   },
   props: {

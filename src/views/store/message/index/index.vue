@@ -189,7 +189,8 @@ export default {
       handler(oldVal, newVal) {
         if (!this.firstDo) return
         this.firstDo = false
-        this.firstId = this.newId || this.sessionList[0].targetId
+        const targetIds = this.sessionList[0] && this.sessionList[0].targetId
+        this.firstId = this.newId || targetIds
         const idList = []
         this.sessionList.forEach(v => {
           idList.push(v.targetId)
@@ -207,6 +208,7 @@ export default {
     const id = this.$route.query.id
     if (id) {
       this.newId = id
+      this.getInfo([this.newId])
     }
     this.getScroll = throttle(this.paperScroll, 300)
   },

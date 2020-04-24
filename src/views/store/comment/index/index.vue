@@ -49,6 +49,9 @@ export default {
       pageSize: 10 // 分页容量
     }
   },
+  created() {
+    this.fetchList()
+  },
   methods: {
     // 获取教员列表
     fetchList() {
@@ -61,7 +64,7 @@ export default {
           return res.message && this.$(res.message)
         }
         if (!res.data) return
-        this.list = res.data
+        this.list = res.data.records || []
       })
     },
     // 类目改变

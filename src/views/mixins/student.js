@@ -2,7 +2,6 @@ import { editLock } from '@/api/student'
 export const studetnMixins = {
   methods: {
     editLocks(obj) {
-      console.log(obj)
       const getObj = obj
       editLock(getObj).then(res => {
         if (res.code) {

@@ -133,6 +133,7 @@ export default {
   },
   methods: {
     fetchList() {
+      this.list = []
       const getObj = this.keywords
       getCursorList(getObj).then(res => {
         if (res.code) return res.message && this.$warn(res.message)

@@ -5,67 +5,28 @@
     </div>
 
     <div class="wraper">
-      <div class="guest-box">
+      <div v-for="item in content.commentSubDetails" :key="item.id" class="guest-box">
         <h3 class="title">
-          店铺评价
+          {{ item.type | typeStr }}
         </h3>
         <div class="img-box">
-          <img src="@/assets/no-comment.png" alt="">
+          <img v-show="item.icon" :src="item.icon" alt="">
           <div class="user-info">
-            <span class="title">青青教育</span>
+            <span class="title">{{ item.name }}</span>
             <div class="star-box">
-              <star score="3" />
-              <span>不错</span>
+              <star :score="item.score" />
             </div>
           </div>
         </div>
-        <div class="guest-font">教学环境很好，场地很大，还专门为家长提供了休息区</div>
+        <div class="guest-font">{{ item.commentWords }}</div>
         <div class="form-box">
-          <el-input class="reply-input" placeholder="请输入回复内容" />
-          <el-button class="reply-btn">立即回复</el-button>
-        </div>
-      </div>
-      <div class="guest-box">
-        <h3 class="title">
-          课程评价
-        </h3>
-        <div class="img-box">
-          <img src="@/assets/no-comment.png" alt="">
-          <div class="user-info">
-            <span class="title">青青教育</span>
-            <div class="star-box">
-              <star score="3" />
-              <span>不错</span>
-            </div>
-          </div>
-        </div>
-        <div class="guest-font">教学环境很好，场地很大，还专门为家长提供了休息区</div>
-        <div class="form-box">
-          <el-input class="reply-input" placeholder="请输入回复内容" />
-          <el-button class="reply-btn">立即回复</el-button>
-        </div>
-      </div>
-      <div class="guest-box">
-        <h3 class="title">
-          讲师评价
-        </h3>
-        <div class="img-box">
-          <img src="@/assets/no-comment.png" alt="">
-          <div class="user-info">
-            <span class="title">青青教育</span>
-            <div class="star-box">
-              <star score="3" />
-              <span>不错</span>
-            </div>
-          </div>
-        </div>
-        <div class="guest-font">教学环境很好，场地很大，还专门为家长提供了休息区</div>
-        <div class="form-box">
-          <el-input class="reply-input" placeholder="请输入回复内容" />
-          <el-button class="reply-btn">立即回复</el-button>
+          <el-input v-model="item.replyWords" :disabled="content.commentInfo.status === 1" class="reply-input" placeholder="请输入回复内容" />
         </div>
       </div>
       <span class="tip"><i class="el-icon-info" />回复内容不得泄露用户隐私和信息，请谨慎</span>
+      <div class="btn-box">
+        <el-button v-show="content.commentInfo && content.commentInfo.status === 0" class="reply-btn" @click="backReply">立即回复</el-button>
+      </div>
     </div>
   </section>
 </template>
@@ -77,15 +38,22 @@ import { getCommonDetail, getReply } from '@/api/common'
 export default {
   name: 'CommentDtatil',
   components: { PageHead, Star },
+  filters: {
+    typeStr(val) {
+      return Number(val) === 0 ? '机构评价' : Number(val) === 1 ? '课程评价' : '教师评价'
+    }
+  },
   mixins: [mixins],
   data() {
     return {
-      conetnt: {}
+      content: {},
+      viewId: ''
     }
   },
   created() {
-    const id = this.$router.query.id
+    const id = this.$route.query.id
     if (id) {
+      this.viewId = id
       this.getView(id)
     }
   },
@@ -96,7 +64,27 @@ export default {
       }
       getCommonDetail(getObj).then(res => {
         if (res.code) return res.message && this.$warn(res.message)
-        this.conetnt = res.data
+        this.content = res.data
+      })
+    },
+    backReply(obj) {
+      const replyObj = []
+      for (const items of this.content.commentSubDetails) {
+        replyObj.push({
+          content: items.replyWords,
+          id: items.id
+        })
+      }
+      const getObj = {
+        replyCommentRecords: [
+          ...replyObj
+        ],
+        trainingStudentCurriculumId: this.viewId
+      }
+      getReply(getObj).then(res => {
+        if (res.code) return res.message && this.$warn(res.message)
+        this.$success('回复成功！！！')
+        this.getView(this.viewId)
       })
     }
   }
@@ -112,6 +100,9 @@ export default {
 .wraper {
   background: #fff;
   padding: 30px;
+}
+.btn-box {
+  margin-top: 10px;
 }
 .guest-box {
   width: 100%;

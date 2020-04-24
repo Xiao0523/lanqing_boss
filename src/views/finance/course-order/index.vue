@@ -213,6 +213,8 @@ export default {
   },
   methods: {
     fetchList() {
+      this.list = []
+      this.total = 0
       const fn = this.tabsVal === 'refunding' ? getRefundList : getOrdersList
       const submitObj = {
         ...this.keywords,
