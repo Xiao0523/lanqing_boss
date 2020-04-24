@@ -53,7 +53,7 @@
                 <template slot-scope="scope">
                   <div class="img-box">
                     <img class="img-warpper" :src="scope.row.icon" alt="">
-                    {{ scope.row.studentName }}
+                    {{ scope.row.nickName }}
                   </div>
                 </template>
               </el-table-column>

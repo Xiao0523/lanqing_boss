@@ -43,7 +43,7 @@
               <el-table-column label="课程价格（元）" prop="curriculumPrice" />
               <el-table-column label="当前讲师">
                 <template slot-scope="scope">
-                  {{ scope.row.curriculumCurrentTeacherName }}
+                  {{ scope.row.currentTeacherName }}
                   <span class="change" @click="openChangeTeacher(scope.row.curriculumId, scope.row.id)">切换</span>
                 </template>
               </el-table-column>
@@ -54,7 +54,7 @@
               </el-table-column>
               <el-table-column label="操作">
                 <template slot-scope="scope">
-                  <el-button type="primary" size="mini" @click="openGraduate(scope.row.curriculumId)">结业</el-button>
+                  <el-button type="primary" size="mini" @click="openGraduate(scope.row.id)">结业</el-button>
                 </template>
               </el-table-column>
               <template slot="empty">
@@ -73,16 +73,17 @@
               <el-table-column label="课程名称" prop="curriculumName" />
               <el-table-column label="课时" prop="hours" />
               <el-table-column label="课程价格（元）" prop="curriculumPrice" />
-              <el-table-column label="当前讲师" prop="curriculumCurrentTeacherName" />
+              <el-table-column label="当前讲师" prop="currentTeacherName" />
               <el-table-column label="状态">
                 <template slot-scope="scope">
                   {{ scope.row.status | refundStatusStr }}
+                  <!-- {{ scope.row.description }} -->
                 </template>
               </el-table-column>
-              <el-table-column label="退款金额（元）" prop="applyPrice" />
+              <el-table-column label="退款金额（元）" prop="payPrice" />
               <el-table-column label="操作">
                 <template slot-scope="scope">
-                  <el-button type="danger" :disabled="!(scope.row.status === 0 || scope.row.status === 2)" size="mini" @click="openRefund(scope.row.refundId)">退款</el-button>
+                  <el-button type="danger" :disabled="!(scope.row.status === 5)" size="mini" @click="backMoneys(scope.row)">退款</el-button>
                 </template>
               </el-table-column>
               <template slot="empty">
@@ -101,7 +102,7 @@
               <el-table-column label="课程名称" prop="curriculumName" />
               <el-table-column label="课时" prop="hours" />
               <el-table-column label="课程价格（元）" prop="curriculumPrice" />
-              <el-table-column label="当前讲师" prop="curriculumCurrentTeacherName" />
+              <el-table-column label="当前讲师" prop="currentTeacherName" />
               <el-table-column label="状态">
                 <template>
                   已结束
@@ -219,7 +220,7 @@
         <el-button class="colorfulBtn" type="primary" @click="onComment">立即结业</el-button>
       </span>
     </el-dialog>
-
+    <!--
     <el-dialog :visible="isRefundShow" @close="isRefundShow=false">
       <h6 slot="title" class="dialog-title">退款</h6>
       <el-form
@@ -237,8 +238,9 @@
       <span slot="footer" class="dialog-footer">
         <el-button class="colorfulBtn" type="primary" @click="onRefund">提交评价</el-button>
       </span>
-    </el-dialog>
+    </el-dialog> -->
 
+    <back-money :flag="backFlag" :obj="backObj" @closeFlag="closeDialog" />
     <el-dialog :visible="isChangeShow" @close="isChangeShow=false">
       <h6 slot="title" class="dialog-title">切换讲师</h6>
       <el-form
@@ -247,11 +249,11 @@
         label-width="7em"
       >
         <el-form-item label="课程讲师">
-          <el-select v-model="teacherStr" placeholder="选择课程讲师" @change="teacherChange">
+          <el-select v-model="teacherId" placeholder="选择课程讲师">
             <el-option
               v-for="item of teacherList"
               :key="item.realName"
-              :value="item.realName"
+              :value="item.id"
               :label="item.realName"
             />
           </el-select>
@@ -269,15 +271,16 @@ import { getDetail, editStudentTeacher } from '@/api/course'
 import { postRefund } from '@/api/orders'
 import Star from '@/components/Star'
 import { formatTime } from '@/utils/date'
+import backMoney from '@/views/finance/course-order/components/backMoney'
 export default {
   name: 'StudentDetail',
-  components: { Star },
+  components: { Star, backMoney },
   filters: {
     storeEvaluateStr(val) {
       return val === 0 ? '成绩超群' : val === 1 ? '成绩优异' : val === 2 ? '成绩良好' : val === 3 ? '成绩一般' : val === 4 ? '不及格' : ''
     },
     refundStatusStr(val) {
-      return val === 0 ? '待店长审核' : val === 1 ? '待平台审核' : val === 2 ? '待店长再次待审核' : val === 3 ? '用户课程终止' : '已到账'
+      return val === 5 ? '退款中' : '已到账'
     },
     orderTimeStr(val) {
       return val && formatTime(val)
@@ -304,9 +307,10 @@ export default {
         applyPrice: '',
         refundDescription: ''
       },
+      backObj: {},
+      backFlag: false,
       refundFormRules: {},
       isChangeShow: false,
-      teacherStr: '',
       teacherFormRules: {},
       studentContent: {},
       viewId: '',
@@ -330,7 +334,7 @@ export default {
       this.viewId = id
       this.getView(id)
       this.getClassList(id)
-      this.getClassOrder(id)
+      // this.getClassOrder(id)
       this.getComment(id)
     }
   },
@@ -406,7 +410,7 @@ export default {
     // 获取课程列表
     getClassList() {
       const submitObj = {
-        id: this.viewId,
+        studentId: this.viewId,
         type: this.activeName0
       }
       getStudentCursor(submitObj).then(res => {
@@ -425,11 +429,8 @@ export default {
     // 结业请求
     onComment() {
       const submitObj = {
-        courseCompletionSubViews: [{
-          curriculumId: this.curriculumId,
-          studentId: this.viewId
-        }],
-        storeEvaluate: this.studentEvaluate
+        id: this.curriculumId,
+        type: this.studentEvaluate
       }
       evaluation(submitObj).then(res => {
         if (res.code) {
@@ -442,9 +443,13 @@ export default {
     },
 
     // 打开退款
-    openRefund(id) {
-      this.isRefundShow = true
-      this.refundId = id
+    backMoneys(obj) {
+      this.backObj = obj
+      this.backFlag = true
+    },
+    closeDialog() {
+      this.backFlag = false
+      this.fetchList()
     },
 
     // 退款
