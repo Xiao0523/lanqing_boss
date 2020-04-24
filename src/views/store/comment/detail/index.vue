@@ -58,6 +58,9 @@ export default {
     }
   },
   methods: {
+    goBack() {
+      this.$router.go(-1)
+    },
     getView(id) {
       const getObj = {
         id

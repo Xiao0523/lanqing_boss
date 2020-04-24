@@ -63,7 +63,7 @@
             <router-link :to="{name: 'TeacherDetail', query: { id: scope.row.id }}">
               <el-button size="mini">详情</el-button>
             </router-link>
-            <el-button size="mini" @click="editStatus(scope.row.id, scope.row.status)">{{ scope.row.status | statusStr }}</el-button>
+            <el-button size="mini" @click="editStatus(scope.row.id, scope.row.status)">{{ scope.row.status | statusBtn }}</el-button>
           </template>
         </el-table-column>
         <template slot="empty">
@@ -90,6 +90,9 @@ export default {
   filters: {
     statusStr(val) {
       return val === 0 ? '在职' : '离职'
+    },
+    statusBtn(val) {
+      return val === 0 ? '离职' : '在职'
     }
   },
   data() {
