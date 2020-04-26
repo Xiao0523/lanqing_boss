@@ -44,7 +44,7 @@
 
         <h4 class="teacher-intro">讲师介绍</h4>
         <div class="category-box">
-          <el-tag v-for="item in content.categoryViews" :key="item.categoryName + item.categoryId" class="category-item" type="success">{{ item.categoryName }}</el-tag>
+          <el-tag v-for="item in tags" :key="item" class="category-item" type="success">{{ item }}</el-tag>
         </div>
         <p class="teacher-intro-text" v-html="content.detailedDescription" />
       </div>
@@ -115,7 +115,8 @@ export default {
       total: 0,
       studentList: [],
       viewId: '',
-      listMsg: ''
+      listMsg: '',
+      tags: []
     }
   },
   created() {
@@ -154,6 +155,7 @@ export default {
         }
         if (!res.data) return
         this.content = res.data
+        this.tags = this.content.tags.split(',')
       })
     }
   }
@@ -377,6 +379,7 @@ export default {
 }
 
 .table {
+  margin-top: 20px;
   & /deep/ {
     thead > tr {
       border-radius: 2px;

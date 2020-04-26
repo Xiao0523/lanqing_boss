@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <h2 class="title">订单管理</h2>
-    <!-- <el-form :inline="true">
+    <el-form :inline="true">
       <el-form-item class="search-item">
         <el-input v-model.trim="keywords.orderNoOrCurriculumName" placeholder="请输入订单号或课程" suffix-icon="el-icon-search" @blur="fetchList" @keyup.enter="fetchList" />
       </el-form-item>
@@ -15,7 +15,7 @@
         />
       </el-form-item>
       <el-form-item label="订单状态">
-        <el-select v-model="keywords.orderStatus" @change="fetchList">
+        <el-select v-model="keywords.status" @change="fetchList">
           <el-option
             v-for="(item, index) in statusList"
             :key="item + index"
@@ -24,99 +24,9 @@
           />
         </el-select>
       </el-form-item>
-    </el-form> -->
+    </el-form>
     <div class="table-wraper">
-      <el-tabs v-model="tabsVal" @tab-click="fetchList">
-        <el-tab-pane name="complete">
-          <span slot="label">已支付</span>
-          <el-table
-            class="table"
-            :data="list"
-          >
-            <el-table-column label="订单编号" prop="orderNum" />
-            <el-table-column label="下单时间">
-              <template slot-scope="scope">
-                {{ scope.row.orderTime | orderTimeStr }}
-              </template>
-            </el-table-column>
-            <el-table-column label="学员昵称" prop="curriculumName" />
-            <el-table-column label="手机号" prop="payPrice" />
-            <el-table-column label="订单状态" prop="statusDescription" />
-            <el-table-column label="课程名称" prop="curriculumName" />
-            <el-table-column label="课程价格" prop="price" />
-            <el-table-column label="实付金额" prop="payPrice" />
-            <template slot="empty">
-              <div class="empty-content">
-                <img class="empty-img" src="@/assets/no-record.png" alt>
-                <p class="empty-text">暂无记录</p>
-              </div>
-            </template>
-          </el-table>
-        </el-tab-pane>
-
-        <el-tab-pane name="refunding">
-          <span slot="label">退款中</span>
-          <el-table
-            class="table"
-            :data="list"
-          >
-            <el-table-column label="学员昵称" prop="studentName" />
-            <el-table-column label="下单时间">
-              <template slot-scope="scope">
-                {{ scope.row.createTime | orderTimeStr }}
-              </template>
-            </el-table-column>
-            <el-table-column label="机构名称" prop="storeName" />
-            <el-table-column label="课程名称" prop="curriculumName" />
-            <el-table-column label="课程价格" prop="curriculumPayPrice" />
-            <el-table-column label="实付金额" prop="applyPrice" />
-            <el-table-column label="退款状态">
-              <template slot-scope="scope">
-                {{ scope.row.status | statusStr }}
-              </template>
-            </el-table-column>
-            <el-table-column label="操作">
-              <template slot-scope="scope">
-                <el-button v-if="Number(scope.row.status) !== 1 && Number(scope.row.status) !== 3" size="mini" @click="backMoneys(scope.row)">退款</el-button>
-              </template>
-            </el-table-column>
-            <template slot="empty">
-              <div class="empty-content">
-                <img class="empty-img" src="@/assets/no-record.png" alt>
-                <p class="empty-text">暂无记录</p>
-              </div>
-            </template>
-          </el-table>
-        </el-tab-pane>
-
-        <el-tab-pane name="refund">
-          <span slot="label">退款完毕</span>
-          <el-table
-            class="table"
-            :data="list"
-          >
-            <el-table-column label="订单编号" prop="orderNum" />
-            <el-table-column label="下单时间">
-              <template slot-scope="scope">
-                {{ scope.row.orderTime | orderTimeStr }}
-              </template>
-            </el-table-column>
-            <el-table-column label="学员昵称" prop="curriculumName" />
-            <el-table-column label="手机号" prop="payPrice" />
-            <el-table-column label="订单状态" prop="statusDescription" />
-            <el-table-column label="课程名称" prop="curriculumName" />
-            <el-table-column label="课程价格" prop="price" />
-            <el-table-column label="实付金额" prop="payPrice" />
-            <template slot="empty">
-              <div class="empty-content">
-                <img class="empty-img" src="@/assets/no-record.png" alt>
-                <p class="empty-text">暂无记录</p>
-              </div>
-            </template>
-          </el-table>
-        </el-tab-pane>
-      </el-tabs>
-      <!-- <el-table
+      <el-table
         class="table"
         :data="list"
       >
@@ -143,7 +53,7 @@
             <p class="empty-text">暂无记录</p>
           </div>
         </template>
-      </el-table> -->
+      </el-table>
     </div>
     <!--分页-->
     <div>
@@ -160,7 +70,7 @@
 </template>
 <script>
 import Pagination from '@/components/Pagination'
-import { getOrdersList, getRefundList } from '@/api/orders'
+import { getOrdersList } from '@/api/orders'
 import { formatTime } from '@/utils/date'
 import backMoney from './components/backMoney'
 import { orderMixins } from '@/views/mixins/order'
@@ -181,21 +91,24 @@ export default {
       list: [],
       keywords: {
         orderNoOrCurriculumName: '',
-        orderStatus: '', // 状态：0:已支付/1：退款中/2退款完毕
+        status: '', // 状态：0:已支付/1：退款中/2退款完毕
         orderTime: ''
       },
       statusList: [{
         value: '',
         label: '全部'
       }, {
-        value: 0,
-        label: '已支付'
+        value: 3,
+        label: '已付款'
       }, {
-        value: 1,
+        value: 4,
+        label: '已结业'
+      }, {
+        value: 5,
         label: '退款中'
       }, {
-        value: 2,
-        label: '退款完毕'
+        value: 6,
+        label: '退款完成'
       }],
       backObj: {},
       activeName: 'first',
@@ -213,17 +126,11 @@ export default {
   },
   methods: {
     fetchList() {
-      this.list = []
-      this.total = 0
-      const fn = this.tabsVal === 'refunding' ? getRefundList : getOrdersList
       const submitObj = {
         ...this.keywords,
         ...this.listQuery
       }
-      if (this.tabsVal !== 'refunding') {
-        submitObj.orderStatus = this.tabsVal === 'complete' ? 0 : 2
-      }
-      fn(submitObj).then(res => {
+      getOrdersList(submitObj).then(res => {
         if (res.code) {
           return res.message && this.$warn(res.message)
         }

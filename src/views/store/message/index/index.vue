@@ -18,12 +18,12 @@
             <div class="warpper-content">
               <div class="font">
                 <span>{{ (item.user && item.user.name) || '神秘用户' }}</span>
-                <span>{{ item.latestMessage.sentTime | timeStr }}</span>
+                <span>{{ item.latestMessage && item.latestMessage.sentTime | timeStr }}</span>
               </div>
               <span v-if="item.objectName === 'RC:ImgMsg'" class="message-content">收到一条图片消息</span>
               <span v-else-if="item.objectName === 'RC:FileMsg'" class="message-content">收到一条附件消息</span>
               <span v-else-if="item.objectName === 'RC:VcMsg'" class="message-content">收到一条语音消息</span>
-              <span v-else class="message-content">{{ item.latestMessage.content.content }}</span>
+              <span v-else class="message-content">{{ item.latestMessage && item.latestMessage.content.content }}</span>
             </div>
           </div>
         </div>
@@ -32,7 +32,7 @@
     <section class="right">
       <div ref="chat" class="chat-box">
         <div class="chat-box-top">
-          <div class="title">{{ firstUser && firstUser.user.name }}</div>
+          <div class="title">{{ firstUser && firstUser.user && firstUser.user.name }}</div>
           <div ref="chatContent" class="chat-main" @scroll.passive="getScroll">
             <span v-show="hasMsg" class="scroll-more">上拉加载更多</span>
             <div
@@ -57,20 +57,6 @@
                 </el-link>
               </div>
             </div>
-
-            <!-- <div class="bubble guest">
-              <img src="@/assets/no-cash-out.png" class="photo" alt="">
-              <div class="bubble-content">请问这个课程报名后，第一次上课是什么时候？？？？在吗在吗？？？很着急哦～希望看到回复</div>
-            </div>
-            <p>15：26</p>
-            <div class="bubble master">
-              <img src="@/assets/no-cash-out.png" class="photo" alt="">
-              <div class="bubble-content">请问这个课程报名后，第一次上课是什么时候？？？？在吗在吗？？？很着急哦～希望看到回复</div>
-            </div>
-            <div class="bubble master">
-              <img src="@/assets/no-cash-out.png" class="photo" alt="">
-              <div class="bubble-content">请问这个课程报名后，第一次上课是什么时候？？？？在吗在吗？？？很着急哦～希望看到回复</div>
-            </div> -->
           </div>
         </div>
         <div class="chat-box-bottom">
@@ -209,6 +195,7 @@ export default {
     if (id) {
       this.newId = id
       this.getInfo([this.newId])
+      this.getMessage()
     }
     this.getScroll = throttle(this.paperScroll, 300)
   },
@@ -218,37 +205,24 @@ export default {
       getInfoList(getObj).then(res => {
         if (res.code) return res.message && this.$warn(res.message)
         this.users = res.data
+        const idList = []
+        this.sessionList.forEach(v => {
+          idList.push(v.targetId)
+        })
+        if (this.newId) {
+          if (!idList.includes(this.newId)) {
+            this.sessionList.push({
+              targetId: this.newId
+            })
+          }
+        }
         this.firstUser = this.sessionList[0]
         this.sessionList.forEach((val) => {
           this.$set(val, 'user', res.data[val.targetId])
         })
       })
     },
-    pushImgMsg(file, fileList) {
-      if (file.code) return file.message && this.$warn(file.message)
-      const reader = new FileReader()
-      reader.readAsDataURL(fileList.raw)
-      const _this = this
-      reader.onload = function(e) {
-        var base64Str = this.result // 压缩后的 base64 略缩图, 用来快速展示图片
-        var imageUri = file.data // 上传到服务器的 url. 用来展示高清图片
-        var msg = new RongIMLib.ImageMessage({ content: base64Str, imageUri: imageUri })
-        var conversationType = RongIMLib.ConversationType.PRIVATE
-        var targetId = _this.firstId // 目标 Id
-        var callback = {
-          onSuccess: function(message) {
-            _this.messageContent.push(message)
-            _this.scrollBottom = true
-            _this.onScroller()
-          },
-          onError: function(errorCode) {
-            console.log('发送图片消息失败', errorCode)
-          }
-        }
-        RongIMClient.getInstance().sendMessage(conversationType, targetId, msg, callback)
-      }
-      // html5读文件
-    },
+
     changeChat(id) {
       this.firstId = id
       this.scrollBottom = true
@@ -264,46 +238,6 @@ export default {
         e.preventDefault()
       }
     },
-    onSend() {
-      if (this.text) {
-        if (this.text.match(/^[ ]*$/)) {
-          this.$dialog({
-            title: '错误',
-            content: '不能为空',
-            cancelBtnTxt: '知道了',
-            noOkBtn: true
-          })
-          return false
-        }
-        var textMessageInfo = {
-          content: this.text,
-          extra: ''
-        }
-        var msg = new RongIMLib.TextMessage(textMessageInfo)
-        var conversationType = RongIMLib.ConversationType.PRIVATE
-        var targetId = this.firstId // 目标 ID
-        const _this = this
-        RongIMClient.getInstance().sendMessage(conversationType, targetId, msg, {
-          onSuccess: function(message) {
-            // message 为发送的消息对象并且包含服务器返回的消息唯一 id 和发送消息时间戳
-            _this.text = ''
-            _this.messageContent.push(message)
-            _this.scrollBottom = true
-            _this.onScroller()
-          },
-          onError: function(errorCode) {
-            console.log('发送文本消息失败', errorCode)
-          }
-        })
-      } else {
-        this.$dialog({
-          title: '错误',
-          content: '不能为空',
-          cancelBtnTxt: '知道了',
-          noOkBtn: true
-        })
-      }
-    },
     clearBox(id) {
       this.boxFlag = true
       this.delId = id
@@ -314,6 +248,7 @@ export default {
       const _this = this
       RongIMClient.getInstance().getConversationList({
         onSuccess: function(list) {
+          console.log(list)
           _this.sessionList = list
         },
         onError: function(error) {
@@ -321,10 +256,22 @@ export default {
         }
       }, conversationTypes, count)
     },
+    getLockMessage() {
+      var conversationType = RongIMLib.ConversationType.PRIVATE
+      var targetId = this.newId
+      RongIMClient.getInstance().getConversation(conversationType, targetId, {
+        onSuccess: function(conversation) {
+          console.log(conversation)
+          if (conversation) {
+            console.log('获取指定会话成功', conversation)
+          }
+        }
+      })
+    },
     getMessage() {
       if (!this.firstId) return
       var conversationType = RongIMLib.ConversationType.PRIVATE
-      var targetId = this.firstId
+      var targetId = this.firstId || this.newId
       var timestrap = null // 默认传 null, 若从头开始获取历史消息, 请赋值为 0
       var count = 10
       if (this.sequence) {
@@ -343,10 +290,6 @@ export default {
             list: 获取的历史消息列表
             hasMsg: 是否还有历史消息可以获取
           */
-          // if (_this.firstFetch) {
-          //   _this.firstUser = list[0].content && list[0].content.user
-          //   _this.firstFetch = false
-          // }
           _this.hasMsg = hasMsg
           if (_this.sequence) {
             for (let i = 0; i < list.length; i++) {
@@ -411,396 +354,65 @@ export default {
       if (this.$refs.chatContent.scrollTop <= 10 && this.hasMsg) {
         this.getMessage()
       }
+    },
+    onSend() {
+      if (!this.text) {
+        this.$confirm('不能为空', '错误', {
+          confirmButtonText: '确定'
+        }).then(() => {
+          return false
+        })
+        return false
+      }
+      var textMessageInfo = {
+        content: this.text,
+        extra: ''
+      }
+      var msg = new RongIMLib.TextMessage(textMessageInfo)
+      var conversationType = RongIMLib.ConversationType.PRIVATE
+      var targetId = this.firstId // 目标 ID
+      const _this = this
+      RongIMClient.getInstance().sendMessage(conversationType, targetId, msg, {
+        onSuccess: function(message) {
+          // message 为发送的消息对象并且包含服务器返回的消息唯一 id 和发送消息时间戳
+          _this.text = ''
+          _this.messageContent.push(message)
+          _this.scrollBottom = true
+          _this.onScroller()
+        },
+        onError: function(errorCode) {
+          console.log('发送文本消息失败', errorCode)
+        }
+      })
+    },
+    pushImgMsg(file, fileList) {
+      if (file.code) return file.message && this.$warn(file.message)
+      const reader = new FileReader()
+      reader.readAsDataURL(fileList.raw)
+      const _this = this
+      reader.onload = function(e) {
+        var base64Str = this.result // 压缩后的 base64 略缩图, 用来快速展示图片
+        var imageUri = file.data // 上传到服务器的 url. 用来展示高清图片
+        var msg = new RongIMLib.ImageMessage({ content: base64Str, imageUri: imageUri })
+        var conversationType = RongIMLib.ConversationType.PRIVATE
+        var targetId = _this.firstId // 目标 Id
+        var callback = {
+          onSuccess: function(message) {
+            _this.messageContent.push(message)
+            _this.scrollBottom = true
+            _this.onScroller()
+          },
+          onError: function(errorCode) {
+            console.log('发送图片消息失败', errorCode)
+          }
+        }
+        RongIMClient.getInstance().sendMessage(conversationType, targetId, msg, callback)
+      }
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-.main {
-  display: flex;
-  width: 100%;
-  height: calc(100vh - 50px);
-  .left {
-    width: 351px;
-    height: 100%;
-    background: #fff;
-    border-right: 1px solid rgba(241,241,245,1);
-    box-sizing: border-box;
-    .search {
-      width: 100%;
-      height: 78px;
-      padding: 18px 20px;
-      background: #fff;
-      border-bottom: 1px solid rgba(241,241,245,1);
-      /deep/ {
-        .el-input__inner {
-          background:rgba(250,250,251,1);
-          height: 42px;
-          line-height: 42px;
-          border: 0;
-          padding-left: 50px;
-          box-sizing: border-box;
-        }
-        .el-icon-search:before {
-          font-size: 20px;
-        }
-        .el-input__icon {
-          position: relative;
-          top: 2px;
-          height: 100%;
-          width: 50px;
-        }
-      }
-    }
-    .list-box {
-      width: 100%;
-      height: calc(100vh - 121px);
-      padding: 10px;
-      box-sizing: border-box;
-      overflow-y: hidden;
-      .inner-warpper {
-        width: 100%;
-        height: 96px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid rgba(241,241,245,1);
-        box-sizing: border-box;
-        cursor: pointer;
-        .content-warpper {
-          width: 100%;
-          display: flex;
-          padding: 20px 15px;
-          box-sizing: border-box;
-          position: relative;
-          .clearMessage {
-            display: none;
-            font-size: 14px;
-            position: absolute;
-            right: 5px;
-            top: 5px;
-          }
-          .message-tip {
-            display: block;
-            width:26px;
-            height:20px;
-            text-align: center;
-            position: absolute;
-            top: 15px;
-            left: 40px;
-            background:rgba(252,90,90,1);
-            border-radius:12px;
-            font-size:12px;
-            font-weight:500;
-            color:rgba(255,255,255,1);
-            line-height:20px;
-          }
-          img {
-            display: block;
-            width: 42px;
-            height: 42px;
-            margin-right: 10px;
-          }
-          .warpper-content {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-            min-width: 0;
-            .font {
-              display: flex;
-              width: 248px;
-              flex-direction: row;
-              justify-content: space-between;
-              margin-top: 2px;
-              span:first-child {
-                font-size:14px;
-                font-weight:600;
-                color:rgba(23,23,37,1);
-                line-height:20px;
-              }
-              span:last-child {
-                font-size:12px;
-                color:rgba(105,105,116,1);
-                font-weight:400;
-                line-height:22px;
-              }
-            }
-            .message-content {
-              display: block;
-              width: 100%;
-              height: 24px;
-              line-height: 24px;
-              margin-top: 2px;
-              overflow: hidden;
-              font-size:14px;
-              font-weight:400;
-              color:rgba(146,146,157,1);
-              line-height:24px;
-              white-space: nowrap;
-              text-overflow: ellipsis;
-            }
-          }
-          &:hover {
-            background:rgba(0, 98, 255, .05);
-            .clearMessage {
-              display: inline;
-            }
-          }
-        }
-        &:last-child {
-          margin-bottom: 0;
-        }
-      }
-      &:hover {
-        overflow-y: auto;
-        overflow-y: overlay;
-      }
-      &::-webkit-scrollbar {
-        width: 6px;
-        height: 6px;
-        background-color: #fff;
-      }
-
-      &::-webkit-scrollbar-track {
-        box-shadow: inset 0 0 0px rgba(240, 240, 240, .5);
-        border-radius: 10px;
-        background-color: rgba(240, 240, 240, .5);
-      }
-
-      &::-webkit-scrollbar-thumb {
-        border-radius: 10px;
-        box-shadow: inset 0 0 0px rgba(240, 240, 240, .5);
-        background-color: rgba(0, 0, 0, .1);
-      }
-    }
-  }
-  .right {
-    width: calc(100% - 351px);
-    height: 100%;
-    background: #fff;
-    .chat-box {
-      width: 100%;
-      height: 100%;
-      .chat-box-top {
-        width: 100%;
-        height: calc(100% - 250px);
-        .title {
-          width: 100%;
-          height: 78px;
-          line-height: 78px;
-          padding: 0 18px;
-          font-size:16px;
-          font-weight:600;
-          color:rgba(23,23,37,1);
-          box-sizing: border-box;
-          border-bottom: 1px solid rgba(241,241,245,1);
-        }
-        .chat-main {
-          display: flex;
-          flex-direction: column;
-          width: 100%;
-          height: calc(100% - 78px);
-          padding: 30px 20px;
-          box-sizing: border-box;
-          overflow-y: auto;
-          &::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-            background-color: #fff;
-          }
-
-          &::-webkit-scrollbar-track {
-            box-shadow: inset 0 0 0px rgba(240, 240, 240, .5);
-            border-radius: 10px;
-            background-color: rgba(240, 240, 240, .5);
-          }
-
-          &::-webkit-scrollbar-thumb {
-            border-radius: 10px;
-            box-shadow: inset 0 0 0px rgba(240, 240, 240, .5);
-            background-color: rgba(0, 0, 0, .1);
-          }
-          .bubble {
-            display: flex;
-            width: 70%;
-            img.photo {
-              display: block;
-              width: 32px;
-              height: 32px;
-            }
-            .bubble-content {
-              max-width: calc(100% - 42px);
-              padding: 10px 15px;
-              box-sizing: border-box;
-              font-size:14px;
-              font-family:PingFangSC-Regular,PingFang SC;
-              font-weight:400;
-              line-height:24px;
-              margin-bottom: 10px;
-            }
-            &.guest {
-              align-self: flex-start;
-              .bubble-content {
-                background:rgba(250,250,251,1);
-                border-radius:0px 8px 8px 8px;
-                color:rgba(23,23,37,1);
-              }
-              img.photo {
-                margin-right: 10px;
-              }
-            }
-            &.master {
-              flex-direction: row-reverse;
-              align-self: flex-end;
-              .bubble-content {
-                background:rgba(0,210,165,1);
-                border-radius:8px 0px 8px 8px;
-                color:rgba(255,255,255,1);
-              }
-              img.photo {
-                margin-left: 10px;
-              }
-            }
-          }
-          p {
-            display: block;
-            width: 100%;
-            text-align: center;
-            font-size:14px;
-            font-weight:400;
-            color:rgba(146,146,157,1);
-            line-height:14px;
-            margin: 10px 0 30px;
-          }
-        }
-      }
-      .chat-box-bottom {
-        height: 250px;
-        .tool {
-          display: flex;
-          width: 100%;
-          height: 60px;
-          padding: 0 20px;
-          border-color: rgba(241,241,245,1);
-          border-style: solid;
-          border-width: 1px 0;
-          align-items: center;
-          box-sizing: border-box;
-          img {
-            width: 24px;
-            height: 24px;
-            cursor: pointer;
-            margin-right: 15px;
-            &:last-child {
-              margin-right: 0;
-            }
-          }
-        }
-        .textarea {
-          width: 100%;
-          height: 110px;
-          font-size:14px;
-          font-weight:400;
-          color:rgba(68,68,79,1);
-          line-height:24px;
-          /deep/ {
-            .el-textarea__inner {
-              height: 100%;
-              border: 0;
-              padding: 20px;
-              box-sizing: border-box;
-            }
-          }
-        }
-        .btn-box {
-          display: flex;
-          flex-direction: row-reverse;
-          width: 100%;
-          padding: 20px;
-          box-sizing: border-box;
-          border-top: 1px solid rgba(241,241,245,1);
-          span {
-            line-height: 38px;
-            font-size:12px;
-            font-weight:400;
-            color:rgba(157,157,167,1);
-          }
-          .enter-btn {
-            width:78px;
-            height:38px;
-            background:rgba(0,210,165,1);
-            border-radius:19px;
-            font-size:12px;
-            font-weight:600;
-            padding: 0;
-            color:rgba(255,255,255,1);
-            line-height:17px;
-            margin-left: 30px;
-          }
-        }
-      }
-    }
-  }
-}
-
-.dialog-box {
-  margin: 20px 0;
-  span {
-    display: block;
-    line-height: 24px;
-  }
-}
-.file-box {
-  display: flex;
-  align-items: center;
-  img {
-    margin-right: 10px;
-  }
-  span {
-    display: block;
-  }
-}
-/deep/ {
-  .el-dialog__header {
-    padding-bottom: 25px;
-    margin: 0;
-  }
-  .el-dialog__footer {
-    display: flex;
-    padding-top: 0;
-    justify-content: center;
-  }
-
-  .el-dialog__body {
-    padding-top: 0;
-    padding-bottom: 0;
-  }
-
-  .el-dialog {
-    width: 322px;
-  }
-
-  .el-link.el-link--default.is-underline {
-    &:hover {
-      text-decoration: none;
-    }
-  }
-}
-.dialog-title {
-  margin: 0;
-  padding: 0;
-}
-.scroll-more {
-  text-align: center;
-  font-size: 14px;
-  margin: 10px 0;
-  color: #666;
-}
-.btns {
-  background: transparent;
-  border: 0;
-}
-.img-boxs {
-  display: block;
-  height: 100px;
-}
+  @import '../../../../styles/rongyn.scss';
 </style>
