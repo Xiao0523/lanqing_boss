@@ -222,8 +222,8 @@ export default {
         })
       })
     },
-
     changeChat(id) {
+      if (this.firstId === id) return
       this.firstId = id
       this.scrollBottom = true
       this.messageContent = []
@@ -261,7 +261,6 @@ export default {
       var targetId = this.newId
       RongIMClient.getInstance().getConversation(conversationType, targetId, {
         onSuccess: function(conversation) {
-          console.log(conversation)
           if (conversation) {
             console.log('获取指定会话成功', conversation)
           }
@@ -305,6 +304,7 @@ export default {
             }
             _this.onScroller()
           }
+          console.log('messageContent::::', this.messageContent)
           // _this.messageContent = list
           // _this.hasMsg = hasMsg
           _this.clearUnRead()
