@@ -44,7 +44,7 @@
         <el-table-column label="实付金额" prop="payPrice" />
         <el-table-column label="操作">
           <template slot-scope="scope">
-            <el-button v-if="Number(scope.row.status) !== 1 && Number(scope.row.status) !== 3" size="mini" @click="backMoneys(scope.row)">退款</el-button>
+            <el-button v-if="Number(scope.row.status) !== 1 && Number(scope.row.status) !== 3 && Number(scope.row.status) !== 6" size="mini" @click="backMoneys(scope.row)">退款</el-button>
           </template>
         </el-table-column>
         <template slot="empty">

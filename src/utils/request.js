@@ -25,13 +25,13 @@ const service = axios.create({
 // request interceptor
 service.interceptors.request.use(
   config => {
-    // const urlKey = config.url.split('/')[1]
-    // const urlConst = config.url.split('.com/')[0]
-    // if (urlKey === 'boss') {
-    //   if (!whiteAuthApi.includes(urlConst) && Number(getLocal('examineStatus')) !== 1) {
-    //     return Promise.reject(new Error(''))
-    //   }
-    // }
+    const urlKey = config.url.split('/')[1]
+    const urlConst = config.url.split('.com/')[0]
+    if (urlKey === 'boss') {
+      if (!whiteAuthApi.includes(urlConst) && Number(getLocal('examineStatus')) !== 1) {
+        return Promise.reject(new Error(''))
+      }
+    }
     const strUrl = config.url.split('/').includes('ChinaCity')
     if (strUrl) {
       config.baseURL = Web_Api_url

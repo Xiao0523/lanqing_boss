@@ -35,13 +35,13 @@ export default {
   },
   watch: {
     $route(to) {
-      if (!this.whiteList.includes(this.$route.path) && this.status !== '' && Number(this.status) !== 1 && this.storeStatus && Number(this.storeStatus) !== 1) {
+      if (!this.whiteList.includes(this.$route.path) && this.status !== '' && Number(this.status) !== 1) {
         this.centerDialogVisible = true
       }
     }
   },
   mounted() {
-    if (!this.whiteList.includes(this.$route.path) && this.status !== '' && Number(this.status) !== 1 && this.storeStatus && Number(this.storeStatus) !== 1) {
+    if (!this.whiteList.includes(this.$route.path) && this.status !== '' && Number(this.status) !== 1) {
       this.centerDialogVisible = true
     }
   },
