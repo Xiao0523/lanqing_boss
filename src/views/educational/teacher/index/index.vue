@@ -43,7 +43,7 @@
         </el-table-column>
         <el-table-column label="课程类目">
           <template slot-scope="scope">
-            {{ scope.row.categories }}
+            {{ scope.row.categories | categoriesStr }}
           </template>
         </el-table-column>
         <el-table-column label="课程数" prop="curriculumAmount" />
@@ -93,6 +93,9 @@ export default {
     },
     statusBtn(val) {
       return val === 0 ? '离职' : '在职'
+    },
+    categoriesStr(val) {
+      return val.length ? val.join(',') : ''
     }
   },
   data() {
@@ -149,7 +152,6 @@ export default {
         }
         if (!res.data) return
         this.list = res.data
-        this.list.categories = this.list.categories.join(',')
       })
     },
     // 类目改变
