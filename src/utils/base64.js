@@ -16,8 +16,8 @@ export function compress(fileObj, file, callback) {
       var originWidth = this.width
       var originHeight = this.height
       // 最大尺寸限制，可通过国设置宽高来实现图片压缩程度
-      var maxWidth = 50
-      var maxHeight = 50
+      var maxWidth = 200
+      var maxHeight = 200
       // 目标尺寸
       var targetWidth = originWidth
       var targetHeight = originHeight
