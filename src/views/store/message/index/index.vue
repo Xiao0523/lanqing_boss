@@ -139,7 +139,8 @@ export default {
       users: {},
       idList: [],
       chatList: null,
-      imageUrl: ''
+      imageUrl: '',
+      imgPath: ''
     }
   },
   computed: {
@@ -397,13 +398,11 @@ export default {
     onchange(file, fileList) {
       this.imageUrl = URL.createObjectURL(file.raw)
     },
-    pushImgMsg(file, fileList) {
-      if (file.code) return file.message && this.$warn(file.message)
-      // const reader = new FileReader()
-      // reader.readAsDataURL(fileList.raw)
+    pushImgMessage(baseStr) {
       const _this = this
-      var base64Str = compress(fileList.raw, this.imageUrl).replace(/^data:image\/\w+;base64,/, '') // 压缩后的 base64 略缩图, 用来快速展示图片
-      var imageUri = file.data // 上传到服务器的 url. 用来展示高清图片
+      var base64Str = baseStr.replace(/^data:image\/\w+;base64,/, '') // 压缩后的 base64 略缩图, 用来快速展示图片
+      console.log(base64Str)
+      var imageUri = this.imgPath // 上传到服务器的 url. 用来展示高清图片
       var msg = new RongIMLib.ImageMessage({ content: base64Str, imageUri: imageUri })
       var conversationType = RongIMLib.ConversationType.PRIVATE
       var targetId = _this.firstId // 目标 Id
@@ -418,6 +417,8 @@ export default {
               break
             }
           }
+          _this.imgPath = ''
+          _this.imageUrl = ''
           _this.messageContent.push(message)
           _this.scrollBottom = true
           _this.onScroller()
@@ -427,6 +428,13 @@ export default {
         }
       }
       RongIMClient.getInstance().sendMessage(conversationType, targetId, msg, callback)
+    },
+    pushImgMsg(file, fileList) {
+      if (file.code) return file.message && this.$warn(file.message)
+      // const reader = new FileReader()
+      // reader.readAsDataURL(fileList.raw)
+      this.imgPath = file.data
+      compress(fileList.raw, this.imageUrl, this.pushImgMessage)
     }
   }
 }
