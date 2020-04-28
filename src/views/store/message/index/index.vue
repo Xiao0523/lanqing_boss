@@ -205,6 +205,7 @@ export default {
       const getObj = this.idList
       getInfoList(getObj).then(res => {
         if (res.code) return res.message && this.$warn(res.message)
+        console.log(res)
         this.users = res.data
         const idList = []
         this.sessionList.forEach(v => {
@@ -401,7 +402,6 @@ export default {
     pushImgMessage(baseStr) {
       const _this = this
       var base64Str = baseStr.replace(/^data:image\/\w+;base64,/, '') // 压缩后的 base64 略缩图, 用来快速展示图片
-      console.log(base64Str)
       var imageUri = this.imgPath // 上传到服务器的 url. 用来展示高清图片
       var msg = new RongIMLib.ImageMessage({ content: base64Str, imageUri: imageUri })
       var conversationType = RongIMLib.ConversationType.PRIVATE
