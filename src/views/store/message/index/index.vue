@@ -68,6 +68,7 @@
               name="multipartFile"
               :show-file-list="false"
               :on-success="pushImgMsg"
+              :on-change="onchange"
             >
               <img src="@/assets/message-pic.png" alt="">
             </el-upload>
@@ -99,6 +100,7 @@ import { formatTime } from '@/utils/date'
 import { throttle } from '@/utils/throttle'
 import { Upload_Pic } from '@/api/URL.js'
 import { getInfoList } from '@/api/rongyun'
+import { compress } from '@/utils/base64'
 // import { init } from '@/utils/rongyun'
 // import { getLocal } from '@/utils/local'
 import { rongyunMixins } from '@/views/mixins/rongyun'
@@ -136,7 +138,8 @@ export default {
       newId: '',
       users: {},
       idList: [],
-      chatList: null
+      chatList: null,
+      imageUrl: ''
     }
   },
   computed: {
@@ -391,38 +394,39 @@ export default {
         }
       })
     },
+    onchange(file, fileList) {
+      this.imageUrl = URL.createObjectURL(file.raw)
+    },
     pushImgMsg(file, fileList) {
       if (file.code) return file.message && this.$warn(file.message)
-      const reader = new FileReader()
-      reader.readAsDataURL(fileList.raw)
+      // const reader = new FileReader()
+      // reader.readAsDataURL(fileList.raw)
       const _this = this
-      reader.onload = function(e) {
-        var base64Str = this.result // 压缩后的 base64 略缩图, 用来快速展示图片
-        var imageUri = file.data // 上传到服务器的 url. 用来展示高清图片
-        var msg = new RongIMLib.ImageMessage({ content: base64Str, imageUri: imageUri })
-        var conversationType = RongIMLib.ConversationType.PRIVATE
-        var targetId = _this.firstId // 目标 Id
-        var callback = {
-          onSuccess: function(message) {
-            for (const item in _this.chatList) {
-              if (_this.chatList[item].targetId === message.targetId) {
-                _this.chatList[item] = {
-                  ..._this.chatList[item],
-                  ...message
-                }
-                break
+      var base64Str = compress(fileList.raw, this.imageUrl) // 压缩后的 base64 略缩图, 用来快速展示图片
+      var imageUri = file.data // 上传到服务器的 url. 用来展示高清图片
+      var msg = new RongIMLib.ImageMessage({ content: base64Str, imageUri: imageUri })
+      var conversationType = RongIMLib.ConversationType.PRIVATE
+      var targetId = _this.firstId // 目标 Id
+      var callback = {
+        onSuccess: function(message) {
+          for (const item in _this.chatList) {
+            if (_this.chatList[item].targetId === message.targetId) {
+              _this.chatList[item] = {
+                ..._this.chatList[item],
+                ...message
               }
+              break
             }
-            _this.messageContent.push(message)
-            _this.scrollBottom = true
-            _this.onScroller()
-          },
-          onError: function(errorCode) {
-            console.log('发送图片消息失败', errorCode)
           }
+          _this.messageContent.push(message)
+          _this.scrollBottom = true
+          _this.onScroller()
+        },
+        onError: function(errorCode) {
+          console.log('发送图片消息失败', errorCode)
         }
-        RongIMClient.getInstance().sendMessage(conversationType, targetId, msg, callback)
       }
+      RongIMClient.getInstance().sendMessage(conversationType, targetId, msg, callback)
     }
   }
 }
