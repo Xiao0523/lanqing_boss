@@ -42,15 +42,15 @@
       overflow-y: hidden;
       .inner-warpper {
         width: 100%;
-        height: 96px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid rgba(241,241,245,1);
+        height: 100%;
+        margin-bottom: 10px;
         box-sizing: border-box;
         cursor: pointer;
         .content-warpper {
           width: 100%;
           display: flex;
           padding: 20px 15px;
+          border-bottom: 1px solid rgba(241,241,245,1);
           box-sizing: border-box;
           position: relative;
           .clearMessage {
@@ -119,6 +119,9 @@
               white-space: nowrap;
               text-overflow: ellipsis;
             }
+          }
+          &.actived {
+            background:rgba(0, 98, 255, .05);
           }
           &:hover {
             background:rgba(0, 98, 255, .05);
@@ -381,6 +384,7 @@
   border: 0;
 }
 .img-boxs {
-  display: block;
+  display: flex;
   height: 100px;
+  align-items: center;
 }

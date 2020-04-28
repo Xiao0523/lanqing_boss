@@ -11,8 +11,8 @@
       </div> -->
       <div class="list-box">
         <div class="inner-warpper">
-          <div v-for="(item, index) in sessionList" :key="item.targetId + index" class="content-warpper" @click="changeChat(item.targetId)">
-            <span class="clearMessage el-icon-close" @click="clearBox(item.targetId)" />
+          <div v-for="(item, index) in chatList" :key="item.targetId + index" class="content-warpper" :class="{actived: item.targetId === firstId}" @click="changeChat(item.targetId)">
+            <!-- <span class="clearMessage el-icon-close" @click="clearBox(item.targetId)" /> -->
             <span v-show="item.unreadMessageCount" class="message-tip">{{ item.unreadMessageCount }}</span>
             <img :src="(item.user && item.user.portrait) || ''" alt="">
             <div class="warpper-content">
@@ -23,7 +23,8 @@
               <span v-if="item.objectName === 'RC:ImgMsg'" class="message-content">收到一条图片消息</span>
               <span v-else-if="item.objectName === 'RC:FileMsg'" class="message-content">收到一条附件消息</span>
               <span v-else-if="item.objectName === 'RC:VcMsg'" class="message-content">收到一条语音消息</span>
-              <span v-else class="message-content">{{ item.latestMessage && item.latestMessage.content.content }}</span>
+              <span v-else-if="item.objectName === 'RC:TxtMsg' && item.latestMessage" class="message-content">{{ item.latestMessage && item.latestMessage.content.content }}</span>
+              <span v-else-if="item.objectName === 'RC:TxtMsg' && !item.latestMessage && item.content" class="message-content">{{ item.content && item.content.content }}</span>
             </div>
           </div>
         </div>
@@ -32,7 +33,7 @@
     <section class="right">
       <div ref="chat" class="chat-box">
         <div class="chat-box-top">
-          <div class="title">{{ firstUser && firstUser.user && firstUser.user.name }}</div>
+          <div class="title">{{ firstUser && firstUser.name }}</div>
           <div ref="chatContent" class="chat-main" @scroll.passive="getScroll">
             <span v-show="hasMsg" class="scroll-more">上拉加载更多</span>
             <div
@@ -45,7 +46,7 @@
               <img v-if="item && item.messageDirection !== 1" :src="item.content.user && item.content.user.portrait" class="photo" alt="">
               <div class="bubble-content">
                 <el-link v-if="item.content.messageName === 'ImageMessage'" target="_blank" :href="item.content.imageUri" class="img-boxs">
-                  <img :src="item.content.imageUri" alt="" width="100">
+                  <img :src="item.content.imageUri" alt="">
                 </el-link>
                 <span v-if="item.content.messageName === 'VoiceMessage'">该消息是语音消息,PC端无法显示</span>
                 <span v-if="item.content.messageName === 'TextMessage'">{{ item.content.content }}</span>
@@ -61,27 +62,6 @@
         </div>
         <div class="chat-box-bottom">
           <div class="tool">
-            <!-- <img src="@/assets/message-emoji.png" alt=""> -->
-            <!-- <el-upload
-              ref="upload"
-              class="upload-demo"
-              :action="uploadPic"
-              :on-success="pushImgMsg"
-              :file-list="fileList"
-              :auto-upload="false"
-              :show-file-list="false"
-            /> -->
-
-            <!-- <el-upload
-              ref="upload"
-              class="upload-demo"
-              :action="uploadPic"
-              :on-success="pushImgMsg"
-              :show-file-list="false"
-            >
-              <el-button size="small" type="primary" class="btns" />
-            </el-upload> -->
-
             <el-upload
               class="uploader"
               :action="uploadPic"
@@ -92,7 +72,7 @@
               <img src="@/assets/message-pic.png" alt="">
             </el-upload>
           </div>
-          <el-input v-model="text" type="textarea" class="textarea" resize="none" @keyup.native="enterInput" />
+          <el-input v-model="text" type="textarea" class="textarea" resize="none" @keydown.native="enterInput" />
           <div class="btn-box">
             <el-button class="enter-btn" @click="onSend">发送</el-button>
             <span class="fonts">按Enter键发送，按Ctrl+Enter键换行</span>
@@ -150,12 +130,13 @@ export default {
       sequence: true,
       getScroll: null,
       // firstFetch: true,
-      firstDo: true,
       result: '',
       scrollBottom: true,
       newSessionList: [],
       newId: '',
-      users: {}
+      users: {},
+      idList: [],
+      chatList: null
     }
   },
   computed: {
@@ -173,35 +154,51 @@ export default {
     },
     sessionList: {
       handler(oldVal, newVal) {
-        if (!this.firstDo) return
-        this.firstDo = false
-        const targetIds = this.sessionList[0] && this.sessionList[0].targetId
-        this.firstId = this.newId || targetIds
-        const idList = []
+        if (!this.sessionList.length) {
+          this.messageContent = ''
+          this.firstId = ''
+          return
+        }
         this.sessionList.forEach(v => {
-          idList.push(v.targetId)
+          this.idList.push(v.targetId)
         })
-        this.getInfo(idList)
+      },
+      deep: true
+    },
+    idList: {
+      handler(newVal) {
+        if (!newVal.length) return
+        this.getInfo()
       },
       deep: true
     },
     firstId() {
+      this.getUserInfo(this.firstId)
       this.getMessage()
-      this.firstUser = this.users[this.firstId]
     }
   },
   created() {
     const id = this.$route.query.id
     if (id) {
       this.newId = id
-      this.getInfo([this.newId])
-      this.getMessage()
+      this.$route.query.id = ''
+      this.idList = [
+        this.newId,
+        ...this.idList
+      ]
     }
     this.getScroll = throttle(this.paperScroll, 300)
   },
   methods: {
-    getInfo(idList) {
-      const getObj = [...idList]
+    getUserInfo(id) {
+      const getObj = [id]
+      getInfoList(getObj).then(res => {
+        if (res.code) return res.message && this.$warn(res.message)
+        this.firstUser = res.data[this.firstId]
+      })
+    },
+    getInfo() {
+      const getObj = this.idList
       getInfoList(getObj).then(res => {
         if (res.code) return res.message && this.$warn(res.message)
         this.users = res.data
@@ -211,15 +208,18 @@ export default {
         })
         if (this.newId) {
           if (!idList.includes(this.newId)) {
-            this.sessionList.push({
+            this.sessionList.unshift({
               targetId: this.newId
             })
           }
         }
-        this.firstUser = this.sessionList[0]
-        this.sessionList.forEach((val) => {
+        // this.firstUser = this.sessionList[0]
+        this.chatList = JSON.parse(JSON.stringify(this.sessionList))
+        this.chatList.forEach((val) => {
           this.$set(val, 'user', res.data[val.targetId])
         })
+        if (this.firstId) return
+        this.firstId = this.chatList[0].targetId
       })
     },
     changeChat(id) {
@@ -234,8 +234,8 @@ export default {
       if (e.keyCode === 13 && e.ctrlKey) {
         this.text += '\n'
       } else if (e.keyCode === 13) {
-        this.onSend()
         e.preventDefault()
+        this.onSend()
       }
     },
     clearBox(id) {
@@ -248,7 +248,6 @@ export default {
       const _this = this
       RongIMClient.getInstance().getConversationList({
         onSuccess: function(list) {
-          console.log(list)
           _this.sessionList = list
         },
         onError: function(error) {
@@ -258,7 +257,7 @@ export default {
     },
     getLockMessage() {
       var conversationType = RongIMLib.ConversationType.PRIVATE
-      var targetId = this.newId
+      var targetId = this.firstId
       RongIMClient.getInstance().getConversation(conversationType, targetId, {
         onSuccess: function(conversation) {
           if (conversation) {
@@ -272,7 +271,7 @@ export default {
       var conversationType = RongIMLib.ConversationType.PRIVATE
       var targetId = this.firstId || this.newId
       var timestrap = null // 默认传 null, 若从头开始获取历史消息, 请赋值为 0
-      var count = 10
+      var count = 20
       if (this.sequence) {
         timestrap = 0 // 第一次获取用当前时间
       } else {
@@ -292,7 +291,6 @@ export default {
           _this.hasMsg = hasMsg
           if (_this.sequence) {
             for (let i = 0; i < list.length; i++) {
-              list[i].action = false
               _this.messageContent.push(list[i])
             }
             _this.onScroller()
@@ -304,7 +302,6 @@ export default {
             }
             _this.onScroller()
           }
-          console.log('messageContent::::', this.messageContent)
           // _this.messageContent = list
           // _this.hasMsg = hasMsg
           _this.clearUnRead()
@@ -376,6 +373,15 @@ export default {
         onSuccess: function(message) {
           // message 为发送的消息对象并且包含服务器返回的消息唯一 id 和发送消息时间戳
           _this.text = ''
+          for (const item in _this.chatList) {
+            if (_this.chatList[item].targetId === message.targetId) {
+              _this.chatList[item] = {
+                ..._this.chatList[item],
+                ...message
+              }
+              break
+            }
+          }
           _this.messageContent.push(message)
           _this.scrollBottom = true
           _this.onScroller()
@@ -398,6 +404,15 @@ export default {
         var targetId = _this.firstId // 目标 Id
         var callback = {
           onSuccess: function(message) {
+            for (const item in _this.chatList) {
+              if (_this.chatList[item].targetId === message.targetId) {
+                _this.chatList[item] = {
+                  ..._this.chatList[item],
+                  ...message
+                }
+                break
+              }
+            }
             _this.messageContent.push(message)
             _this.scrollBottom = true
             _this.onScroller()
@@ -415,4 +430,11 @@ export default {
 
 <style lang="scss" scoped>
   @import '../../../../styles/rongyn.scss';
+  .img-boxs {
+    img {
+      display: block;
+      max-width: 100px;
+      max-height: 100px;
+    }
+  }
 </style>
