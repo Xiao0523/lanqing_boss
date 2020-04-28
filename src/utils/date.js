@@ -43,6 +43,10 @@ export function parseTime(time, cFormat) {
   return time_str
 }
 
+export function getLocalTime(nS) {
+  return new Date(parseInt(nS) * 1000).toLocaleString().replace(/:\d{1,2}$/, ' ')
+}
+
 /**
  * @param {number} time
  * @param {string} option

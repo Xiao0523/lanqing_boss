@@ -96,7 +96,7 @@
 
 <script>
 import UserInfo from '@/layout/components/Sidebar/mixin/UserInfo'
-import { formatTime } from '@/utils/date'
+import { getLocalTime } from '@/utils/date'
 import { throttle } from '@/utils/throttle'
 import { Upload_Pic } from '@/api/URL.js'
 import { getInfoList } from '@/api/rongyun'
@@ -110,7 +110,7 @@ export default {
   name: 'Message',
   filters: {
     timeStr(val) {
-      return (val && formatTime(val, 'hh:mm')) || '刚刚'
+      return (val && getLocalTime(val)) || '刚刚'
     }
   },
   mixins: [UserInfo, rongyunMixins],
