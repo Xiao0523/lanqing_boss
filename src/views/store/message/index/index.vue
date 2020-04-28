@@ -205,7 +205,6 @@ export default {
       const getObj = this.idList
       getInfoList(getObj).then(res => {
         if (res.code) return res.message && this.$warn(res.message)
-        console.log(res)
         this.users = res.data
         const idList = []
         this.sessionList.forEach(v => {

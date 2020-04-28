@@ -38,7 +38,16 @@ export const rongyunMixins = {
         if (message.targetId === this.firstId) {
           this.scrollBottom = true
           if (message.objectName === 'RC:TypSts' || message.objectName === 'RC:ReadNtf') return
-          this.chatList.push(message)
+          for (const item in this.chatList) {
+            if (this.chatList[item].targetId === message.targetId) {
+              this.chatList[item] = {
+                ...this.chatList[item],
+                ...message
+              }
+              break
+            }
+          }
+          console.log(this.chatList)
           this.messageContent.push(message)
           this.sequence = true
           this.onScroller()
