@@ -219,7 +219,7 @@ export default {
           this.$set(val, 'user', res.data[val.targetId])
         })
         if (this.firstId) return
-        this.firstId = this.chatList[0].targetId
+        this.firstId = this.newId || this.chatList[0].targetId
       })
     },
     changeChat(id) {
