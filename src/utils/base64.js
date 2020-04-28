@@ -1,10 +1,9 @@
 export function compress(fileObj, file) {
-  if (fileObj.size < 128000 && fileObj.type === 'image/jpeg') {
+  if (fileObj.size < 8000 && fileObj.type === 'image/jpeg') {
     directTurnIntoBase64(fileObj)
   } else {
     try {
       // 压缩图片需要的一些元素和对象
-      var reader = new FileReader()
       // 创建一个img对象
       var img = new Image()
       img.setAttribute('crossOrigin', 'anonymous')
@@ -20,8 +19,8 @@ export function compress(fileObj, file) {
         var originWidth = this.width
         var originHeight = this.height
         // 最大尺寸限制，可通过国设置宽高来实现图片压缩程度
-        var maxWidth = 100
-        var maxHeight = 100
+        var maxWidth = 50
+        var maxHeight = 50
         // 目标尺寸
         var targetWidth = originWidth
         var targetHeight = originHeight
@@ -48,9 +47,11 @@ export function compress(fileObj, file) {
         /* canvas.toDataURL(mimeType, qualityArgument),mimeType 默认值是'image/jpeg';
                  * qualityArgument表示导出的图片质量，只要导出为jpg和webp格式的时候此参数才有效果，默认值是0.92*/
         var newUrl = canvas.toDataURL('image/jpeg', 0.92)// base64 格式
+        console.log(newUrl)
         return newUrl
       }
     } catch (e) {
+      console.log('catch')
       directTurnIntoBase64(fileObj)
     }
   }

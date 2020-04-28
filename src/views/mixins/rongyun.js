@@ -35,14 +35,11 @@ export const rongyunMixins = {
     addPromptInfo(message) {
       console.log(message)
       if (typeof (message) === 'object') {
-        console.log(1)
         if (message.targetId === this.firstId) {
-          console.log(2)
           this.scrollBottom = true
           if (message.objectName === 'RC:TypSts' || message.objectName === 'RC:ReadNtf') return
-          // console.log(this.messageContent)
-          console.log(this.chatList)
           this.chatList.push(message)
+          this.messageContent.push(message)
           this.sequence = true
           this.onScroller()
           this.clearUnRead()
