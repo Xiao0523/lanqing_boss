@@ -61,6 +61,7 @@
             </el-form-item>
           </el-col>
         </el-row>
+
         <el-row>
           <el-col :span="12">
             <el-form-item label="课程价格">
@@ -149,6 +150,15 @@
             </el-form-item>
           </el-col>
         </el-row>
+
+        <el-row>
+          <el-col :span="20">
+            <el-form-item label="简单描述">
+              <el-input v-model="simple_words" type="textarea" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
         <el-row>
           <el-col :span="20">
             <el-form-item label="课程介绍">
@@ -199,7 +209,8 @@ export default {
         price: '',
         studentStyle: [],
         tags: '',
-        teachers: []
+        teachers: [],
+        simple_words: ''
       },
       title: '新增课程',
       teacherStr: '',

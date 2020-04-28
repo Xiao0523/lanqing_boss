@@ -402,7 +402,7 @@ export default {
       // const reader = new FileReader()
       // reader.readAsDataURL(fileList.raw)
       const _this = this
-      var base64Str = compress(fileList.raw, this.imageUrl) // 压缩后的 base64 略缩图, 用来快速展示图片
+      var base64Str = compress(fileList.raw, this.imageUrl).replace(/^data:image\/\w+;base64,/, '') // 压缩后的 base64 略缩图, 用来快速展示图片
       var imageUri = file.data // 上传到服务器的 url. 用来展示高清图片
       var msg = new RongIMLib.ImageMessage({ content: base64Str, imageUri: imageUri })
       var conversationType = RongIMLib.ConversationType.PRIVATE
