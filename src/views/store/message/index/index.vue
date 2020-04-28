@@ -110,7 +110,7 @@ export default {
   name: 'Message',
   filters: {
     timeStr(val) {
-      return (val && getLocalTime(val)) || '刚刚'
+      return (val && getLocalTime(val / 1000)) || '刚刚'
     }
   },
   mixins: [UserInfo, rongyunMixins],
