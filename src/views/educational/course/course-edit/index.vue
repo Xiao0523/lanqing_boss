@@ -150,7 +150,6 @@
             </el-form-item>
           </el-col>
         </el-row>
-
         <el-row>
           <el-col :span="20">
             <el-form-item label="简单描述">
@@ -158,7 +157,6 @@
             </el-form-item>
           </el-col>
         </el-row>
-
         <el-row>
           <el-col :span="20">
             <el-form-item label="课程介绍">

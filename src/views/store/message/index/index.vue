@@ -25,6 +25,7 @@
               <span v-else-if="item.objectName === 'RC:VcMsg'" class="message-content">收到一条语音消息</span>
               <span v-else-if="item.objectName === 'RC:TxtMsg' && item.latestMessage" class="message-content">{{ item.latestMessage && item.latestMessage.content.content }}</span>
               <span v-else-if="item.objectName === 'RC:TxtMsg' && !item.latestMessage && item.content" class="message-content">{{ item.content && item.content.content }}</span>
+              <span v-else class="message-content">收到一条消息</span>
             </div>
           </div>
         </div>
@@ -42,20 +43,25 @@
               class="bubble"
               :class="[item && item.messageDirection == 1 ? 'master' : 'guest']"
             >
+              <div v-show="item.showTime" v-clickDown class="time" @click="isSentTimeShow(index, item.sentTime)">{{ item.sentTime | sentTimeStr }}</div>
+              <!-- <timer :time="item.sentTime" /> -->
               <!-- <img  :src="item.content.user && item.content.user.portrait" class="photo" alt=""> -->
-              <img v-if="item && item.messageDirection !== 1" :src="item.content.user && item.content.user.portrait" class="photo" alt="">
-              <div class="bubble-content">
-                <el-link v-if="item.content.messageName === 'ImageMessage'" target="_blank" :href="item.content.imageUri" class="img-boxs">
-                  <img :src="item.content.imageUri" alt="">
-                </el-link>
-                <span v-if="item.content.messageName === 'VoiceMessage'">该消息是语音消息,PC端无法显示</span>
-                <span v-if="item.content.messageName === 'TextMessage'">{{ item.content.content }}</span>
-                <el-link v-if="item.content.messageName === 'FileMessage'" target="_blank" :href="item.content.fileUrl">
-                  <div class="file-box">
-                    <img src="@/assets/file.png" alt="" height="40" width="40">
-                    <span>{{ item.content.name }}</span>
-                  </div>
-                </el-link>
+              <div class="content-box">
+                <img v-if="item && item.messageDirection !== 1" :src="item.content.user && item.content.user.portrait" class="photo" alt="">
+                <div class="bubble-content">
+                  <el-link v-if="item.content.messageName === 'ImageMessage'" target="_blank" :href="item.content.imageUri" class="img-boxs">
+                    <img :src="item.content.imageUri" alt="">
+                  </el-link>
+                  <span v-else-if="item.content.messageName === 'VoiceMessage'">该消息是语音消息,PC端无法显示</span>
+                  <span v-else-if="item.content.messageName === 'TextMessage'">{{ item.content.content }}</span>
+                  <el-link v-else-if="item.content.messageName === 'FileMessage'" target="_blank" :href="item.content.fileUrl">
+                    <div class="file-box">
+                      <img src="@/assets/file.png" alt="" height="40" width="40">
+                      <span>{{ item.content.name }}</span>
+                    </div>
+                  </el-link>
+                  <span v-else>该消息在PC端无法显示</span>
+                </div>
               </div>
             </div>
           </div>
@@ -101,6 +107,8 @@ import { throttle } from '@/utils/throttle'
 import { Upload_Pic } from '@/api/URL.js'
 import { getInfoList } from '@/api/rongyun'
 import { compress } from '@/utils/base64'
+import timer from '../components/timer'
+import { setLocal } from '@/utils/local'
 // import { init } from '@/utils/rongyun'
 // import { getLocal } from '@/utils/local'
 import { rongyunMixins } from '@/views/mixins/rongyun'
@@ -108,14 +116,25 @@ const RongIMLib = window.RongIMLib // 由 window 赋值
 const RongIMClient = RongIMLib.RongIMClient
 export default {
   name: 'Message',
+  directives: {
+    clickDown: {
+      inserted(el, binding) {
+        el.click()
+      }
+    }
+  },
   filters: {
     timeStr(val) {
-      return (val && getLocalTime(val / 1000)) || '刚刚'
+      return (val && getLocalTime(val)) || '刚刚'
+    },
+    sentTimeStr(val) {
+      return getLocalTime(val)
     }
   },
   mixins: [UserInfo, rongyunMixins],
   data() {
     return {
+      filterThis: this,
       text: '',
       messageList: [],
       sessionList: [],
@@ -140,7 +159,8 @@ export default {
       idList: [],
       chatList: null,
       imageUrl: '',
-      imgPath: ''
+      imgPath: '',
+      lastSentTime: ''
     }
   },
   computed: {
@@ -194,6 +214,14 @@ export default {
     this.getScroll = throttle(this.paperScroll, 300)
   },
   methods: {
+    isSentTimeShow(index, time) {
+      if (time > this.lastSentTime + 5 * 60 * 1000 || this.lastSentTime === time) {
+        this.lastSentTime = time
+        this.$set(this.messageContent[index], 'showTime', true)
+        return
+      }
+      this.$set(this.messageContent[index], 'showTime', false)
+    },
     getUserInfo(id) {
       const getObj = [id]
       getInfoList(getObj).then(res => {
@@ -297,6 +325,8 @@ export default {
             for (let i = 0; i < list.length; i++) {
               _this.messageContent.push(list[i])
             }
+            setLocal('rongyunSentTime', _this.messageContent[0].sentTime)
+            _this.lastSentTime = _this.messageContent[0].sentTime
             _this.onScroller()
             _this.sequence = false
           } else {
@@ -304,6 +334,8 @@ export default {
             for (let i = 0; i < arr.length; i++) {
               _this.messageContent.unshift(list[i])
             }
+            _this.lastSentTime = _this.messageContent[0].sentTime
+            setLocal('rongyunSentTime', _this.messageContent[0].sentTime)
             _this.onScroller()
           }
           // _this.messageContent = list
