@@ -48,6 +48,7 @@ export function init(params, callbacks, _this, addPromptInfo) {
   RongIMClient.setOnReceiveMessageListener({
     // 接收到的消息
     onReceived: function(message) {
+      console.log(1111)
       addPromptInfo && addPromptInfo(message)
     }
   })
