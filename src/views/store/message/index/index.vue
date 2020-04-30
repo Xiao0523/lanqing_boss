@@ -444,8 +444,7 @@ export default {
         user: {
           id: this.userId,
           name: this.userName,
-          icon: this.userIcon,
-          extra: ''
+          portrait: this.userIcon
         }
       }
       var msg = new RongIMLib.TextMessage(textMessageInfo)
