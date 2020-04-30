@@ -50,7 +50,7 @@
             <div class="empty-table">
               <strong class="empty-table-head">时间</strong>
               <strong class="empty-table-head">类型</strong>
-              <strong class="empty-table-head">奖学金币数</strong>
+              <strong class="empty-table-head">蓝青币数</strong>
               <strong class="empty-table-head">消费金额</strong>
             </div>
             <div class="empty-content">

@@ -84,7 +84,7 @@
               <el-table-column label="订单状态" prop="statusDescription" />
               <el-table-column label="操作">
                 <template slot-scope="scope">
-                  <el-button size="mini" @click="goMessage(scope.row.studentId)">咨询</el-button>
+                  <el-button size="mini" @click="goMessage(scope.row.studentId)">沟通</el-button>
                   <el-button v-if="Number(scope.row.status) !== 1 && Number(scope.row.status) !== 3" size="mini" @click="backMoneys(scope.row)">退款</el-button>
                 </template>
               </el-table-column>
