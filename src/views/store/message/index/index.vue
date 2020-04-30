@@ -437,12 +437,12 @@ export default {
       }
       var textMessageInfo = {
         content: this.text,
-        extra: ''
-        // user: {
-        //   id: getLocal('rong_current_user'),
-        //   name: getLocal('username'),
-        //   portrait: getLocal('avatar')
-        // }
+        extra: '',
+        user: {
+          id: getLocal('rong_current_user'),
+          name: getLocal('username'),
+          portrait: getLocal('avatar')
+        }
       }
       var msg = new RongIMLib.TextMessage(textMessageInfo)
       var conversationType = RongIMLib.ConversationType.PRIVATE
