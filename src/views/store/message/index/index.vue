@@ -2,7 +2,7 @@
   <div class="main">
     <section class="left">
       <div class="list-box">
-        <div v-if="chatList && chatList.length" class="inner-warpper">
+        <div v-if="messageDefaultFlag" class="inner-warpper">
           <div v-for="(item, index) in chatList" :key="item.targetId + index" class="content-warpper" :class="{actived: item.targetId === firstId}" @click="changeChat(item.targetId)">
             <!-- <span class="clearMessage el-icon-close" @click="clearBox(item.targetId)" /> -->
             <span v-show="item.unreadMessageCount" class="message-tip">{{ item.unreadMessageCount }}</span>
@@ -40,7 +40,7 @@
         <div class="chat-box-top">
           <div v-if="firstUser" class="title">{{ firstUser && firstUser.name }}</div>
           <div v-else class="title">蓝青教育</div>
-          <div v-if="chatList && chatList.length" ref="chatContent" class="chat-main" @scroll.passive="getScroll">
+          <div v-if="messageDefaultFlag" ref="chatContent" class="chat-main" @scroll.passive="getScroll">
             <span v-show="hasMsg" class="scroll-more">上拉加载更多</span>
             <div
               v-for="(item, index) in messageContent"
@@ -188,7 +188,8 @@ export default {
       chatList: null,
       imageUrl: '',
       imgPath: '',
-      lastSentTime: ''
+      lastSentTime: '',
+      messageDefaultFlag: ''
     }
   },
   computed: {
@@ -278,6 +279,7 @@ export default {
         this.chatList.forEach((val) => {
           this.$set(val, 'user', res.data[val.targetId])
         })
+        this.messageDefaultFlag = this.chatList.length
         if (this.firstId) return
         this.firstId = this.newId || this.chatList[0].targetId
       })
