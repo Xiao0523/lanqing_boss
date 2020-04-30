@@ -456,7 +456,7 @@ export default {
           }
           _this.messageContent.push(message)
           _this.scrollBottom = true
-          _this.getInfo()
+          _this.fetchMessageList()
           _this.onScroller()
         },
         onError: function(errorCode) {
@@ -489,7 +489,7 @@ export default {
           _this.imageUrl = ''
           _this.messageContent.push(message)
           _this.scrollBottom = true
-          _this.getInfo()
+          _this.fetchMessageList()
           _this.onScroller()
         },
         onError: function(errorCode) {
