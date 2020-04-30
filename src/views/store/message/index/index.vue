@@ -462,7 +462,6 @@ export default {
       const _this = this
       RongIMClient.getInstance().sendMessage(conversationType, targetId, msg, {
         onSuccess: function(message) {
-          console.log(message)
           // message 为发送的消息对象并且包含服务器返回的消息唯一 id 和发送消息时间戳
           _this.text = ''
           for (const item in _this.chatList) {
@@ -491,7 +490,11 @@ export default {
       const _this = this
       var base64Str = baseStr.replace(/^data:image\/\w+;base64,/, '') // 压缩后的 base64 略缩图, 用来快速展示图片
       var imageUri = this.imgPath // 上传到服务器的 url. 用来展示高清图片
-      var msg = new RongIMLib.ImageMessage({ content: base64Str, imageUri: imageUri })
+      var msg = new RongIMLib.ImageMessage({ content: base64Str, imageUri: imageUri, user: {
+        id: this.userId,
+        name: this.userName,
+        portrait: this.userIcon
+      }})
       var conversationType = RongIMLib.ConversationType.PRIVATE
       var targetId = _this.firstId // 目标 Id
       var callback = {
