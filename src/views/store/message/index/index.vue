@@ -21,7 +21,7 @@
             </div>
           </div>
         </div>
-        <div v-else class="inner-warpper">
+        <div v-else-if="messageDefaultFlag !== '' && !messageDefaultFlag" class="inner-warpper">
           <div class="content-warpper actived">
             <img src="@/assets/messageLogo.png" alt="">
             <div class="warpper-content">
@@ -70,7 +70,7 @@
               </div>
             </div>
           </div>
-          <div v-else ref="chatContent" class="chat-main">
+          <div v-else-if="messageDefaultFlag !== '' && !messageDefaultFlag" ref="chatContent" class="chat-main">
             <div class="bubble guest">
               <div class="time">{{ times | sentTimeStr }}</div>
               <div class="content-box">
