@@ -37,21 +37,22 @@ export const rongyunMixins = {
         if (message.targetId === this.firstId) {
           this.scrollBottom = true
           if (message.objectName === 'RC:TypSts' || message.objectName === 'RC:ReadNtf') return
-          // for (const item in this.chatList) {
-          //   if (this.chatList[item].targetId === message.targetId) {
-          //     this.chatList[item] = {
-          //       ...this.chatList[item],
-          //       ...message
-          //     }
-          //     break
-          //   }
-          // }
-          console.log(this.fetchMessageList)
-          this.fetchMessageList()
+          for (const item in this.chatList) {
+            if (this.chatList[item].targetId === message.targetId) {
+              this.chatList[item] = {
+                ...this.chatList[item],
+                ...message
+              }
+              break
+            }
+          }
           this.messageContent.push(message)
           this.sequence = true
           this.onScroller()
           this.clearUnRead()
+        } else {
+          if (message.objectName === 'RC:TypSts' || message.objectName === 'RC:ReadNtf') return
+          this.fetchMessageList()
         }
       }
       // if (this.initHistory) {
