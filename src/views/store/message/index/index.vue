@@ -316,7 +316,6 @@ export default {
       const _this = this
       RongIMClient.getInstance().getConversationList({
         onSuccess: function(list) {
-          console.log(list)
           _this.sessionList = list
         },
         onError: function(error) {
