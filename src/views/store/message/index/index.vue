@@ -296,6 +296,7 @@ export default {
       this.scrollBottom = true
       this.messageContent = []
       this.sequence = true
+      this.text = ''
       // this.firstFetch = true
     },
     enterInput(e) {
