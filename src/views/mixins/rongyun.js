@@ -38,15 +38,16 @@ export const rongyunMixins = {
         if (message.targetId === this.firstId) {
           this.scrollBottom = true
           if (message.objectName === 'RC:TypSts' || message.objectName === 'RC:ReadNtf') return
-          for (const item in this.chatList) {
-            if (this.chatList[item].targetId === message.targetId) {
-              this.chatList[item] = {
-                ...this.chatList[item],
-                ...message
-              }
-              break
-            }
-          }
+          // for (const item in this.chatList) {
+          //   if (this.chatList[item].targetId === message.targetId) {
+          //     this.chatList[item] = {
+          //       ...this.chatList[item],
+          //       ...message
+          //     }
+          //     break
+          //   }
+          // }
+          this.fetchMessageList()
           this.messageContent.push(message)
           this.sequence = true
           this.onScroller()
