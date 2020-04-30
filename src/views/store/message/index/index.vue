@@ -167,6 +167,9 @@ export default {
   mixins: [UserInfo, rongyunMixins],
   data() {
     return {
+      userId: getLocal('rong_current_user') || '',
+      userName: getLocal('username') || '',
+      userIcon: getLocal('avatar') || '',
       times: new Date().getTime(),
       filterThis: this,
       text: '',
@@ -439,9 +442,9 @@ export default {
         content: this.text,
         extra: '',
         user: {
-          id: getLocal('rong_current_user'),
-          name: getLocal('username'),
-          icon: getLocal('avatar'),
+          id: this.userId,
+          name: this.userName,
+          icon: this.userIcon,
           extra: ''
         }
       }
