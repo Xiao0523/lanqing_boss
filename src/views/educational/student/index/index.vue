@@ -25,7 +25,7 @@
           <div class="card__bd">
             <strong class="card-number">{{ content.latentStudentNum }}</strong>
           </div>
-          <div class="card__ft">浏览该过机构课程的学员</div>
+          <div class="card__ft">浏览过该机构课程的学员</div>
         </div>
       </el-col>
     </el-row>
