@@ -16,7 +16,8 @@ const state = {
   // appKey: 'cpj2xarlchsmn',
   appKey: 'pgyu6atqpmn2u',
   messageInit: false,
-  storeStatus: null
+  storeStatus: null,
+  storeId: ''
 }
 
 const mutations = {
@@ -55,6 +56,10 @@ const mutations = {
   },
   SET_messageInit: (state, flag = true) => {
     state.messageInit = flag
+  },
+  set_storeId: (state, id) => {
+    state.storeId = id
+    setLocal('storeId', id)
   }
 }
 
@@ -85,6 +90,7 @@ const actions = {
         getExamine().then(res => {
           if (res.code) this.$warn(res.message)
           commit('SET_STATUS', res.data.status || 0)
+          commit('set_storeId', res.data.storeId || 0)
         })
         getStore().then(res => {
           if (res.code) this.$warn(res.message)
@@ -143,6 +149,7 @@ const actions = {
       commit('SET_TEMP_ROLES', [])
       commit('SET_USERID', '')
       commit('SET_STORESTATUS', '')
+      commit('set_storeId', '')
       removeToken()
       resetRouter()
       resolve()
