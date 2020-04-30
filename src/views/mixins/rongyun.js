@@ -46,6 +46,7 @@ export const rongyunMixins = {
           //     break
           //   }
           // }
+          console.log(this.fetchMessageList)
           this.fetchMessageList()
           this.messageContent.push(message)
           this.sequence = true
