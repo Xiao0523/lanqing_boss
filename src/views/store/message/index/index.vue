@@ -448,11 +448,11 @@ export default {
       //   }
       // }
       var msg = new RongIMLib.TextMessage({
-        content: 'hello RongCloud!',
-        user: { // 当前用户(发送者) 信息
-          'id': 'user1',
-          'name': '张三',
-          'portrait': 'https://cdn.ronghub.com/thinking-face.png'
+        content: this.text,
+        user: {
+          id: this.userId,
+          name: this.userName,
+          portrait: this.userIcon
         }
       })
 
@@ -462,6 +462,7 @@ export default {
       const _this = this
       RongIMClient.getInstance().sendMessage(conversationType, targetId, msg, {
         onSuccess: function(message) {
+          console.log(message)
           // message 为发送的消息对象并且包含服务器返回的消息唯一 id 和发送消息时间戳
           _this.text = ''
           for (const item in _this.chatList) {
