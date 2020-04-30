@@ -143,7 +143,7 @@ import { throttle } from '@/utils/throttle'
 import { Upload_Pic } from '@/api/URL.js'
 import { getInfoList } from '@/api/rongyun'
 import { compress } from '@/utils/base64'
-import { setLocal } from '@/utils/local'
+import { setLocal, getLocal } from '@/utils/local'
 import { rongyunMixins } from '@/views/mixins/rongyun'
 const RongIMLib = window.RongIMLib // 由 window 赋值
 const RongIMClient = RongIMLib.RongIMClient
@@ -297,6 +297,7 @@ export default {
       this.messageContent = []
       this.sequence = true
       this.text = ''
+      this.firstUser = null
       // this.firstFetch = true
     },
     enterInput(e) {
@@ -436,7 +437,12 @@ export default {
       }
       var textMessageInfo = {
         content: this.text,
-        extra: ''
+        extra: '',
+        user: {
+          id: getLocal('rong_current_user'),
+          name: getLocal('username'),
+          portrait: getLocal('avatar')
+        }
       }
       var msg = new RongIMLib.TextMessage(textMessageInfo)
       var conversationType = RongIMLib.ConversationType.PRIVATE
