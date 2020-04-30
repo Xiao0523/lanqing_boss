@@ -438,7 +438,7 @@ export default {
       var textMessageInfo = {
         content: this.text,
         extra: '',
-        userInfo: {
+        user: {
           id: getLocal('rong_current_user'),
           name: getLocal('username'),
           portrait: getLocal('avatar')
