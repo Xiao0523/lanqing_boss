@@ -167,7 +167,7 @@ export default {
   mixins: [UserInfo, rongyunMixins],
   data() {
     return {
-      userId: getLocal('set_storeId') || '',
+      userId: getLocal('storeId') || '',
       userName: getLocal('username') || '',
       userIcon: getLocal('avatar') || '',
       times: new Date().getTime(),
