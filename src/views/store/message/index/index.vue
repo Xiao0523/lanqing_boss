@@ -96,6 +96,11 @@
               </div>
             </div>
           </div>
+          <div v-else ref="chatContent" class="chat-main">
+            <div class="bubble guest">
+              <div class="content-box" />
+            </div>
+          </div>
           <div class="chat-box-bottom">
             <div class="tool">
               <el-upload
