@@ -40,7 +40,7 @@
         <div class="chat-box-top">
           <div v-if="firstUser" class="title">{{ firstUser && firstUser.name }}</div>
           <div v-else class="title">蓝青教育</div>
-          <div v-if="messageContent && messageContent.length" ref="chatContent" class="chat-main" @scroll.passive="getScroll">
+          <div v-if="chatList && chatList.length" ref="chatContent" class="chat-main" @scroll.passive="getScroll">
             <span v-show="hasMsg" class="scroll-more">上拉加载更多</span>
             <div
               v-for="(item, index) in messageContent"

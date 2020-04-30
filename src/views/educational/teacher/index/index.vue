@@ -72,7 +72,7 @@
               cancel-button-text="不用了"
               icon="el-icon-info"
               icon-color="red"
-              title="是否确定让该老师离职？"
+              title="是否确定该老师的当前状态？"
               @onConfirm="editStatus(scope.row.id, scope.row.status)"
             >
               <el-button slot="reference" size="mini">{{ scope.row.status | statusBtn }}</el-button>
@@ -180,7 +180,10 @@ export default {
       })
     },
     goEdit() {
-      if (getLocal('examineStatus') !== 1) return
+      if (getLocal('examineStatus') !== 1) {
+        this.$warn('请先前往店铺认证！！！')
+        return
+      }
       this.$router.push({ name: 'TeacherEdit' })
     }
   }

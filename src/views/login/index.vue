@@ -39,7 +39,7 @@
         </el-col>
       </el-row>
       <div class="doc">
-        <el-checkbox v-model="docWrite" class="checked" />我已阅读<router-link to="#" class="doc-link">《蓝青合作协议》</router-link>
+        <el-checkbox v-model="docWrite" class="checked" />我已阅读<router-link tag="a" target="_blank" :to="{name: 'Treaty'}" class="doc-link">《蓝青合作协议》</router-link>
       </div>
       <el-button :loading="loading" type="primary" class="btn" @click.native.prevent="onLogin">登录</el-button>
     </el-form>

@@ -169,7 +169,10 @@ export default {
       })
     },
     goEdit() {
-      if (getLocal('examineStatus') !== 1) return
+      if (getLocal('examineStatus') !== 1) {
+        this.$warn('请先前往店铺认证！！！')
+        return
+      }
       this.$router.push({ name: 'CourseEdit' })
     }
   }

@@ -94,7 +94,7 @@
     </el-row>
     <el-row>
       <el-col :span="24" class="doc">
-        <el-checkbox v-model="readed" class="checked" />我已阅读<router-link to="#" class="doc-link">《蓝青合作协议》</router-link>
+        <el-checkbox v-model="readed" class="checked" />我已阅读<router-link tag="a" target="_blank" :to="{name: 'Treaty'}" class="doc-link">《蓝青合作协议》</router-link>
       </el-col>
     </el-row>
     <el-row>

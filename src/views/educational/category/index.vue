@@ -60,6 +60,7 @@
 <script>
 import Pagination from '@/components/Pagination'
 import { getCategoryList, getLevelOneList, getLevelTwoList, addCategoriesList, delCategoriesList } from '@/api/categories'
+import { getLocal } from '@/utils/local'
 export default {
   name: 'Course',
   components: { Pagination },
@@ -175,13 +176,13 @@ export default {
         this.fetchList()
       })
     },
-    // 分页点击 事件
-    pageChange(page) {
-
-    },
 
     // 添加 类目
     addCategory() {
+      if (getLocal('examineStatus') !== 1) {
+        this.$warn('请先前往店铺认证！！！')
+        return
+      }
       this.dialogFormVisible = true
     },
 
@@ -193,11 +194,6 @@ export default {
         }
         return item
       })
-    },
-
-    // 确认
-    onSubmit(item, index) {
-
     }
   }
 }
