@@ -253,7 +253,6 @@ export default {
     if (getLocal('cursorView') && String(getLocal('cursorAdd'))) {
       this.content = getLocal('cursorView')
       this.isAdd = getLocal('cursorAdd')
-      console.log(this.content)
       this.content.studentStyle.forEach(item => {
         this.studentList.push({
           url: item
@@ -315,7 +314,6 @@ export default {
       })
     },
     cateChange() {
-      console.log(this.content.categoryId)
       this.content.teachers = []
       this.getTeacher()
     },
@@ -417,14 +415,14 @@ export default {
     // 获取类目教师
     getTeacher() {
       const submitObj = {
-        categoryId: this.content.categoryId
+        categoryId: this.content.categoryId,
+        status: 0
       }
       getTeacherList(submitObj).then(res => {
         if (res.code) {
           return res.message && this.$warn(res.message)
         }
         if (!res.data) return
-        console.log(res.data)
         this.teacherList = res.data
       })
     },
