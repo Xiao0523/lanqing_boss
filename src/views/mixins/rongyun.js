@@ -34,6 +34,7 @@ export const rongyunMixins = {
     },
     addPromptInfo(message) {
       if (typeof (message) === 'object') {
+        console.log(message.targetId === this.firstId)
         if (message.targetId === this.firstId) {
           this.scrollBottom = true
           if (message.objectName === 'RC:TypSts' || message.objectName === 'RC:ReadNtf') return
@@ -51,6 +52,7 @@ export const rongyunMixins = {
           this.onScroller()
           this.clearUnRead()
         } else {
+          console.log(111)
           if (message.objectName === 'RC:TypSts' || message.objectName === 'RC:ReadNtf') return
           this.fetchMessageList()
         }
