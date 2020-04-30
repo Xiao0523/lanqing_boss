@@ -7,7 +7,7 @@
           <div class="card__bd">
             <strong class="card-number">{{ content.formalStudentNum }}</strong>
           </div>
-          <div class="card__ft">当前正式学员数量</div>
+          <div class="card__ft">在该机构学习过的学员</div>
         </div>
       </el-col>
       <el-col :span="8">
@@ -16,7 +16,7 @@
           <div class="card__bd">
             <strong class="card-number">{{ content.intentionStudentNum }}</strong>
           </div>
-          <div class="card__ft">当前意向学员数量</div>
+          <div class="card__ft">将该机构课程加入购物车的学员</div>
         </div>
       </el-col>
       <el-col :span="8">
@@ -25,7 +25,7 @@
           <div class="card__bd">
             <strong class="card-number">{{ content.latentStudentNum }}</strong>
           </div>
-          <div class="card__ft">当前潜在学员数量</div>
+          <div class="card__ft">浏览该过机构课程的学员</div>
         </div>
       </el-col>
     </el-row>
@@ -34,9 +34,13 @@
       <h4 class="title">正式学员管理</h4>
     </div>
 
-    <el-form :inline="true">
+    <el-form :inline="true" @submit.native.prevent>
       <el-form-item class="search-item">
-        <el-input v-model.trim="keywords.nickName" placeholder="输入学员昵称" suffix-icon="el-icon-search" @blur="fetchList" @keyup.enter="fetchList" />
+        <el-input v-model.trim="keywords.nickName" placeholder="输入学员昵称" suffix-icon="el-icon-search" @blur="fetchList" @keydown.enter.native="fetchList" />
+      </el-form-item>
+
+      <el-form-item class="search-item seacher-btn">
+        <el-button size="small" @click="fetchList">搜索</el-button>
       </el-form-item>
     </el-form>
 
@@ -49,7 +53,7 @@
               class="table"
               :data="list"
             >
-              <el-table-column label="学员昵称">
+              <el-table-column label="学员昵称" min-width="15%">
                 <template slot-scope="scope">
                   <div class="img-box">
                     <img class="img-warpper" :src="scope.row.icon" alt="">
@@ -57,8 +61,8 @@
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="手机号" prop="phone" />
-              <el-table-column width="320px" label="课程情况">
+              <el-table-column label="手机号" prop="phone" min-width="15%" />
+              <el-table-column min-width="40%" label="课程情况">
                 <template slot-scope="scope">
                   <div class="course-info">
                     <div class="course-info__item">
@@ -76,8 +80,8 @@
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="消费总额（元）" prop="money" />
-              <el-table-column label="操作">
+              <el-table-column label="消费总额（元）" prop="money" min-width="15%" />
+              <el-table-column label="操作" min-width="15%">
                 <template slot-scope="scope">
                   <router-link :to="{name: 'StudentDetail', query: {id: scope.row.studentId}}">
                     <el-button size="mini">详情</el-button>
@@ -234,7 +238,7 @@ export default {
 }
 
 .search-item{
-  margin-right: 30px;
+  margin-right: 20px;
   /deep/ &.el-form-item{
     margin-bottom: 0px;
   }
@@ -380,4 +384,18 @@ export default {
     line-height: 24px;
   }
 }
+
+.seacher-btn {
+  button {
+    display: block;
+    width: 80px;
+    height: 40px;
+    line-height: 40px;
+    padding: 0;
+    text-align: center;
+    color: #fff;
+    background:rgba(0,210,165,1);
+  }
+}
+
 </style>

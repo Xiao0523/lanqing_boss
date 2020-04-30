@@ -153,7 +153,7 @@
         <el-row>
           <el-col :span="20">
             <el-form-item label="简单描述">
-              <el-input v-model="simple_words" type="textarea" />
+              <el-input v-model="content.simple_words" type="textarea" placeholder="请输入简单描述" :rows="2" />
             </el-form-item>
           </el-col>
         </el-row>

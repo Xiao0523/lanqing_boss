@@ -1,18 +1,16 @@
 <template>
   <div class="container">
 
-    <router-link :to="{name: 'CourseEdit'}">
-      <el-button class="el-icon-plus add-btn" size="medium" type="primary">新建课程</el-button>
-    </router-link>
+    <el-button class="el-icon-plus add-btn" size="medium" type="primary" @click="goEdit">新建课程</el-button>
 
     <h2 class="title">课程管理</h2>
 
     <el-form :inline="true" class="search-box">
       <el-form-item class="search-item">
-        <el-input v-model.trim="keywords.name" placeholder="搜索课程名称" suffix-icon="el-icon-search" @blur="fetchList" @keyup.enter="fetchList" />
+        <el-input v-model.trim="keywords.name" placeholder="搜索课程名称" suffix-icon="el-icon-search" />
       </el-form-item>
       <el-form-item class="search-item" label="课程类目">
-        <el-select v-model="keywords.categoryId" @change="fetchList">
+        <el-select v-model="keywords.categoryId">
           <el-option
             v-for="item in categoryList"
             :key="item.categoryName + item.categoryId"
@@ -22,7 +20,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="课程状态">
-        <el-select v-model="keywords.status" @change="fetchList">
+        <el-select v-model="keywords.status">
           <el-option
             v-for="item in statusList"
             :key="item.label + item.value"
@@ -30,6 +28,10 @@
             :label="item.label"
           />
         </el-select>
+      </el-form-item>
+
+      <el-form-item class="search-item seacher-btn">
+        <el-button size="small" @click="fetchList">搜索</el-button>
       </el-form-item>
     </el-form>
 
@@ -65,6 +67,7 @@
               <el-button size="mini">详情</el-button>
             </router-link>
             <el-button size="mini" @click="changeStatus(scope.row.id, scope.row.status)">{{ scope.row.status | statusBtn }}</el-button>
+
           </template>
         </el-table-column>
         <template slot="empty">
@@ -87,7 +90,8 @@ import {
   curosrOn,
   curosrOff
 } from '@/api/course'
-import { getCategoryList } from '@/api/categories'
+import { getCategoryListOk } from '@/api/categories'
+import { getLocal } from '@/utils/local'
 // import Pagination from '@/components/Pagination'
 import Star from '@/components/Star'
 export default {
@@ -145,7 +149,7 @@ export default {
       })
     },
     getCategory() {
-      getCategoryList().then(res => {
+      getCategoryListOk().then(res => {
         if (res.code) {
           return res.message && this.$warn(res.message)
         }
@@ -163,6 +167,10 @@ export default {
         this.$success('状态修改成功')
         this.fetchList()
       })
+    },
+    goEdit() {
+      if (getLocal('examineStatus') !== 1) return
+      this.$router.push({ name: 'CourseEdit' })
     }
   }
 }
@@ -249,6 +257,19 @@ export default {
     .el-icon-search:before {
       font-size: 20px;
     }
+  }
+}
+
+.seacher-btn {
+  button {
+    display: block;
+    width: 80px;
+    height: 40px;
+    line-height: 40px;
+    padding: 0;
+    text-align: center;
+    color: #fff;
+    background:rgba(0,210,165,1);
   }
 }
 </style>

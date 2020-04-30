@@ -81,11 +81,11 @@
                 </template>
               </el-table-column>
               <el-table-column label="退款金额（元）" prop="payPrice" />
-              <!-- <el-table-column label="操作">
+              <el-table-column label="操作">
                 <template slot-scope="scope">
-                  <el-button type="danger" :disabled="!(scope.row.status === 5)" size="mini" @click="backMoneys(scope.row)">退款</el-button>
+                  <el-button type="danger" :disabled="!scope.row.refundId" size="mini" @click="backMoneys(scope.row)">退款</el-button>
                 </template>
-              </el-table-column> -->
+              </el-table-column>
               <template slot="empty">
                 <div class="empty-content">
                   <img class="empty-img" src="@/assets/no-cursor.png" alt>
@@ -208,11 +208,11 @@
     <el-dialog title="确认该课程学员已结业吗？" :visible="isGraduateShow" :center="true" @close="isGraduateShow=false">
       <div class="dialog-radio-wraper">
         <el-radio-group v-model="studentEvaluate" fill="#00D2A5" text-color="#00D2A5" size="medium">
-          <el-radio border size="medium" label="1">成绩超群</el-radio>
-          <el-radio border size="medium" label="2">成绩优秀</el-radio>
-          <el-radio border size="medium" label="3">成绩良好</el-radio>
-          <el-radio border size="medium" label="4">成绩一般</el-radio>
-          <el-radio border size="medium" label="5">不及格</el-radio>
+          <el-radio border size="medium" label="0">成绩超群</el-radio>
+          <el-radio border size="medium" label="1">成绩优秀</el-radio>
+          <el-radio border size="medium" label="2">成绩良好</el-radio>
+          <el-radio border size="medium" label="3">成绩一般</el-radio>
+          <el-radio border size="medium" label="4">不及格</el-radio>
         </el-radio-group>
       </div>
       <span slot="footer">
@@ -240,7 +240,7 @@
       </span>
     </el-dialog> -->
 
-    <!-- <back-money :flag="backFlag" :obj="backObj" @closeFlag="closeDialog" /> -->
+    <back-money :flag="backFlag" :obj="backObj" @closeFlag="closeDialog" />
     <el-dialog :visible="isChangeShow" @close="isChangeShow=false">
       <h6 slot="title" class="dialog-title">切换讲师</h6>
       <el-form
@@ -271,9 +271,10 @@ import { getDetail, editStudentTeacher } from '@/api/course'
 import { postRefund } from '@/api/orders'
 import Star from '@/components/Star'
 import { formatTime } from '@/utils/date'
+import backMoney from '@/views/finance/course-order/components/backMoney'
 export default {
   name: 'StudentDetail',
-  components: { Star },
+  components: { Star, backMoney },
   filters: {
     storeEvaluateStr(val) {
       return val === 0 ? '成绩超群' : val === 1 ? '成绩优异' : val === 2 ? '成绩良好' : val === 3 ? '成绩一般' : val === 4 ? '不及格' : ''
@@ -442,14 +443,14 @@ export default {
     },
 
     // 打开退款
-    // backMoneys(obj) {
-    //   this.backObj = obj
-    //   this.backFlag = true
-    // },
-    // closeDialog() {
-    //   this.backFlag = false
-    //   this.fetchList()
-    // },
+    backMoneys(obj) {
+      this.backObj = obj
+      this.backFlag = true
+    },
+    closeDialog() {
+      this.backFlag = false
+      this.getClassList(this.viewId)
+    },
 
     // 退款
     onRefund() {

@@ -1,16 +1,8 @@
 <template>
   <div class="main">
     <section class="left">
-      <!-- <div class="search">
-        <el-input placeholder="搜索学员名称">
-          <i
-            slot="prefix"
-            class="el-icon-search el-input__icon"
-          />
-        </el-input>
-      </div> -->
       <div class="list-box">
-        <div class="inner-warpper">
+        <div v-if="chatList && chatList.length" class="inner-warpper">
           <div v-for="(item, index) in chatList" :key="item.targetId + index" class="content-warpper" :class="{actived: item.targetId === firstId}" @click="changeChat(item.targetId)">
             <!-- <span class="clearMessage el-icon-close" @click="clearBox(item.targetId)" /> -->
             <span v-show="item.unreadMessageCount" class="message-tip">{{ item.unreadMessageCount }}</span>
@@ -29,13 +21,26 @@
             </div>
           </div>
         </div>
+        <div v-else class="inner-warpper">
+          <div class="content-warpper actived">
+            <img src="@/assets/messageLogo.png" alt="">
+            <div class="warpper-content">
+              <div class="font">
+                <span>蓝青教育</span>
+                <span>{{ times | timeStr }}</span>
+              </div>
+              <span class="message-content">蓝青理念 蓝青教育—找好教育，上…</span>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
     <section class="right">
       <div ref="chat" class="chat-box">
         <div class="chat-box-top">
-          <div class="title">{{ firstUser && firstUser.name }}</div>
-          <div ref="chatContent" class="chat-main" @scroll.passive="getScroll">
+          <div v-if="firstUser" class="title">{{ firstUser && firstUser.name }}</div>
+          <div v-else class="title">蓝青教育</div>
+          <div v-if="messageContent && messageContent.length" ref="chatContent" class="chat-main" @scroll.passive="getScroll">
             <span v-show="hasMsg" class="scroll-more">上拉加载更多</span>
             <div
               v-for="(item, index) in messageContent"
@@ -65,28 +70,53 @@
               </div>
             </div>
           </div>
-        </div>
-        <div class="chat-box-bottom">
-          <div class="tool">
-            <el-upload
-              class="uploader"
-              :action="uploadPic"
-              name="multipartFile"
-              :show-file-list="false"
-              :on-success="pushImgMsg"
-              :on-change="onchange"
-            >
-              <img src="@/assets/message-pic.png" alt="">
-            </el-upload>
+          <div v-else ref="chatContent" class="chat-main">
+            <div class="bubble guest">
+              <div class="time">{{ times | sentTimeStr }}</div>
+              <div class="content-box">
+                <img src="@/assets/messageLogo.png" class="photo" alt="">
+                <div class="bubble-content default">
+                  <span><strong>蓝青理念</strong></span>
+                  <span>蓝青教育—<i>找好教育，上蓝青教育</i>。专业的教育培训门户平台，全方位营销获客体系，助力机构获客升级。让教育更美好！</span>
+                  <br>
+                  <span><strong>蓝青行业营销整合</strong></span>
+                  <span>结合了每位商家的行业特色，根据不同办学特色，从课程详情，师资团队，教学质量等<i>全方位指导在线入驻商家</i>。</span>
+                  <br>
+                  <span><strong>蓝青客服体系</strong></span>
+                  <span>结合了每位商家的行业特色，根据不同办学特色，从课程详情，师资团队，教学质量等全方位指导在线入驻商家。</span>
+                  <span>1.24小时<i>一对一</i>客服在线服务</span>
+                  <span>2.课程详情，教学服务<i>在线指导</i>优化</span>
+                  <span>3.核心课程推荐<i>展位营销</i>，效果显著</span>
+                  <br>
+                  <span><strong>蓝青目标</strong></span>
+                  <span>完善的服务体系助力商家成长，打造深受用户喜爱的教育培训服务平台。</span>
+                  <br>
+                  <div>享受三十天新店流量扶持！！！</div>
+                </div>
+              </div>
+            </div>
           </div>
-          <el-input v-model="text" type="textarea" class="textarea" resize="none" @keydown.native="enterInput" />
-          <div class="btn-box">
-            <el-button class="enter-btn" @click="onSend">发送</el-button>
-            <span class="fonts">按Enter键发送，按Ctrl+Enter键换行</span>
+          <div class="chat-box-bottom">
+            <div class="tool">
+              <el-upload
+                class="uploader"
+                :action="uploadPic"
+                name="multipartFile"
+                :show-file-list="false"
+                :on-success="pushImgMsg"
+                :on-change="onchange"
+              >
+                <img src="@/assets/message-pic.png" alt="">
+              </el-upload>
+            </div>
+            <el-input v-model="text" type="textarea" class="textarea" resize="none" @keydown.native="enterInput" />
+            <div class="btn-box">
+              <el-button class="enter-btn" @click="onSend">发送</el-button>
+              <span class="fonts">按Enter键发送，按Ctrl+Enter键换行</span>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </div></section>
     <el-dialog :visible="boxFlag" @close="boxFlag=false">
       <h6 slot="title" class="dialog-title">警告</h6>
       <div class="dialog-box">
@@ -107,10 +137,7 @@ import { throttle } from '@/utils/throttle'
 import { Upload_Pic } from '@/api/URL.js'
 import { getInfoList } from '@/api/rongyun'
 import { compress } from '@/utils/base64'
-import timer from '../components/timer'
 import { setLocal } from '@/utils/local'
-// import { init } from '@/utils/rongyun'
-// import { getLocal } from '@/utils/local'
 import { rongyunMixins } from '@/views/mixins/rongyun'
 const RongIMLib = window.RongIMLib // 由 window 赋值
 const RongIMClient = RongIMLib.RongIMClient
@@ -134,6 +161,7 @@ export default {
   mixins: [UserInfo, rongyunMixins],
   data() {
     return {
+      times: new Date().getTime(),
       filterThis: this,
       text: '',
       messageList: [],
@@ -478,6 +506,19 @@ export default {
       display: block;
       max-width: 100px;
       max-height: 100px;
+    }
+  }
+  .bubble-content.default {
+    span {
+      display: block;
+      i {
+        font-style: normal;
+        color: #00D2A5;
+      }
+    }
+    div {
+      font-size: 18px;
+      color: #FC5A5A;
     }
   }
 </style>

@@ -142,6 +142,7 @@ const actions = {
       commit('SET_STATUS', '')
       commit('SET_TEMP_ROLES', [])
       commit('SET_USERID', '')
+      commit('SET_STORESTATUS', '')
       removeToken()
       resetRouter()
       resolve()

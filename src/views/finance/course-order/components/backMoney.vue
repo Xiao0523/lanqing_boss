@@ -48,7 +48,6 @@ export default {
   watch: {
     'obj'() {
       this.backObj = this.obj
-      console.log(this.backObj)
     },
     flag() {
       this.backFlag = this.flag
@@ -61,7 +60,7 @@ export default {
   methods: {
     onRedraw() {
       const getObj = {
-        refundId: this.backObj.id,
+        refundId: this.backObj.refundId || this.backObj.id,
         ...this.getObjs
       }
       postRefund(getObj).then(res => {

@@ -48,6 +48,18 @@ export const constantRoutes = [
     name: 'WxPay',
     component: () => import('@/views/pay/wx/index'),
     hidden: true
+  },
+  {
+    path: '/app/android',
+    name: 'Android',
+    component: () => import('@/views/h5/android'),
+    hidden: true
+  },
+  {
+    path: '/treaty',
+    name: 'Treaty',
+    component: () => import('@/views/h5/treaty'),
+    hidden: true
   }
   /*  {
     path: '/example',
@@ -190,7 +202,7 @@ export const asyncRoutes = [
         path: 'scholarship',
         name: 'ScholaSrship',
         component: () => import('@/views/finance/scholarship/index'),
-        meta: { title: '奖学金管理' }
+        meta: { title: '蓝青币管理' }
       },
       {
         path: 'property',

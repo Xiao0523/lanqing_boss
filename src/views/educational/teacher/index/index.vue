@@ -1,31 +1,35 @@
 <template>
   <div class="container">
-    <router-link :to="{name: 'TeacherEdit'}">
-      <el-button class="el-icon-plus add-btn" size="medium" type="primary">新增讲师</el-button>
-    </router-link>
+    <el-button class="el-icon-plus add-btn" size="medium" type="primary" @click="goEdit">新增讲师</el-button>
 
     <h2 class="title">讲师管理</h2>
     <el-form :inline="true" class="search-box">
       <el-form-item class="search-item">
-        <el-input v-model.trim="keywords.name" placeholder="搜索老师名称" suffix-icon="el-icon-search" @blur="fetchList" @keyup.enter="fetchList" />
+        <el-input v-model.trim="keywords.name" placeholder="搜索老师名称" suffix-icon="el-icon-search" />
       </el-form-item>
       <el-form-item class="search-item" label="课程类目">
-        <el-select v-model="categoryStr" @change="categoryChange">
+        <el-select v-model="keywords.categoryId">
           <el-option
             v-for="item in categoryList"
             :key="item.categoryName + item.categoryId"
-            :value="item.categoryName"
+            :value="item.categoryId"
+            :label="item.categoryName"
           />
         </el-select>
       </el-form-item>
       <el-form-item label="讲师状态">
-        <el-select v-model="statusStr" @change="statusChange">
+        <el-select v-model="keywords.status">
           <el-option
             v-for="item in statusList"
             :key="item.label + item.value"
-            :value="item.label"
+            :value="item.value"
+            :label="item.label"
           />
         </el-select>
+
+        <el-form-item class="search-item seacher-btn">
+          <el-button size="small" @click="fetchList">搜索</el-button>
+        </el-form-item>
       </el-form-item>
     </el-form>
     <div class="table-wraper">
@@ -63,7 +67,16 @@
             <router-link :to="{name: 'TeacherDetail', query: { id: scope.row.id }}">
               <el-button size="mini">详情</el-button>
             </router-link>
-            <el-button size="mini" @click="editStatus(scope.row.id, scope.row.status)">{{ scope.row.status | statusBtn }}</el-button>
+            <el-popconfirm
+              confirm-button-text="好的"
+              cancel-button-text="不用了"
+              icon="el-icon-info"
+              icon-color="red"
+              title="是否确定让该老师离职？"
+              @onConfirm="editStatus(scope.row.id, scope.row.status)"
+            >
+              <el-button slot="reference" size="mini">{{ scope.row.status | statusBtn }}</el-button>
+            </el-popconfirm>
           </template>
         </el-table-column>
         <template slot="empty">
@@ -81,7 +94,8 @@
 </template>
 <script>
 import { getTeacherList, editTeacherStatus } from '@/api/teacher'
-import { getCategoryList } from '@/api/categories'
+import { getCategoryListOk } from '@/api/categories'
+import { getLocal } from '@/utils/local'
 // import Pagination from '@/components/Pagination'
 import Star from '@/components/Star'
 export default {
@@ -101,8 +115,6 @@ export default {
   data() {
     return {
       list: [],
-      statusStr: '全部',
-      categoryStr: '全部',
       statusList: [{
         label: '全部',
         value: ''
@@ -135,12 +147,13 @@ export default {
   },
   methods: {
     getCategory() {
-      getCategoryList().then(res => {
+      getCategoryListOk().then(res => {
         if (res.code) {
           return res.message && this.$warn(res.message)
         }
         if (!res.data) return
-        this.categoryList = [...this.categoryList, ...res.data]
+        console.log(res.data)
+        // this.categoryList = [...this.categoryList, ...res.data]
       })
     },
     // 获取教员列表
@@ -154,26 +167,6 @@ export default {
         this.list = res.data
       })
     },
-    // 类目改变
-    categoryChange() {
-      for (const item of this.categoryList) {
-        if (item.categoryName === this.categoryStr) {
-          this.keywords.categoryId = item.categoryId
-          break
-        }
-      }
-      this.fetchList()
-    },
-    // 状态改变
-    statusChange() {
-      for (const item of this.statusList) {
-        if (item.label === this.statusStr) {
-          this.keywords.status = item.value
-          break
-        }
-      }
-      this.fetchList()
-    },
     editStatus(id, status) {
       const getObj = {
         id
@@ -185,6 +178,10 @@ export default {
         }
         this.fetchList()
       })
+    },
+    goEdit() {
+      if (getLocal('examineStatus') !== 1) return
+      this.$router.push({ name: 'TeacherEdit' })
     }
   }
 }
@@ -271,6 +268,20 @@ export default {
     .el-icon-search:before {
       font-size: 20px;
     }
+  }
+}
+
+.seacher-btn {
+  margin-left: 10px;
+  button {
+    display: block;
+    width: 80px;
+    height: 40px;
+    line-height: 40px;
+    padding: 0;
+    text-align: center;
+    color: #fff;
+    background:rgba(0,210,165,1);
   }
 }
 </style>

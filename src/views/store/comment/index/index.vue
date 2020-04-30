@@ -4,10 +4,13 @@
     <h2 class="title">评价管理</h2>
     <el-form :inline="true" class="search-box">
       <el-form-item class="search-item" label="订单号：">
-        <el-input v-model.trim="keywords.trainingStudentCurriculumId" placeholder="请输入订单号" suffix-icon="el-icon-search" @blur="fetchList" @keyup.enter="fetchList" />
+        <el-input v-model.trim="keywords.orderNum" placeholder="请输入订单号" suffix-icon="el-icon-search" />
       </el-form-item>
       <el-form-item class="search-item" label="学员昵称">
-        <el-input v-model.trim="keywords.nickName" placeholder="请输入学员昵称" suffix-icon="el-icon-search" @blur="fetchList" @keyup.enter="fetchList" />
+        <el-input v-model.trim="keywords.nickName" placeholder="请输入学员昵称" suffix-icon="el-icon-search" />
+      </el-form-item>
+      <el-form-item class="search-item seacher-btn">
+        <el-button size="small" @click="fetchList">搜索</el-button>
       </el-form-item>
     </el-form>
     <div class="table-wraper">
@@ -38,7 +41,7 @@ export default {
       list: [],
       keywords: {
         nickName: '',
-        trainingStudentCurriculumId: ''
+        orderNum: ''
       },
       listQuery: {
         pageNum: 1,
@@ -108,6 +111,20 @@ export default {
 .search-item{
   margin-right: 30px;
 }
+
+.seacher-btn {
+  button {
+    display: block;
+    width: 80px;
+    height: 40px;
+    line-height: 40px;
+    padding: 0;
+    text-align: center;
+    color: #fff;
+    background:rgba(0,210,165,1);
+  }
+}
+
 .add-btn{
   float: right;
   width:111px;

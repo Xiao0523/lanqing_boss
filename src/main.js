@@ -13,7 +13,9 @@ import router from './router'
 
 import '@/icons' // icon
 import '@/permission' // permission control
-
+import {
+  message
+} from '@/utils/resetMessage'
 /**
  * If you don't want to use mock-server
  * you want to use MockJs for mock api
@@ -34,9 +36,11 @@ Vue.config.productionTip = false
 
 Vue.component(CollapseTransition.name, CollapseTransition)
 
+Vue.prototype.$message = message
+
 // 错误提示
 Vue.prototype.$warn = function(msg) {
-  this.$message({
+  message.error({
     showClose: true,
     message: msg,
     type: 'error'
@@ -44,7 +48,7 @@ Vue.prototype.$warn = function(msg) {
 }
 // 成功提示
 Vue.prototype.$success = function(msg) {
-  this.$message({
+  message.success({
     showClose: true,
     message: msg,
     type: 'success'

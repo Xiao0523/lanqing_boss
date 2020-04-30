@@ -357,12 +357,16 @@ export default {
   height: 80px;
 }
 .course-intro{
-  width: 600px;
+  width: 750px;
   font-size: 15px;
   font-family: PingFangSC-Regular,PingFang SC;
   font-weight: bold;
   color: rgba(23,23,37,1);
   line-height: 32px;
+  & >>> * {
+    display: block;
+    max-width: 750px;
+  }
 }
 
 .teacher{

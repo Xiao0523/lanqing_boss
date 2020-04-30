@@ -1,8 +1,8 @@
 <template>
   <section class="container">
     <div class="content">
-      <el-tabs>
-        <el-tab-pane>
+      <el-tabs v-model="tabNames">
+        <el-tab-pane name="auth">
           <span slot="label">店铺认证</span>
           <div v-if="authStatus == -1 || authStatus == 1" class="auth">
             <h3 class="title">认证状态<span :class="{red: authStatus == -1}">{{ authStatus | authStr }}</span></h3>
@@ -29,7 +29,7 @@
           </div>
         </el-tab-pane>
 
-        <el-tab-pane>
+        <el-tab-pane name="store">
           <span slot="label">店铺上架</span>
           <div v-if="storeStatus == 0 || storeStatus == 1 || storeStatus == 6 || storeStatus == ''" class="auth">
             <div class="tabels">
@@ -40,7 +40,7 @@
             <store-input v-if="storeStatus == 0 || storeStatus == ''" :list="storeList" @listOk="resetStore" />
             <store-detail v-if="storeStatus == 1 || storeStatus == 6" :list="storeList" />
           </div>
-          <div v-if="storeStatus == 2 || storeStatus == 3 || storeStatus == 4 || storeStatus == 5" class="result">
+          <div v-else-if="storeStatus == 2 || storeStatus == 3 || storeStatus == 4 || storeStatus == 5" class="result">
             <div v-if="storeStatus == 2 || storeStatus == 4">
               <h4 class="title">{{ storeStatus | storeStrs }}</h4>
               <div class="result-img-wraper">
@@ -58,6 +58,11 @@
               <el-button v-show="storeStatus == 3" class="result-btn" type="primary" @click="resetStorePost">重新提交上架</el-button>
               <el-button v-show="storeStatus == 5" class="result-btn" type="primary" @click="resetGo">重新提交下架</el-button>
             </div>
+          </div>
+          <div v-else class="no-store-box">
+            <img src="@/assets/no-store.png" alt="">
+            <span>完成店铺认证后，可操作店铺上架</span>
+            <el-button class="btns" @click="goAuth">去认证</el-button>
           </div>
         </el-tab-pane>
       </el-tabs>
@@ -100,7 +105,8 @@ export default {
       logInfo: '',
       storeStatus: null,
       storeLogInfo: '',
-      storeList: {}
+      storeList: {},
+      tabNames: 'auth'
     }
   },
   mounted() {
@@ -108,6 +114,9 @@ export default {
     this.getStores()
   },
   methods: {
+    goAuth() {
+      this.tabNames = 'auth'
+    },
     getBusiness() {
       getExamine().then(res => {
         if (res.code) return this.$warn(res.message)
@@ -228,6 +237,38 @@ export default {
   }
   &-btn{
     margin-top: 27px;
+  }
+}
+
+.no-store-box {
+  width: 100%;
+  padding: 87px 0;
+  box-sizing: border-box;
+  text-align: center;
+  img {
+    width: 297px;
+    margin-bottom: 22px;
+  }
+  span {
+    display: block;
+    font-size:16px;
+    font-family:PingFangSC-Regular,PingFang SC;
+    color:rgba(146,146,157,1);
+    line-height:30px;
+  }
+  .btns {
+    width:125px;
+    height:42px;
+    line-height: 42px;
+    padding: 0;
+    background:rgba(0,210,165,1);
+    border-radius:4px;
+    border:1px solid rgba(0,0,0,0.05);
+    font-size:15px;
+    font-family:PingFangSC-Medium,PingFang SC;
+    font-weight:500;
+    color:rgba(255,255,255,1);
+    margin-top: 30px;
   }
 }
 

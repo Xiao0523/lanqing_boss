@@ -89,6 +89,7 @@
 import { getWithdrawalList, getMoney, getHomeDate } from '@/api/withdrawal'
 import Pagination from '@/components/Pagination'
 import { formatTime } from '@/utils/date'
+import { getLocal } from '@/utils/local'
 export default {
   name: 'Property',
   components: { Pagination },
@@ -153,6 +154,7 @@ export default {
     },
     // 打开提现
     openRedraw() {
+      if (getLocal('examineStatus') !== 1) return
       this.isRedrawShow = true
     },
     // 提现

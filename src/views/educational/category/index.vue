@@ -15,7 +15,7 @@
             <el-popconfirm
               icon="el-icon-info"
               icon-color="red"
-              title="这是一段内容确定删除吗？"
+              title="是否删除该类目？"
               @onConfirm="onDel(scope.row.id)"
             >
               <el-button slot="reference" type="danger" size="mini">删除</el-button>

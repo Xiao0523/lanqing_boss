@@ -47,7 +47,6 @@ export const rongyunMixins = {
               break
             }
           }
-          console.log(this.chatList)
           this.messageContent.push(message)
           this.sequence = true
           this.onScroller()

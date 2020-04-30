@@ -97,7 +97,7 @@
         @pagination="fetchList"
       />
     </div>
-    <el-dialog :visible="isRedrawShow" @close="isRedrawShow=false">
+    <el-dialog :visible="isRedrawShow" @close="closeDialog">
       <h6 slot="title" class="dialog-title">充值蓝青币</h6>
       <div class="dialog-radio-wraper">
         <el-radio-group v-model="rechargeLimit" fill="#00D2A5" text-color="#00D2A5" size="medium">
@@ -107,25 +107,30 @@
           <el-radio border size="medium" label="100">100</el-radio>
           <el-radio border size="medium" class="give" label="200">200<span>赠20</span></el-radio>
           <el-radio border size="medium" class="give" label="500">500<span>赠40</span></el-radio>
-          <el-radio border size="medium" class="give" label="1000">1000<span>赠80</span></el-radio>
+          <el-radio border size="medium" class="give" label="1000">1000<span>赠200</span></el-radio>
         </el-radio-group>
+
+        <div v-show="codeUrl" class="mask">
+          <img class="loading-image" :src="codeUrl" alt="正在处理，请等待。。。">
+          <span>扫码微信支付：<strong>{{ rechargeLimit * 10 }}</strong>元</span>
+          <div :class="{complete: wxFlag}">
+            {{ wxContent }}
+          </div>
+        </div>
       </div>
       <span slot="footer" class="dialog-footer">
-        <span>支付: <strong>{{ rechargeLimit }}</strong>元</span>
-        <el-button class="btnColor" @click="openCode">立即充值</el-button>
+        <!-- <span>支付: <strong>{{ rechargeLimit }}</strong>元</span> -->
+        <!-- <el-button class="btnColor" @click="openCode">立即充值</el-button> -->
       </span>
     </el-dialog>
-    <div v-if="showModal" class="mask" @click="closeCode">
-      <img class="loading-image" :src="codeUrl" alt="正在处理，请等待。。。">
-      <!-- <span class="mask-text">处理中，请等待...</span> -->
-    </div>
   </div>
 </template>
 <script>
-import { getHomeDate, getRechargeList, getConsumeList } from '@/api/recharge'
+import { getHomeDate, getRechargeList, getConsumeList, getNotify } from '@/api/recharge'
 import { getPayCode } from '@/api/pay'
 import Pagination from '@/components/Pagination'
 import { formatTime } from '@/utils/date'
+import { getLocal } from '@/utils/local'
 export default {
   name: 'ScholaSrship',
   components: { Pagination },
@@ -152,16 +157,50 @@ export default {
       isRecharge: true,
       rechargeLimit: 0,
       codeUrl: null,
-      showModal: false
+      showModal: false,
+      wxContent: '扫一扫 微信支付',
+      wxFlag: false,
+      wxWaitTimer: null
+    }
+  },
+  watch: {
+    rechargeLimit() {
+      this.openCode()
+      if (this.wxWaitTimer) return
+      this.wxWaitTimer = window.setInterval(() => {
+        this.notify()
+      }, 2000)
     }
   },
   created() {
     this.getHomeView()
     this.fetchList()
   },
+  beforeDestroy() {
+    this.closeDialog()
+  },
   methods: {
     openMack() {
+      if (getLocal('examineStatus') !== 1) return
       this.isRedrawShow = true
+    },
+    closeDialog() {
+      this.isRedrawShow = false
+      this.wxContent = '扫一扫 微信支付'
+      this.wxFlag = false
+      if (this.wxWaitTimer) {
+        window.clearInterval(this.wxWaitTimer)
+      }
+    },
+    notify() {
+      getNotify().then(res => {
+        if (res.code) return res.message && this.$warn(res.message)
+        this.wxFlag = res.data === 1
+        this.wxContent = this.wxFlag ? '支付完成' : '扫一扫 微信支付'
+        if (this.wxWaitTimer && res.data) {
+          window.clearInterval(this.wxWaitTimer)
+        }
+      })
     },
     getHomeView() {
       getHomeDate().then(res => {
@@ -413,6 +452,9 @@ export default {
     display: flex;
     flex-wrap: wrap ;
   }
+  .el-dialog__footer {
+    padding: 0
+  }
 }
 .dialog-radio-wraper {
   padding: 20px 15px;
@@ -442,7 +484,7 @@ export default {
         right: -10px;
         top: 9px;
         display: block;
-        width:33px;
+        width:40px;
         height:20px;
         background:rgba(252,90,90,1);
         border-radius:3px;
@@ -478,19 +520,37 @@ export default {
   color:rgba(255,255,255,1);
   line-height:38px;
 }
+
 .mask {
-  background-color: rgba(0, 0, 0, 0.3);
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 9998;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  border-top: 1px solid rgba(241, 241, 245, 1);
+  padding-top: 20px;
   img {
-    max-width: 200px;
+    width: 134px;
+    height: 134px;
+  }
+  span {
+    display: block;
+    margin-top: 10px;
+    strong {
+      font-size: 24px;
+    }
+  }
+  div {
+    margin: auto;
+    margin-top: 10px;
+    width:134px;
+    height:38px;
+    line-height: 38px;
+    border-radius:4px;
+    border:1px solid rgba(51,51,51,1);
+    font-size:14px;
+    font-family:PingFangSC-Medium,PingFang SC;
+    font-weight:500;
+    color:rgba(51,51,51,1);
+    &.complete {
+      border:1px solid rgba(0,211,165,1);
+      color:rgba(0,210,165,1);
+    }
   }
 }
 </style>

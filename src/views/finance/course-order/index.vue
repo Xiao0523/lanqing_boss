@@ -3,7 +3,7 @@
     <h2 class="title">订单管理</h2>
     <el-form :inline="true">
       <el-form-item class="search-item">
-        <el-input v-model.trim="keywords.orderNoOrCurriculumName" placeholder="请输入订单号或课程" suffix-icon="el-icon-search" @blur="fetchList" @keyup.enter="fetchList" />
+        <el-input v-model.trim="keywords.orderNoOrCurriculumName" placeholder="请输入订单号或课程" suffix-icon="el-icon-search" />
       </el-form-item>
       <el-form-item class="search-item" label="下单时间">
         <el-date-picker
@@ -11,11 +11,10 @@
           type="date"
           placeholder="选择日期"
           value-format="yyyy-MM-dd"
-          @change="fetchList"
         />
       </el-form-item>
       <el-form-item label="订单状态">
-        <el-select v-model="keywords.status" @change="fetchList">
+        <el-select v-model="keywords.status">
           <el-option
             v-for="(item, index) in statusList"
             :key="item + index"
@@ -23,6 +22,10 @@
             :value="item.value"
           />
         </el-select>
+      </el-form-item>
+
+      <el-form-item class="search-item seacher-btn">
+        <el-button size="small" @click="fetchList">搜索</el-button>
       </el-form-item>
     </el-form>
     <div class="table-wraper">
@@ -44,7 +47,7 @@
         <el-table-column label="实付金额" prop="payPrice" />
         <el-table-column label="操作">
           <template slot-scope="scope">
-            <el-button v-if="Number(scope.row.status) !== 1 && Number(scope.row.status) !== 3 && Number(scope.row.status) !== 6" size="mini" @click="backMoneys(scope.row)">退款</el-button>
+            <el-button v-if="Number(scope.row.status) === 5 && (Number(scope.row.refundStatus) === 0 || Number(scope.row.refundStatus) === 2)" size="mini" @click="backMoneys(scope.row)">退款</el-button>
           </template>
         </el-table-column>
         <template slot="empty">
@@ -205,6 +208,19 @@ export default {
   font-weight:400;
   color:rgba(0,210,165,1);
   line-height:24px;
+}
+
+.seacher-btn {
+  button {
+    display: block;
+    width: 80px;
+    height: 40px;
+    line-height: 40px;
+    padding: 0;
+    text-align: center;
+    color: #fff;
+    background:rgba(0,210,165,1);
+  }
 }
 
 </style>

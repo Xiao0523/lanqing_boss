@@ -441,4 +441,12 @@ export default {
   }
 }
 
+.teacher-intro-text {
+  width: 750px;
+  & >>> * {
+    display: block;
+    max-width: 750px !important;
+  }
+}
+
 </style>

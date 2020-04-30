@@ -6,7 +6,7 @@
     >
       <el-table-column label="学员昵称" prop="nickName" />
       <el-table-column label="手机号" prop="phone" />
-      <el-table-column label="订单号" prop="trainingStudentCurriculumId" />
+      <el-table-column label="订单号" prop="orderNum" />
       <el-table-column label="评价时间">
         <template slot-scope="scope">
           {{ scope.row.commentTime | commentTimeStr }}

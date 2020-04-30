@@ -20,10 +20,15 @@ function delCategoriesList({ id }) {
   return request.delete('/boss/v2/category/' + id)
 }
 
+function getCategoryListOk() {
+  return request.get('/boss/v2/curriculum/category')
+}
+
 export {
   getCategoryList,
   getLevelOneList,
   getLevelTwoList,
   addCategoriesList,
-  delCategoriesList
+  delCategoriesList,
+  getCategoryListOk
 }
