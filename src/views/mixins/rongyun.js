@@ -33,7 +33,6 @@ export const rongyunMixins = {
       }
     },
     addPromptInfo(message) {
-      console.log(message)
       if (typeof (message) === 'object') {
         if (message.targetId === this.firstId) {
           this.scrollBottom = true
