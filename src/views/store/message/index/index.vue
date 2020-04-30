@@ -441,7 +441,8 @@ export default {
         user: {
           id: getLocal('rong_current_user'),
           name: getLocal('username'),
-          portrait: getLocal('avatar')
+          icon: getLocal('avatar'),
+          extra: ''
         }
       }
       var msg = new RongIMLib.TextMessage(textMessageInfo)
