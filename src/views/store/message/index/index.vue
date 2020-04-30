@@ -438,16 +438,25 @@ export default {
         })
         return false
       }
-      var textMessageInfo = {
-        content: this.text,
-        extra: '',
-        user: {
-          id: this.userId,
-          name: this.userName,
-          portrait: this.userIcon
+      // var textMessageInfo = {
+      //   content: this.text,
+      //   extra: '',
+      //   user: {
+      //     id: this.userId,
+      //     name: this.userName,
+      //     portrait: this.userIcon
+      //   }
+      // }
+      var msg = new RongIMLib.TextMessage({
+        content: 'hello RongCloud!',
+        user: { // 当前用户(发送者) 信息
+          'id': 'user1',
+          'name': '张三',
+          'portrait': 'https://cdn.ronghub.com/thinking-face.png'
         }
-      }
-      var msg = new RongIMLib.TextMessage(textMessageInfo)
+      })
+
+      // new RongIMLib.TextMessage(textMessageInfo)
       var conversationType = RongIMLib.ConversationType.PRIVATE
       var targetId = this.firstId // 目标 ID
       const _this = this
