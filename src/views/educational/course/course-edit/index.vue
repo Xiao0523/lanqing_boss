@@ -231,19 +231,13 @@ export default {
         label: '0-3'
       }, {
         value: 1,
-        label: '3-6'
+        label: '4-6'
       }, {
         value: 2,
-        label: '6-9'
+        label: '7-9'
       }, {
         value: 3,
-        label: '9-12'
-      }, {
-        value: 4,
-        label: '12-15'
-      }, {
-        value: 5,
-        label: '15-18'
+        label: '10-12'
       }],
       isAdd: true
     }
