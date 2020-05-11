@@ -159,7 +159,7 @@ export default {
   mixins: [studetnMixins, orderMixins],
   data() {
     return {
-      list: [{}],
+      list: [],
       content: {},
       listKey: 'getStudentList',
       fnObj: {

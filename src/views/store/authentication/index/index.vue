@@ -111,7 +111,6 @@ export default {
   },
   mounted() {
     this.getBusiness()
-    this.getStores()
   },
   methods: {
     goAuth() {
@@ -123,6 +122,9 @@ export default {
         this.authStatus = res.data.status
         this.authList = res.data
         this.logInfo = res.data.logInfo
+        if (res.data.status && Number(res.data.status) !== -1) {
+          this.getStores()
+        }
       })
     },
     getStores() {
