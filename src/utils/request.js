@@ -28,7 +28,7 @@ service.interceptors.request.use(
     const urlKey = config.url.split('/')[1]
     const urlConst = config.url.split('.com/')[0]
     if (urlKey === 'boss') {
-      if (!whiteAuthApi.includes(urlConst) && Number(getLocal('examineStatus')) !== 1) {
+      if (!whiteAuthApi.includes(urlConst) && (Number(getLocal('examineStatus')) !== 1 || (!whiteStoreApi.includes(urlConst) && Number(getLocal('examineStatus')) === 1 && Number(getLocal('storeStatus')) !== 1))) {
         return Promise.reject(new Error(''))
       }
     }
@@ -37,6 +37,11 @@ service.interceptors.request.use(
       config.baseURL = Web_Api_url
     } else {
       config.baseURL = Api_url
+    }
+
+    if (config.url.indexOf('/VodStsForApp') !== -1) {
+      config.url = config.url.replace('/boss', '')
+      config.baseURL = Web_Api_url
     }
     // config.headers['common']['Content-Type'] = 'application/x-www-form-urlencoded'
 

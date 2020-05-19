@@ -11,7 +11,7 @@
       </el-col>
     </el-row>
     <el-row>
-      <el-col :span="24">
+      <el-col :span="12">
         <el-form-item label="店铺logo">
           <el-upload
             class="uploader logo"
@@ -28,9 +28,7 @@
           <input type="hidden">
         </el-form-item>
       </el-col>
-    </el-row>
 
-    <el-row>
       <el-col :span="12">
         <el-form-item label="店铺封面">
           <el-upload
@@ -49,9 +47,29 @@
           <p class="upload-tips">只能上传jpg/png文件，且最多上传9张，建议尺寸为750x560px。</p>
         </el-form-item>
       </el-col>
+    </el-row>
+
+    <el-row>
+      <el-col :span="12">
+        <el-form-item label="视频封面">
+          <el-upload
+            class="uploader logo"
+            :action="uploadUrl"
+            name="multipartFile"
+            :show-file-list="false"
+            :on-success="handleVideoSuccess"
+            :before-upload="beforeAvatarUpload"
+          >
+            <img v-if="form.videoInfo.videoCoverUrl" :src="form.videoInfo.videoCoverUrl" class="logo">
+            <i v-else class="el-icon-picture uploader-icon" />
+          </el-upload>
+          <p class="upload-tips">只能上传jpg/png文件，建议尺寸为500x500px。</p>
+          <input type="hidden">
+        </el-form-item>
+      </el-col>
       <el-col :span="12">
         <el-form-item label="背景视频">
-          <el-upload
+          <!-- <el-upload
             class="uploader"
             :action="videoUrl"
             name="multipartFile"
@@ -62,7 +80,15 @@
           >
             <img v-if="form.videoInfo && form.videoInfo.videoCoverUrl" :src="form.videoInfo.videoCoverUrl" class="logo">
             <i v-else class="el-icon-picture uploader-icon" />
-          </el-upload>
+          </el-upload> -->
+
+          <div class="upload-box">
+            <input v-show="false" ref="input" type="file" accept="video/*" @change="fileChange">
+            <el-button :disabled="disableUpload" size="small" type="primary" @click="$refs.input.click()">
+              上传视频
+            </el-button>
+            <el-progress v-show="percentage" :percentage="percentage" :stroke-width="26" :text-inside="true" :color="customColors" class="progress" />
+          </div>
           <p class="upload-tips">视频只能上传一个。</p>
           <input type="hidden">
         </el-form-item>
@@ -181,8 +207,7 @@
     </el-row> -->
     <el-row>
       <el-col :span="24">
-        <el-button class="submit" :loading="videoLoading" @click="getStoreAdd">提交上架</el-button>
-        <span v-show="videoLoading" class="el-form-item__error">请等待视频上传完成！</span>
+        <el-button class="submit" @click="getStoreAdd">提交上架</el-button>
       </el-col>
     </el-row>
   </el-form>
@@ -193,6 +218,7 @@ import { postStore } from '@/api/business'
 import { Upload_Pic, Upload_Video } from '@/api/URL.js'
 import { getChinaCity } from '@/api/globl'
 import Tinymce from '@/components/Tinymce/index'
+import { getUploadInfo } from '@/api/uploadInfo'
 
 export default {
   name: 'AuthInput',
@@ -239,6 +265,15 @@ export default {
         city: '',
         district: ''
       },
+      securityToken: '',
+      accessKeyId: '',
+      accessKeySecret: '',
+      disableUpload: false,
+      disableSubmit: true,
+      uploadFile: null,
+      uploader: null,
+      callback: null,
+      percentage: 0,
       // 接口返回列表
       cityList: {
         province: [],
@@ -249,6 +284,14 @@ export default {
       videoUrl: Upload_Video, // 视频上传地址
       uploadUrl: Upload_Pic, // 图片上传地址
       videoLoading: false,
+
+      customColors: [
+        { color: '#409eff', percentage: 20 },
+        { color: '#409eff', percentage: 40 },
+        { color: '#409eff', percentage: 60 },
+        { color: '#409eff', percentage: 80 },
+        { color: '#409eff', percentage: 100 }
+      ],
       CoverImgList: []
     }
   },
@@ -276,6 +319,111 @@ export default {
     this.getCityList()
   },
   methods: {
+    fileChange() {
+      if (!event.target.files[0]) {
+        return false
+      }
+      if (!event.target.files[0].type.match('video.*')) {
+        this.$message.error('请选择视频文件')
+        return false
+      }
+      this.uploadFile = event.target.files[0]
+      this.percentage = 0
+      // 上传文件的size的单位为 字节(B)
+      // 150兆字节(mb) = 157286400字节(B)
+      if (this.uploadFile.size <= 10485760) {
+        this.getAuth(() => {
+          // 给uploader大佬addFile
+          this.getUploder()
+          // 以下三个参数默认为空
+          // var endpoint = ''
+          // var bucket = ''
+          // var objectPre = ''
+          // if(objectPre)
+          // {
+          //     object = objectPre +"/"+ event.target.files[i].name
+          // }
+          // STS的上传方式，需要在userData里指定Title
+          var userData = '{"Vod":{"StorageLocation":"","Title":"' + this.uploadFile.name + '","Description":"默认描述信息暂无","CateId":"19","Tags":"测试视频"}}'
+          this.uploader.addFile(this.uploadFile, '', '', '', userData)
+          this.uploader.startUpload()
+          this.disableSubmit = false
+        })
+      } else {
+        this.disableSubmit = true
+        this.$message.error('上传的文件大小超过10M，请重新上传')
+      }
+    },
+    getAuth(callback) {
+      // 获取上传凭证
+      const getObj = {
+        uuid: JSON.parse(localStorage.getItem('storeId'))
+      }
+      getUploadInfo(getObj).then(res => {
+        this.securityToken = res.credentials.securityToken
+        this.accessKeyId = res.credentials.accessKeyId
+        this.accessKeySecret = res.credentials.accessKeySecret
+        callback()
+      })
+    },
+    getUploder() {
+      const _this = this
+      /* eslint-disable no-undef */
+      _this.uploader = new AliyunUpload.Vod({ // 分片大小默认1M，不能小于100K
+        userId: '1402947514567452',
+        partSize: 1048576,
+        // 并行上传分片个数，默认5
+        parallel: 5,
+        // 网络原因失败时，重新上传次数，默认为3
+        retryCount: 3,
+        // 网络原因失败时，重新上传间隔时间，默认为2秒
+        retryDuration: 2,
+        // 是否上报上传日志到点播，默认为true
+        enableUploadProgress: true,
+        // 文件上传失败
+        'onUploadFailed': function(uploadInfo, code, message) {
+          _this.$message.error(`文件上传失败：${message}`)
+          // log(`onUploadFailed: file:${uploadInfo.file.name},code:${code}, message:${message}`)
+          _this.disableSubmit = true
+          _this.disableUpload = false
+        },
+        // 文件上传完成
+        'onUploadSucceed': function(uploadInfo) {
+          console.log(uploadInfo)
+          // log(uploadInfo)
+          // console.log(`onUploadSucceed: ${uploadInfo.file.name}, endpoint:${uploadInfo.endpoint}, bucket:${uploadInfo.bucket}, object:${uploadInfo.object}`)
+          _this.form.videoInfo.videoUrl = `https://video.my51share.com/${uploadInfo.object}`
+          console.log(_this.form.videoInfo)
+          _this.$message.success('文件上传成功')
+          _this.disableSubmit = true
+          _this.disableUpload = false
+        },
+        // 文件上传进度
+        'onUploadProgress': function(uploadInfo, totalSize, loadedPercent) {
+          _this.percentage = +(loadedPercent * 100).toFixed(0)
+          // log(`onUploadProgress:file:${uploadInfo.file.name}, fileSize:${totalSize}, percent:${(loadedPercent * 100.00).toFixed(2)}%`)
+        },
+        // STS临时账号会过期，过期时触发函数
+        'onUploadTokenExpired': function(uploadInfo) {
+          console.log('onUploadTokenExpired STS临时账号过期了')
+          // 实现时，从新获取STS临时账号用于恢复上传
+          // uploader.resumeUploadWithSTSToken(accessKeyId, accessKeySecret, securityToken, expireTime)
+        },
+        'onUploadCanceled': function(uploadInfo) {
+          console.log(`onUploadCanceled:file:${uploadInfo.file.name}`)
+        },
+        // 开始上传
+        'onUploadstarted': function(uploadInfo) {
+          var accessKeyId = _this.accessKeyId
+          var accessKeySecret = _this.accessKeySecret
+          var securityToken = _this.securityToken
+          _this.uploader.setSTSToken(uploadInfo, accessKeyId, accessKeySecret, securityToken)
+        },
+        'onUploadEnd': function(uploadInfo) {
+          console.log('onUploadEnd: uploaded all the files')
+        }
+      })
+    },
     // 获取城市列表
     getCityList() {
       getChinaCity(this.chinaCity).then(res => {
@@ -375,13 +523,11 @@ export default {
       return isImg
     },
     handleVideoSuccess(res, file) {
-      this.videoLoading = false
       if (res.code) {
         return res.message && this.$warn(res.message)
       }
-      this.$success('视频上传成功！！！')
-      this.form.videoInfo.videoCoverUrl = res.data.videoBase.coverURL
-      this.form.videoInfo.videoUrl = res.data.playInfoList[0].playURL
+      this.$success('上传成功！！！')
+      this.form.videoInfo.videoCoverUrl = res.data
     },
     handleVideoRemove() {
       this.videoLoading = false
@@ -458,6 +604,9 @@ export default {
       width: 107px;
       height: 80px;
     }
+  }
+  .progress {
+    margin-top: 10px;
   }
 }
 </style>

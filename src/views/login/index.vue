@@ -203,11 +203,9 @@ export default {
               getStore().then(res => {
                 if (res.code) return this.$warn(res.message)
                 setLocal('storeStatus', res.data.status)
-                this.$router.replace({ path: '/home' })
               })
-            } else {
-              this.$router.replace({ path: '/home' })
             }
+            this.$router.replace({ path: '/home' })
           })
         })
         .catch(() => {
