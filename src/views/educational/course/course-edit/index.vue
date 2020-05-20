@@ -26,7 +26,7 @@
                 <img v-if="content.cover" :src="content.cover" class="avatar">
                 <i v-else class="el-icon-picture uploader-icon" />
               </el-upload>
-              <p class="upload-tips">只能上传jpg/png文件，建议尺寸为513x321px。</p>
+              <p class="upload-tips">只能上传jpg/png文件，建议尺寸为750x480px。</p>
               <input type="hidden">
             </el-form-item>
           </el-col>
