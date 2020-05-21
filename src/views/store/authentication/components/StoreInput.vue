@@ -298,21 +298,22 @@ export default {
   watch: {
     list: {
       handler(val) {
-        this.form = JSON.parse(JSON.stringify(this.list))
+        this.form = val
         for (const item of this.form.covers) {
           this.CoverImgList.push({
             url: item
           })
         }
         this.form.districtCode = this.form.areaCode
+        if (!this.form.districtCode) return
         this.getCityList()
         for (const item in this.chinaCity) {
           this.chinaCity[item] = this.form[item + 'Code']
           this.getCityList()
         }
       },
-      deep: true
-      // immediate: true
+      deep: true,
+      immediate: true
     }
   },
   mounted() {
