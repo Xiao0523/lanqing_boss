@@ -309,7 +309,7 @@ export default {
           }
         }
         this.form.districtCode = this.form.areaCode
-        if (!this.form.districtCode || (newVal && (newVal.areaCode === val.areaCode))) return
+        if (!this.form.districtCode) return
         this.getCityList()
         for (const item in this.chinaCity) {
           this.chinaCity[item] = this.form[item + 'Code']
