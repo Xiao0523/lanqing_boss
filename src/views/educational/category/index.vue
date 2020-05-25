@@ -31,9 +31,6 @@
       </el-table>
       <div class="add" @click="addCategory"><i class="el-icon-circle-plus-outline" /><span class="add-text">新增类目</span></div>
     </div>
-    <div>
-      <pagination v-show="total > 0" :total="total" :page.sync="pageNum" :limit.sync="pageSize" @pagination="pageChange" />
-    </div>
     <el-dialog title="添加类目" class="dialogs" :visible.sync="dialogFormVisible">
       <div class="dialog-box">
         <el-select v-model="keywords.categoryTitle" @change="getSonList">
@@ -58,12 +55,10 @@
   </div>
 </template>
 <script>
-import Pagination from '@/components/Pagination'
 import { getCategoryList, getLevelOneList, getLevelTwoList, addCategoriesList, delCategoriesList } from '@/api/categories'
 import { getLocal } from '@/utils/local'
 export default {
   name: 'Course',
-  components: { Pagination },
   data() {
     return {
       list: [

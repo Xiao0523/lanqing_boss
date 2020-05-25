@@ -298,7 +298,6 @@ export default {
   watch: {
     list: {
       handler(val, newVal) {
-        console.log(val, newVal)
         this.form = newVal || val
         if (!newVal || (newVal && !(JSON.stringify(newVal.covers) === JSON.stringify(val.covers)))) {
           this.covers = []
@@ -308,8 +307,9 @@ export default {
             })
           }
         }
-        this.form.districtCode = this.form.areaCode
-        if (!this.form.districtCode) return
+        this.form.districtCode = this.form.areaCode || this.form.districtCode
+        console.log(newVal && !(val.areaCode === newVal.areaCode))
+        if (!this.form.districtCode || (newVal && (val.areaCode === newVal.areaCode))) return
         this.getCityList()
         for (const item in this.chinaCity) {
           this.chinaCity[item] = this.form[item + 'Code']
