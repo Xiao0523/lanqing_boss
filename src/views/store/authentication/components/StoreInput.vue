@@ -297,15 +297,19 @@ export default {
   },
   watch: {
     list: {
-      handler(val) {
-        this.form = val
-        for (const item of this.form.covers) {
-          this.CoverImgList.push({
-            url: item
-          })
+      handler(val, newVal) {
+        console.log(val, newVal)
+        this.form = newVal || val
+        if (!newVal || (newVal && !(JSON.stringify(newVal.covers) === JSON.stringify(val.covers)))) {
+          this.covers = []
+          for (const item of this.form.covers) {
+            this.CoverImgList.push({
+              url: item
+            })
+          }
         }
         this.form.districtCode = this.form.areaCode
-        if (!this.form.districtCode) return
+        if (!this.form.districtCode || (newVal && (newVal.areaCode === val.areaCode))) return
         this.getCityList()
         for (const item in this.chinaCity) {
           this.chinaCity[item] = this.form[item + 'Code']
@@ -547,6 +551,7 @@ export default {
         return res.message && this.$warn(res.message)
       }
       if (!res.data) return
+      console.log('执行了')
       this.form.covers.push(res.data)
     }
   }
