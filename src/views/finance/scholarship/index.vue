@@ -98,21 +98,21 @@
       />
     </div>
     <el-dialog :visible="isRedrawShow" @close="closeDialog">
-      <h6 slot="title" class="dialog-title">充值蓝青币</h6>
+      <h6 slot="title" class="dialog-title">充值中心</h6>
       <div class="dialog-radio-wraper">
         <el-radio-group v-model="rechargeLimit" fill="#00D2A5" text-color="#00D2A5" size="medium">
-          <el-radio border size="medium" label="10">10</el-radio>
-          <el-radio border size="medium" label="20">20</el-radio>
-          <el-radio border size="medium" label="50">50</el-radio>
-          <el-radio border size="medium" label="100">100</el-radio>
-          <el-radio border size="medium" class="give" label="200">200<span>赠20</span></el-radio>
-          <el-radio border size="medium" class="give" label="500">500<span>赠40</span></el-radio>
-          <el-radio border size="medium" class="give" label="1000">1000<span>赠200</span></el-radio>
+          <el-radio border size="medium" label="10">10元</el-radio>
+          <el-radio border size="medium" label="20">20元</el-radio>
+          <el-radio border size="medium" label="50">50元</el-radio>
+          <el-radio border size="medium" label="100">100元</el-radio>
+          <el-radio border size="medium" class="give" label="200">200元<span v-show="false">赠2000</span></el-radio>
+          <el-radio border size="medium" class="give" label="500">500元<span v-show="false">赠4000</span></el-radio>
+          <el-radio border size="medium" class="give" label="1000">1000元<span v-show="false">赠20000</span></el-radio>
         </el-radio-group>
 
         <div v-show="codeUrl" class="mask">
           <img class="loading-image" :src="codeUrl" alt="正在处理，请等待。。。">
-          <span>扫码微信支付：<strong>{{ rechargeLimit * 10 }}</strong>元</span>
+          <span>扫码微信支付：<strong>{{ rechargeLimit }}</strong>元  <span>获 <strong>{{ rechargeLimit * 100 }}</strong> 个蓝青币</span> <span v-show="Number(rechargeLimit) === 20000">送 <strong>2000</strong> 个蓝青币</span> <span v-show="Number(rechargeLimit) === 50000">送 <strong>4000</strong> 个蓝青币</span> <span v-show="Number(rechargeLimit) === 100000">送 <Strong>20000</Strong> 个蓝青币</span></span>
           <div :class="{complete: wxFlag}">
             {{ wxContent }}
           </div>
@@ -467,14 +467,14 @@ export default {
   }
   .el-radio {
     display: flex;
-    width: 105px;
+    width: 140px;
     height: 38px;
     padding-left: 11px;
     line-height: 38px;
     margin: 0 15px 15px 0;
     align-items: center;
     box-sizing: border-box;
-    &:nth-child(4n + 0) {
+    &:nth-child(3n + 0) {
       margin-right: 0;
     }
     &.give {
@@ -484,8 +484,8 @@ export default {
         right: -10px;
         top: 9px;
         display: block;
-        width:40px;
         height:20px;
+        padding: 0 5px;
         background:rgba(252,90,90,1);
         border-radius:3px;
         font-size:10px;
