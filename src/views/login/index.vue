@@ -81,12 +81,11 @@
 <script>
 import { getValidCode, getMessage } from '@/api/user.js'
 import { rongyunMixins } from '@/views/mixins/rongyun'
-import { getExamine, getStore } from '@/api/business.js'
-import { setLocal } from '@/utils/local'
+import { loginStatus } from '@/views/mixins/login'
 
 export default {
   name: 'Login',
-  mixins: [rongyunMixins],
+  mixins: [rongyunMixins, loginStatus],
   data() {
     return {
       content: '获取验证码',
@@ -175,7 +174,9 @@ export default {
         this.validCodeForm.img = res.data
       })
     },
-
+    loginSuccess() {
+      this.$router.replace({ path: '/home' })
+    },
     // 登录
     onLogin() {
       if (!this.docWrite) return this.$warn('请勾选阅读协议')
@@ -195,18 +196,7 @@ export default {
           this.initObj.token = res.data.token
           this.$store.commit('user/SET_USERID', res.data.token)
           this.initCloud(null)
-
-          getExamine().then(res => {
-            if (res.code) return this.$warn(res.message)
-            setLocal('examineStatus', res.data.status)
-            if (Number(res.data.status) === 1) {
-              getStore().then(res => {
-                if (res.code) return this.$warn(res.message)
-                setLocal('storeStatus', res.data.status)
-              })
-            }
-            this.$router.replace({ path: '/home' })
-          })
+          this.getStatus(this.loginSuccess)
         })
         .catch(() => {
           this.loading = false

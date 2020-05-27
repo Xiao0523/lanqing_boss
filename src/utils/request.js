@@ -7,7 +7,7 @@ import { getLocal } from '@/utils/local'
 // import { getToken } from '@/utils/auth'
 
 const whiteAuthApi = ['/boss/v2/examine']
-const whiteStoreApi = ['/boss/v2/store']
+const whiteStoreApi = ['/boss/v2/store', '/boss/v2/category']
 
 // create an axios instance
 const service = axios.create({
@@ -27,9 +27,13 @@ service.interceptors.request.use(
   config => {
     const urlKey = config.url.split('/')[1]
     const urlConst = config.url.split('.com/')[0]
+    const urlIndex = config.url.indexOf(whiteStoreApi[1])
     if (urlKey === 'boss') {
-      if (!whiteAuthApi.includes(urlConst) && (Number(getLocal('examineStatus')) !== 1 || (!whiteStoreApi.includes(urlConst) && Number(getLocal('examineStatus')) === 1 && Number(getLocal('storeStatus')) !== 1))) {
-        return Promise.reject(new Error(''))
+      if (Number(getLocal('examineStatus')) !== 1) {
+        if (!whiteAuthApi.includes(urlConst)) return Promise.reject(new Error(''))
+      }
+      if (Number(getLocal('storeStatus')) !== 1) {
+        if (!whiteAuthApi.includes(urlConst) && !(whiteStoreApi.includes(urlConst) || urlIndex !== -1)) return Promise.reject(new Error(''))
       }
     }
     const strUrl = config.url.split('/').includes('ChinaCity')

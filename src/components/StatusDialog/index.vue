@@ -17,8 +17,10 @@
 
 <script>
 import { getLocal } from '@/utils/local'
+import { loginStatus } from '@/views/mixins/login'
 export default {
   name: 'StatusDialog',
+  mixins: [loginStatus],
   data() {
     return {
       centerDialogVisible: false,
@@ -35,20 +37,25 @@ export default {
   },
   watch: {
     $route(to) {
-      if (!this.whiteList.includes(this.$route.path) && Number(this.status) && Number(this.status) !== 1) {
-        this.centerDialogVisible = true
-      }
+      this.getStatus(this.isStatus(this.$route.path))
     }
   },
   mounted() {
-    if (!this.whiteList.includes(this.$route.path) && Number(this.status) && Number(this.status) !== 1) {
-      this.centerDialogVisible = true
-    }
+    this.getStatus(this.isStatus(this.$route.path))
   },
   methods: {
     goBusiness() {
       this.centerDialogVisible = false
       this.$router.replace({ name: 'Authentication' })
+    },
+    isStatus(path) {
+      if (this.whiteList.includes(path)) return
+      if (Number(this.status) && Number(this.status) !== 1) {
+        this.centerDialogVisible = true
+      }
+      if (Number(this.storeStatus) && Number(this.storeStatus) !== 1) {
+        this.centerDialogVisible = true
+      }
     }
   }
 }
