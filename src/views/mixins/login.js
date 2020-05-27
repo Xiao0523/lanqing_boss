@@ -13,6 +13,7 @@ export const loginStatus = {
             setLocal('storeStatus', res.data.status)
           })
         }
+        return callback && callback()
       })
       callback && callback()
     }
