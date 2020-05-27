@@ -50,10 +50,7 @@ export default {
     },
     isStatus(path) {
       if (this.whiteList.includes(path)) return
-      if (Number(this.status) && Number(this.status) !== 1) {
-        this.centerDialogVisible = true
-      }
-      if (Number(this.storeStatus) && Number(this.storeStatus) !== 1) {
+      if (!(Number(this.status)) && Number(this.status) !== 1) {
         this.centerDialogVisible = true
       }
     }
