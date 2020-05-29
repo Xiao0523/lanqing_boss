@@ -37,21 +37,23 @@ export default {
   },
   watch: {
     $route(to) {
-      this.getStatus(this.isStatus(this.$route.path))
+      this.getStatus(this.isLoginStatus(this.$route.path, this))
     }
   },
   mounted() {
-    this.getStatus(this.isStatus(this.$route.path))
+    this.getStatus(this.isLoginStatus(this.$route.path, this))
   },
   methods: {
     goBusiness() {
       this.centerDialogVisible = false
       this.$router.replace({ name: 'Authentication' })
     },
-    isStatus(path) {
-      if (this.whiteList.includes(path)) return
-      if (!(Number(this.status)) && Number(this.status) !== 1) {
-        this.centerDialogVisible = true
+    isLoginStatus(path, _this) {
+      return function(path) {
+        if (_this.whiteList.includes(path)) return
+        if (!(Number(getLocal('examineStatus'))) || Number(getLocal('examineStatus')) !== 1) {
+          _this.centerDialogVisible = true
+        }
       }
     }
   }

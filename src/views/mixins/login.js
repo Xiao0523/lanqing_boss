@@ -3,17 +3,22 @@ import { setLocal } from '@/utils/local'
 
 export const loginStatus = {
   methods: {
-    getStatus(callback, loginFlag = false) {
+    getStatus(callback) {
       getExamine().then(res => {
         if (res.code) return this.$warn(res.message)
         setLocal('examineStatus', res.data.status)
-        if (!(Number(res.data.status) !== 1) && !loginFlag) return callback && callback()
+        if (!(res.data.status === 1)) return callback && callback()
         getStore().then(res => {
           if (res.code) return this.$warn(res.message)
           setLocal('storeStatus', res.data.status)
         })
       })
-      if (loginFlag) return callback && callback()
+      // if (loginFlag) {
+      //   console.log(typeof loginFlag, loginFlag)
+      //   console.log('this go 1')
+      //   console.log(callback)
+      //   return callback && callback()
+      // }
     }
   }
 }
