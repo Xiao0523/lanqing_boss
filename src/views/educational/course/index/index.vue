@@ -169,7 +169,7 @@ export default {
       })
     },
     goEdit() {
-      if (getLocal('examineStatus') !== 1 && getLocal('storeStatus') !== 1) {
+      if (getLocal('examineStatus') !== 1 || getLocal('storeStatus') !== 1) {
         this.$warn('请先前往店铺认证！！！')
         return
       }

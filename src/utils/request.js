@@ -35,7 +35,7 @@ service.interceptors.request.use(
         if (!whiteAuthApi.includes(urlConst)) return Promise.reject(new Error(''))
       }
       if (Number(getLocal('storeStatus')) !== 1) {
-        console.log(!whiteAuthApi.includes(urlConst) && !judgeIndex(whiteStoreApi, config.url), config.url)
+        // console.log(!whiteAuthApi.includes(urlConst) && !judgeIndex(whiteStoreApi, config.url), config.url)
         if (!whiteAuthApi.includes(urlConst) && !judgeIndex(whiteStoreApi, config.url)) return Promise.reject(new Error(''))
       }
     }
