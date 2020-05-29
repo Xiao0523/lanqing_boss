@@ -196,7 +196,7 @@ export default {
           this.initObj.token = res.data.token
           this.$store.commit('user/SET_USERID', res.data.token)
           this.initCloud(null)
-          this.getStatus(this.loginSuccess)
+          this.getStatus(this.loginSuccess, true)
         })
         .catch(() => {
           this.loading = false
