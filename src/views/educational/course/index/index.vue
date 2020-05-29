@@ -170,7 +170,8 @@ export default {
     },
     goEdit() {
       if (getLocal('examineStatus') !== 1 || getLocal('storeStatus') !== 1) {
-        this.$warn('请先前往店铺认证！！！')
+        const val = getLocal('examineStatus') !== 1 ? '请先前往店铺认证！！！' : '请先前往店铺上架！！！'
+        this.$warn(val)
         return
       }
       this.$router.push({ name: 'CourseEdit' })
