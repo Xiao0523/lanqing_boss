@@ -31,7 +31,7 @@
 
         <el-tab-pane name="store">
           <span slot="label">店铺上架</span>
-          <div v-if="authStatus === 1">
+          <div v-show="Number(authStatus) === 1">
             <div v-if="storeStatus == 0 || storeStatus == 1 || storeStatus == 6 || storeStatus == ''" class="auth">
               <div class="tabels">
                 <h3 class="title">上架状态<span :class="{red: storeStatus == 0 || storeStatus == 6 || storeStatus == ''}">{{ storeStatus | storeStr }}</span></h3>
@@ -61,7 +61,7 @@
               </div>
             </div>
           </div>
-          <div v-else class="no-store-box">
+          <div v-show="Number(authStatus) !== 1" class="no-store-box">
             <img src="@/assets/no-store.png" alt="">
             <span>完成店铺认证后，可操作店铺上架</span>
             <el-button class="btns" @click="goAuth">去认证</el-button>
@@ -109,6 +109,11 @@ export default {
       storeLogInfo: '',
       storeList: {},
       tabNames: 'auth'
+    }
+  },
+  watch: {
+    tabNames() {
+      this.getBusiness()
     }
   },
   mounted() {
