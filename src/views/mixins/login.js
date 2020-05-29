@@ -7,7 +7,7 @@ export const loginStatus = {
       getExamine().then(res => {
         if (res.code) return this.$warn(res.message)
         setLocal('examineStatus', res.data.status)
-        if (Number(res.data.status) !== 1 && !loginFlag) return callback && callback()
+        if (Number(res.data.status) === 1 && !loginFlag) return callback && callback()
         getStore().then(res => {
           if (res.code) return this.$warn(res.message)
           setLocal('storeStatus', res.data.status)
