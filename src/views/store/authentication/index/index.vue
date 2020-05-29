@@ -31,32 +31,34 @@
 
         <el-tab-pane name="store">
           <span slot="label">店铺上架</span>
-          <div v-if="storeStatus == 0 || storeStatus == 1 || storeStatus == 6 || storeStatus == ''" class="auth">
-            <div class="tabels">
-              <h3 class="title">上架状态<span :class="{red: storeStatus == 0 || storeStatus == 6 || storeStatus == ''}">{{ storeStatus | storeStr }}</span></h3>
-              <div v-if="storeStatus == 1" class="storeBtn" @click="storeBtns">申请下架</div>
-              <div v-if="storeStatus == 6" class="storeBtn" @click="resetStorePost">申请上架</div>
-            </div>
-            <store-input v-if="storeStatus == 0 || storeStatus == ''" :list="storeList" @listOk="resetStore" />
-            <store-detail v-if="storeStatus == 1 || storeStatus == 6" :list="storeList" />
-          </div>
-          <div v-else-if="storeStatus == 2 || storeStatus == 3 || storeStatus == 4 || storeStatus == 5" class="result">
-            <div v-if="storeStatus == 2 || storeStatus == 4">
-              <h4 class="title">{{ storeStatus | storeStrs }}</h4>
-              <div class="result-img-wraper">
-                <img class="result-img" src="@/assets/wite.png" alt="">
+          <div v-if="authStatus === 1">
+            <div v-if="storeStatus == 0 || storeStatus == 1 || storeStatus == 6 || storeStatus == ''" class="auth">
+              <div class="tabels">
+                <h3 class="title">上架状态<span :class="{red: storeStatus == 0 || storeStatus == 6 || storeStatus == ''}">{{ storeStatus | storeStr }}</span></h3>
+                <div v-if="storeStatus == 1" class="storeBtn" @click="storeBtns">申请下架</div>
+                <div v-if="storeStatus == 6" class="storeBtn" @click="resetStorePost">申请上架</div>
               </div>
-              <p class="result-text">工作人员会在48小时内完成审核</p>
-              <p class="result-text">请耐心等待</p>
+              <store-input v-if="storeStatus == 0 || storeStatus == ''" :list="storeList" @listOk="resetStore" />
+              <store-detail v-if="storeStatus == 1 || storeStatus == 6" :list="storeList" />
             </div>
-            <div v-if="storeStatus == 3 || storeStatus == 5">
-              <div class="result-img-wraper" style="margin-top: 50px">
-                <img class="result-img" src="@/assets/warn.png" alt="">
+            <div v-else-if="storeStatus == 2 || storeStatus == 3 || storeStatus == 4 || storeStatus == 5" class="result">
+              <div v-if="storeStatus == 2 || storeStatus == 4">
+                <h4 class="title">{{ storeStatus | storeStrs }}</h4>
+                <div class="result-img-wraper">
+                  <img class="result-img" src="@/assets/wite.png" alt="">
+                </div>
+                <p class="result-text">工作人员会在48小时内完成审核</p>
+                <p class="result-text">请耐心等待</p>
               </div>
-              <p class="result-text">审核失败</p>
-              <p class="result-text">失败原因是：{{ logInfo }}</p>
-              <el-button v-show="storeStatus == 3" class="result-btn" type="primary" @click="resetStorePost">重新提交上架</el-button>
-              <el-button v-show="storeStatus == 5" class="result-btn" type="primary" @click="resetGo">重新提交下架</el-button>
+              <div v-if="storeStatus == 3 || storeStatus == 5">
+                <div class="result-img-wraper" style="margin-top: 50px">
+                  <img class="result-img" src="@/assets/warn.png" alt="">
+                </div>
+                <p class="result-text">审核失败</p>
+                <p class="result-text">失败原因是：{{ logInfo }}</p>
+                <el-button v-show="storeStatus == 3" class="result-btn" type="primary" @click="resetStorePost">重新提交上架</el-button>
+                <el-button v-show="storeStatus == 5" class="result-btn" type="primary" @click="resetGo">重新提交下架</el-button>
+              </div>
             </div>
           </div>
           <div v-else class="no-store-box">

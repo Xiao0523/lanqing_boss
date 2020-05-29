@@ -5,9 +5,10 @@ import store from '@/store'
 import { Api_url, Web_Api_url } from '@/api/URL'
 import { getLocal } from '@/utils/local'
 // import { getToken } from '@/utils/auth'
+import { judgeIndex } from '@/utils/judge'
 
 const whiteAuthApi = ['/boss/v2/examine']
-const whiteStoreApi = ['/boss/v2/store', '/boss/v2/category']
+const whiteStoreApi = ['/boss/v2/store', '/boss/v2/category', '/wx/pay', '/ChinaCity']
 
 // create an axios instance
 const service = axios.create({
@@ -27,13 +28,15 @@ service.interceptors.request.use(
   config => {
     const urlKey = config.url.split('/')[1]
     const urlConst = config.url.split('.com/')[0]
-    const urlIndex = config.url.indexOf(whiteStoreApi[1])
+    // const urlIndex = config.url.indexOf(whiteStoreApi[1])
+    // const payIndex = config.url.indexOf(whiteStoreApi[2])
     if (urlKey === 'boss') {
       if (Number(getLocal('examineStatus')) !== 1) {
         if (!whiteAuthApi.includes(urlConst)) return Promise.reject(new Error(''))
       }
       if (Number(getLocal('storeStatus')) !== 1) {
-        if (!whiteAuthApi.includes(urlConst) && !(whiteStoreApi.includes(urlConst) || urlIndex !== -1)) return Promise.reject(new Error(''))
+        console.log(!whiteAuthApi.includes(urlConst) && !judgeIndex(whiteStoreApi, config.url), config.url)
+        if (!whiteAuthApi.includes(urlConst) && !judgeIndex(whiteStoreApi, config.url)) return Promise.reject(new Error(''))
       }
     }
     const strUrl = config.url.split('/').includes('ChinaCity')
