@@ -70,7 +70,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="班型">
-              <el-input v-model.number="content.enrolment" placeholder="请输入班级人数" />
+              <el-input v-model.number="content.enrolment" placeholder="请输入班级人数(1-999内的数字)" />
             </el-form-item>
           </el-col>
         </el-row>
