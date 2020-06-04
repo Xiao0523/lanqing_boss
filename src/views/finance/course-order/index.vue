@@ -40,7 +40,7 @@
           </template>
         </el-table-column>
         <el-table-column label="学员昵称" prop="curriculumName" />
-        <el-table-column label="手机号" prop="payPrice" />
+        <el-table-column label="手机号" prop="phone" />
         <el-table-column label="订单状态" prop="statusDescription" />
         <el-table-column label="课程名称" prop="curriculumName" />
         <el-table-column label="课程价格" prop="price" />
